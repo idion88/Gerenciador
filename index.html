@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Pagamentos - Seguro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f4f8;
+            padding: 15px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        /* ===== TELA DE LOGIN ===== */
+        #telaLogin {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0052cc;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-login {
+            background: white;
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+        }
+        .card-login h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        .login-campo {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        .login-campo label {
+            font-weight: bold;
+            color: #34495e;
+            font-size: 14px;
+        }
+        .login-campo input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 5px;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-login:hover {
+            background-color: #219653;
+        }
+        .erro-login {
+            color: #e74c3c;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+        .info-usuario {
+            background-color: #2c3e50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn-sair {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* ===== ESTILOS GERAIS ===== */
+        .abas {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: -1px;
+            flex-wrap: wrap;
+        }
+        .aba {
+            padding: 12px 15px;
+            background-color: #ecf0f1;
+            cursor: pointer;
+            font-weight: bold;
+            color: #34495e;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            text-align: center;
+            font-size: 14px;
+            flex: 1;
+            min-width: 120px;
+        }
+        .aba.ativa {
+            background-color: white;
+            color: #27ae60;
+            border-bottom: 3px solid #27ae60;
+        }
+        .aba:hover:not(.ativa):not(.bloqueada) {
+            background-color: #d0d7d9;
+        }
+        .aba.bloqueada {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .conteudo {
+            background: white;
+            padding: 25px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        .aba-conteudo {
+            display: none;
+        }
+        .aba-conteudo.ativa {
+            display: block;
+        }
+
+        .campos {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .campo-linha {
+            grid-column: 1 / -1;
+        }
+        .campo {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        input, select, textarea {
+            padding: 10px 8px;
+            border: 2px solid #bdc3c7;
+            border-radius: 8px;
+            font-size: 16px;
+            height: 45px;
+            width: 100%;
+            background-color: #fff;
+        }
+        textarea {
+            height: 80px;
+            resize: none;
+        }
+        input:disabled, select:disabled, textarea:disabled {
+            background-color: #f3f3f3;
+            color: #666;
+            border-color: #ddd;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #27ae60;
+            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.1);
+        }
+        .botao {
+            padding: 12px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .botao:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .botao:hover:not(:disabled) {
+            background-color: #219653;
+        }
+        .botao-menor {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        .botao-editar {
+            background-color: #f39c12;
+        }
+        .botao-editar:hover:not(:disabled) {
+            background-color: #e67e22;
+        }
+        .botao-apagar {
+            background-color: #e74c3c;
+        }
+        .botao-apagar:hover:not(:disabled) {
+            background-color: #c0392b;
+        }
+        .botao-exportar {
+            background-color: #3498db;
+            margin-bottom: 15px;
+        }
+        .botao-exportar:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        .botao-importar {
+            background-color: #9b59b6;
+        }
+        .botao-importar:hover:not(:disabled) {
+            background-color: #8e44ad;
+        }
+        .botoes-topo {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .aviso {
+            margin-top: 15px;
+            text-align: center;
+            color: #e74c3c;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            padding: 8px;
+            background-color: rgba(231, 76, 60, 0.1);
+            border-radius: 6px;
+        }
+        .sucesso {
+            color: #27ae60;
+            background-color: rgba(39, 174, 96, 0.1);
+            display: none;
+        }
+        .info-backup {
+            background-color: #eaf2f8;
+            padding: 15px;
+            border-radius: 8px;
+            color: #2c3e50;
+            font-size: 14px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .tabela-container {
+            overflow-x: auto;
+            margin-top: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 8px 6px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #27ae60;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f8f2;
+        }
+        .valor-centro {
+            text-align: center;
+        }
+        .valor-direita {
+            text-align: right;
+        }
+        .soma-total {
+            font-weight: bold;
+            font-size: 16px;
+            background-color: #ecf0f1;
+        }
+        .lucro-positivo {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .lucro-negativo {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 20px;
+        }
+        .modal-conteudo {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 25px;
+            border: 1px solid #888;
+            width: 95%;
+            max-width: 600px;
+            border-radius: 12px;
+            position: relative;
+        }
+        .fechar {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: -10px;
+        }
+        .fechar:hover, .fechar:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .logo-preview {
+            max-width: 200px;
+            max-height: 100px;
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== TELA DE LOGIN ===== -->
+    <div id="telaLogin">
+        <div class="card-login">
+            <h2>🔐 Acesso ao Sistema</h2>
+            <div class="login-campo">
+                <label>Usuário:</label>
+                <input type="text" id="usuarioLogin" placeholder="Digite seu usuário" autocomplete="off">
+            </div>
+            <div class="login-campo">
+                <label>Senha:</label>
+                <input type="password" id="senhaLogin" placeholder="Digite sua senha">
+            </div>
+            <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+            <div class="erro-login" id="erroLogin">Usuário ou senha incorretos!</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>📋 Gerenciador de Pagamentos</h1>
+
+        <div class="info-usuario">
+            <span>Usuário: <strong id="nomeUsuarioLogado">-</strong> | Nível: <strong id="nivelUsuarioLogado">-</strong></span>
+            <button class="btn-sair" onclick="sairSistema()">Sair</button>
+        </div>
+
+        <div class="abas">
+            <div class="aba ativa" onclick="mostrarAba(0)">Cadastrar Cliente</div>
+            <div class="aba" onclick="mostrarAba(1)">Clientes Cadastrados</div>
+            <div class="aba" onclick="mostrarAba(2)">Relatório Semanal</div>
+            <div class="aba" onclick="mostrarAba(3)">Resumo de Vendas</div>
+            <div class="aba" onclick="mostrarAba(4)">Backup</div>
+            <div class="aba" onclick="mostrarAba(5)" id="abaUsuarios">Usuários</div>
+            <div class="aba" onclick="mostrarAba(6)">Empresa</div>
+        </div>
+
+        <!-- CONTEÚDO: CADASTRAR CLIENTE -->
+        <div class="conteudo aba-conteudo ativa">
+            <div class="campos">
+                <div class="campo campo-linha">
+                    <label>Nome do Cliente:</label>
+                    <input type="text" id="nome" placeholder="Digite o nome completo" required>
+                </div>
+                <div class="campo campo-linha">
+                    <label>Mercadoria / Produto:</label>
+                    <input type="text" id="mercadoria" placeholder="Descrição do produto" required>
+                </div>
+                <div class="campo">
+                    <label>Valor de Custo (Mercadoria R$):</label>
+                    <input type="number" id="valorCusto" min="0" step="0.01" placeholder="0,00" required>
+                </div>
+                <div class="campo">
+                    <label>Valor de Venda (R$):</label>
+                    <input type="number" id="valorVenda" min="0" step="0.01" placeholder="0,00" required>
+                </div>
+                <div class="campo">
+                    <label>Quantidade de Parcelas:</label>
+                    <input type="number" id="qtdParcelas" min="1" max="60" value="1" required>
+                </div>
+                <div class="campo">
+                    <label>Dia do Primeiro Pagamento:</label>
+                    <input type="date" id="dataPrimeira" required>
+                </div>
+                <div class="campo">
+                    <label>Intervalo de Pagamento:</label>
+                    <select id="intervalo" required>
+                        <option value="">Escolha...</option>
+                        <option value="semanal">Semanal (7 dias)</option>
+                        <option value="quinzenal">Quinzenal (15 dias)</option>
+                        <option value="mensal">Mensal (mesmo dia todo mês)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="botao" onclick="cadastrarCliente()">💾 Salvar Cliente</button>
+            
+            <div class="aviso" id="avisoCadastro">Preencha todos os campos corretamente!</div>
+            <div class="aviso sucesso" id="sucessoCadastro">✅ Cliente cadastrado com sucesso!</div>
+
+            <div id="resumoParcelas" style="margin-top:25px; display:none;">
+                <h3 style="color:#2c3e50; margin-bottom:10px; border-bottom:1px solid #27ae60; padding-bottom:5px;">📅 Parcelas Geradas</h3>
+                <div class="tabela-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nº Parcela</th>
+                                <th>Data de Vencimento</th>
+                                <th class="valor-direita">Valor (R$)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listaParcelasResumo"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO: CLIENTES CADASTRADOS -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">📑 Lista de Clientes e Rentabilidade</h3>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Mercadoria</th>
+                            <th class="valor-direita">Valor Custo</th>
+                            <th class="valor-direita">Valor Venda</th>
+                            <th class="valor-direita">Lucro (R$)</th>
+                            <th class="valor-centro">Lucro (%)</th>
+                            <th>Parcelas</th>
+                            <th>Intervalo</th>
+                            <th>Primeiro Venc.</th>
+                            <th class="valor-centro">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaClientes"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO: RELATÓRIO SEMANAL -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">📆 Relatório de Recebimentos da Semana</h3>
+            <p style="margin-bottom:15px; color:#7f8c8d; font-size:14px;">Clientes ordenados por nome | Valores por dia da semana</p>
+            <div id="listaRelatorioSemanal"></div>
+            <div id="somaPorDia" style="margin-top:20px; padding:15px; background:#ecf0f1; border-radius:8px;"></div>
+        </div>
+
+        <!-- CONTEÚDO: RESUMO DE VENDAS -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">💰 Resumo Geral de Vendas</h3>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Valor Total</th>
+                            <th>Qtd Parcelas</th>
+                            <th>Data Cadastro</th>
+                            <th class="valor-centro">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resumoVendas"></tbody>
+                    <tfoot>
+                        <tr class="soma-total">
+                            <td colspan="2">TOTAL GERAL</td>
+                            <td id="valorTotalVendas" class="valor-direita">0,00</td>
+                            <td colspan="3"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO: BACKUP -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">💾 Backup e Restauração</h3>
+            <div class="info-backup">
+                <p><strong>Exportar:</strong> Baixa um arquivo com todos os seus dados salvos.</p>
+                <p><strong>Importar:</strong> Restaura todos os dados a partir de um arquivo de backup. <strong>Atenção:</strong> Isso substituirá todos os dados atuais!</p>
+            </div>
+            <button class="botao botao-exportar" onclick="exportarBackup()">⬇️ Exportar Arquivo de Backup</button>
+            <br>
+            <input type="file" id="arquivoBackup" accept=".json" style="display: none;" onchange="importarBackup(event)">
+            <button class="botao botao-importar" onclick="document.getElementById('arquivoBackup').click()">⬆️ Importar Arquivo de Backup</button>
+
+            <div class="aviso sucesso" id="sucessoBackup" style="margin-top:20px;">✅ Operação realizada com sucesso!</div>
+            <div class="aviso" id="erroBackup" style="margin-top:20px;">❌ Erro ao processar o arquivo.</div>
+        </div>
+
+        <!-- CONTEÚDO: GERENCIAR USUÁRIOS -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">👤 Gerenciamento de Usuários</h3>
+            
+            <div class="campos">
+                <div class="campo">
+                    <label>Nome de Usuário:</label>
+                    <input type="text" id="novoUsuario" placeholder="Ex: marcos">
+                </div>
+                <div class="campo">
+                    <label>Senha:</label>
+                    <input type="password" id="novaSenha" placeholder="Digite a senha">
+                </div>
+                <div class="campo">
+                    <label>Nível de Permissão:</label>
+                    <select id="novoNivel">
+                        <option value="total">Acesso Total</option>
+                        <option value="parcial">Acesso Parcial</option>
+                        <option value="leitura">Apenas Leitura</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label style="visibility:hidden;">Botão</label>
+                    <button class="botao" onclick="cadastrarNovoUsuario()">➕ Adicionar Usuário</button>
+                </div>
+            </div>
+
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Nível de Acesso</th>
+                            <th class="valor-centro">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listaUsuarios"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CONTEÚDO: EMPRESA -->
+        <div class="conteudo aba-conteudo">
+            <h3 style="color:#2c3e50; margin-bottom:15px;">🏢 Dados da Empresa</h3>
+
+            <div class="campos">
+                <div class="campo campo-linha">
+                    <label>Nome Fantasia:</label>
+                    <input type="text" id="empresaNomeFantasia" disabled>
+                </div>
+                <div class="campo">
+                    <label>CNPJ:</label>
+                    <input type="text" id="empresaCnpj" disabled>
+                </div>
+                <div class="campo">
+                    <label>Inscrição Estadual:</label>
+                    <input type="text" id="empresaIe" disabled>
+                </div>
+                <div class="campo campo-linha">
+                    <label>Endereço Completo:</label>
+                    <textarea id="empresaEndereco" disabled></textarea>
+                </div>
+                <div class="campo campo-linha">
+                    <label>Logomarca:</label>
+                    <input type="file" id="empresaLogoInput" accept="image/*" style="display: none;" onchange="carregarLogo(event)" disabled>
+                    <button class="botao botao-menor" type="button" id="btnEscolherLogo" onclick="document.getElementById('empresaLogoInput').click()" disabled>📁 Escolher Imagem</button>
+                    <div>
+                        <img id="logoPreview" class="logo-preview" alt="Logomarca da Empresa">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button class="botao botao-editar" id="btnEditarEmpresa" onclick="editarDadosEmpresa()">✏️ Editar Dados</button>
+                <button class="botao" id="btnSalvarEmpresa" onclick="salvarDadosEmpresa()" style="display: none;">💾 Salvar Dados</button>
+            </div>
+
+            <div class="aviso sucesso" id="sucessoEmpresa">✅ Dados da empresa salvos com sucesso!</div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DETALHES -->
+    <div id="modalDetalhe" class="modal">
+        <div class="modal-conteudo">
+            <span class="fechar" onclick="fecharModal()">&times;</span>
+            
+            <div class="botoes-topo">
+                <button class="botao botao-apagar" id="btnApagar" onclick="apagarCliente()">🗑️ Apagar</button>
+                <button class="botao botao-editar" id="btnEditar" onclick="habilitarEdicao()">✏️ Editar</button>
+                <button class="botao" id="btnSalvar" onclick="salvarEdicao()" style="display:none;">💾 Salvar</button>
+            </div>
+
+            <h2 style="text-align:center; color:#2c3e50; margin-bottom:20px;" id="tituloModal"></h2>
+
+            <div class="campos dados-cliente">
+                <div class="campo campo-linha">
+                    <label>Nome:</label>
+                    <input type="text" id="det-nome" disabled>
+                </div>
+                <div class="campo campo-linha">
+                    <label>Produto/Mercadoria:</label>
+                    <input type="text" id="det-mercadoria" disabled>
+                </div>
+                <div class="campo">
+                    <label>Valor Custo (R$):</label>
+                    <input type="number" id="det-custo" step="0.01" disabled>
+                </div>
+                <div class="campo">
+                    <label>Valor Venda (R$):</label>
+                    <input type="number" id="det-venda" step="0.01" disabled>
+                </div>
+                <div class="campo">
+                    <label>Quantidade de Parcelas:</label>
+                    <input type="number" id="det-qtd" disabled>
+                </div>
+                <div class="campo">
+                    <label>Intervalo:</label>
+                    <select id="det-intervalo" disabled>
+                        <option value="semanal">Semanal</option>
+                        <option value="quinzenal">Quinzenal</option>
+                        <option value="mensal">Mensal</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Primeiro Vencimento:</label>
+                    <input type="date" id="det-data" disabled>
+                </div>
+            </div>
+
+            <h4 style="margin:20px 0 10px; border-bottom:1px solid #27ae60; padding-bottom:5px;">📅 Datas de Pagamento</h4>
+            <div class="tabela-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nº</th>
+                            <th>Data</th>
+                            <th class="valor-direita">Valor (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="det-lista-parcelas"></tbody>
+                </table>
+            </div>
+
+            <div class="aviso sucesso" id="sucessoEdicao">✅ Dados atualizados com sucesso!</div>
+        </div>
+    </div>
+
+    <script>
+        // ======================
+        // FUNÇÕES DE SEGURANÇA
+        // ======================
+        
+        async function hashPassword(password) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        function sanitizarHTML(texto) {
+            if (!texto) return '';
+            const div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        // ======================
+        // VARIÁVEIS GLOBAIS
+        // ======================
+        let usuarioLogado = null;
+        let bancoDados = [];
+        let bancoUsuarios = [];
+        let dadosEmpresa = {};
+
+        // ======================
+        // FUNÇÕES DE INICIALIZAÇÃO
+        // ======================
+        
+        async function inicializarUsuariosPadrao() {
+            const hashAdmin = await hashPassword("131188");
+            const hashMarcos = await hashPassword("@Santana13");
+            
+            const usuarios = [
+                { usuario: "admin", senha: hashAdmin, nivel: "total" },
+                { usuario: "marcos", senha: hashMarcos, nivel: "parcial" }
+            ];
+            localStorage.setItem('gerenciadorUsuarios', JSON.stringify(usuarios));
+            return usuarios;
+        }
+
+        async function carregarDados() {
+            // Carregar usuários
+            const usuariosSalvos = localStorage.getItem('gerenciadorUsuarios');
+            if (usuariosSalvos) {
+                bancoUsuarios = JSON.parse(usuariosSalvos);
+            } else {
+                bancoUsuarios = await inicializarUsuariosPadrao();
+            }
+            
+            // Carregar clientes
+            const clientesSalvos = localStorage.getItem('gerenciadorPagamentos');
+            if (clientesSalvos) {
+                bancoDados = JSON.parse(clientesSalvos);
+                bancoDados = bancoDados.map(cliente => ({
+                    id: cliente.id || crypto.randomUUID(),
+                    nome: sanitizarHTML(cliente.nome || ''),
+                    mercadoria: sanitizarHTML(cliente.mercadoria || ''),
+                    valorCusto: cliente.valorCusto || 0,
+                    valorVenda: cliente.valorVenda || cliente.valorTotal || 0,
+                    qtdParcelas: cliente.qtdParcelas || 1,
+                    intervalo: cliente.intervalo || 'mensal',
+                    dataPrimeira: cliente.dataPrimeira || new Date().toISOString().split('T')[0],
+                    parcelas: cliente.parcelas || [],
+                    dataCadastro: cliente.dataCadastro || new Date().toISOString().split('T')[0]
+                }));
+            } else {
+                bancoDados = [];
+            }
+            
+            // Carregar dados da empresa
+            const empresaSalva = localStorage.getItem('dadosEmpresa');
+            dadosEmpresa = empresaSalva ? JSON.parse(empresaSalva) : {
+                nomeFantasia: '',
+                cnpj: '',
+                ie: '',
+                endereco: '',
+                logo: ''
+            };
+        }
+
+        // ======================
+        // FUNÇÕES DE LOGIN (CORRIGIDAS)
+        // ======================
+        
+        async function fazerLogin() {
+            const user = document.getElementById('usuarioLogin').value.trim();
+            const pass = document.getElementById('senhaLogin').value;
+
+            if (!user || !pass) {
+                document.getElementById('erroLogin').textContent = 'Preencha usuário e senha!';
+                document.getElementById('erroLogin').style.display = 'block';
+                setTimeout(() => { document.getElementById('erroLogin').style.display = 'none'; }, 3000);
+                return;
+            }
+
+            // Recarregar usuários do localStorage para garantir dados atualizados
+            const usuariosSalvos = localStorage.getItem('gerenciadorUsuarios');
+            if (usuariosSalvos) {
+                bancoUsuarios = JSON.parse(usuariosSalvos);
+            }
+
+            const senhaHash = await hashPassword(pass);
+            const encontrado = bancoUsuarios.find(u => u.usuario === user && u.senha === senhaHash);
+
+            if(encontrado) {
+                usuarioLogado = { usuario: encontrado.usuario, nivel: encontrado.nivel };
+                localStorage.setItem('sessaoUsuario', JSON.stringify(usuarioLogado));
+                document.getElementById('telaLogin').style.display = 'none';
+                atualizarInterfacePermissoes();
+                carregarDadosEmpresa();
+                
+                // Limpar campos de login
+                document.getElementById('usuarioLogin').value = '';
+                document.getElementById('senhaLogin').value = '';
+                document.getElementById('erroLogin').style.display = 'none';
+            } else {
+                document.getElementById('erroLogin').textContent = 'Usuário ou senha incorretos!';
+                document.getElementById('erroLogin').style.display = 'block';
+                setTimeout(() => { document.getElementById('erroLogin').style.display = 'none'; }, 3000);
+            }
+        }
+
+        function verificarSessao() {
+            const sessaoSalva = localStorage.getItem('sessaoUsuario');
+            if(sessaoSalva) {
+                usuarioLogado = JSON.parse(sessaoSalva);
+                document.getElementById('telaLogin').style.display = 'none';
+                atualizarInterfacePermissoes();
+                carregarDadosEmpresa();
+            } else {
+                document.getElementById('telaLogin').style.display = 'flex';
+            }
+        }
+
+        function sairSistema() {
+            usuarioLogado = null;
+            localStorage.removeItem('sessaoUsuario');
+            
+            // Resetar interface
+            document.getElementById('nomeUsuarioLogado').textContent = '-';
+            document.getElementById('nivelUsuarioLogado').textContent = '-';
+            
+            // Mostrar tela de login
+            document.getElementById('telaLogin').style.display = 'flex';
+            
+            // Limpar campos de login
+            document.getElementById('usuarioLogin').value = '';
+            document.getElementById('senhaLogin').value = '';
+            document.getElementById('erroLogin').style.display = 'none';
+            
+            // Recarregar dados para garantir consistência
+            carregarDados();
+            
+            console.log('Sessão encerrada. Faça login novamente.');
+        }
+
+        function atualizarInterfacePermissoes() {
+            document.getElementById('nomeUsuarioLogado').textContent = usuarioLogado.usuario;
+            document.getElementById('nivelUsuarioLogado').textContent = usuarioLogado.nivel.toUpperCase();
+
+            const abaUsuarios = document.getElementById('abaUsuarios');
+            if(usuarioLogado.nivel === 'total') {
+                abaUsuarios.style.display = 'flex';
+            } else {
+                abaUsuarios.style.display = 'none';
+                if(document.querySelectorAll('.aba')[5] && document.querySelectorAll('.aba')[5].classList.contains('ativa')) {
+                    mostrarAba(0);
+                }
+            }
+
+            const botoes = document.querySelectorAll('.botao:not(.btn-sair):not(.fechar)');
+            botoes.forEach(btn => {
+                btn.disabled = (usuarioLogado.nivel === 'leitura');
+            });
+
+            if(usuarioLogado.nivel === 'parcial') {
+                const btnApagar = document.getElementById('btnApagar');
+                if(btnApagar) btnApagar.disabled = true;
+                const btnExport = document.querySelector('.botao-exportar');
+                if(btnExport) btnExport.disabled = true;
+                const btnImport = document.querySelector('.botao-importar');
+                if(btnImport) btnImport.disabled = true;
+            }
+        }
+
+        // ======================
+        // FUNÇÕES DA EMPRESA
+        // ======================
+        function carregarDadosEmpresa() {
+            document.getElementById('empresaNomeFantasia').value = dadosEmpresa.nomeFantasia || '';
+            document.getElementById('empresaCnpj').value = dadosEmpresa.cnpj || '';
+            document.getElementById('empresaIe').value = dadosEmpresa.ie || '';
+            document.getElementById('empresaEndereco').value = dadosEmpresa.endereco || '';
+            
+            if(dadosEmpresa.logo) {
+                document.getElementById('logoPreview').src = dadosEmpresa.logo;
+                document.getElementById('logoPreview').style.display = 'block';
+            } else {
+                document.getElementById('logoPreview').style.display = 'none';
+            }
+        }
+
+        function editarDadosEmpresa() {
+            if(usuarioLogado?.nivel === 'leitura') return;
+
+            document.getElementById('empresaNomeFantasia').disabled = false;
+            document.getElementById('empresaCnpj').disabled = false;
+            document.getElementById('empresaIe').disabled = false;
+            document.getElementById('empresaEndereco').disabled = false;
+            document.getElementById('empresaLogoInput').disabled = false;
+            document.getElementById('btnEscolherLogo').disabled = false;
+
+            document.getElementById('btnEditarEmpresa').style.display = 'none';
+            document.getElementById('btnSalvarEmpresa').style.display = 'block';
+            document.getElementById('sucessoEmpresa').style.display = 'none';
+        }
+
+        function salvarDadosEmpresa() {
+            dadosEmpresa.nomeFantasia = sanitizarHTML(document.getElementById('empresaNomeFantasia').value);
+            dadosEmpresa.cnpj = sanitizarHTML(document.getElementById('empresaCnpj').value);
+            dadosEmpresa.ie = sanitizarHTML(document.getElementById('empresaIe').value);
+            dadosEmpresa.endereco = sanitizarHTML(document.getElementById('empresaEndereco').value);
+
+            localStorage.setItem('dadosEmpresa', JSON.stringify(dadosEmpresa));
+
+            document.getElementById('empresaNomeFantasia').disabled = true;
+            document.getElementById('empresaCnpj').disabled = true;
+            document.getElementById('empresaIe').disabled = true;
+            document.getElementById('empresaEndereco').disabled = true;
+            document.getElementById('empresaLogoInput').disabled = true;
+            document.getElementById('btnEscolherLogo').disabled = true;
+
+            document.getElementById('btnEditarEmpresa').style.display = 'block';
+            document.getElementById('btnSalvarEmpresa').style.display = 'none';
+            document.getElementById('sucessoEmpresa').style.display = 'block';
+
+            setTimeout(() => { document.getElementById('sucessoEmpresa').style.display = 'none'; }, 3000);
+        }
+
+        function carregarLogo(event) {
+            const arquivo = event.target.files[0];
+            if (arquivo) {
+                const leitor = new FileReader();
+                leitor.onload = function(e) {
+                    dadosEmpresa.logo = e.target.result;
+                    document.getElementById('logoPreview').src = e.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                    localStorage.setItem('dadosEmpresa', JSON.stringify(dadosEmpresa));
+                };
+                leitor.readAsDataURL(arquivo);
+            }
+        }
+
+        // ======================
+        // FUNÇÕES DE CÁLCULO
+        // ======================
+        function calcularDataCorreta(dataBase, indiceParcela, tipoIntervalo) {
+            if (tipoIntervalo === 'mensal') {
+                const diaEscolhido = dataBase.getDate();
+                let ano = dataBase.getFullYear();
+                let mes = dataBase.getMonth() + indiceParcela;
+                let ultimoDia = new Date(ano, mes + 1, 0).getDate();
+                return new Date(ano, mes, Math.min(diaEscolhido, ultimoDia));
+            } 
+            else if (tipoIntervalo === 'semanal') {
+                let novaData = new Date(dataBase);
+                novaData.setDate(novaData.getDate() + (indiceParcela * 7));
+                return novaData;
+            } 
+            else if (tipoIntervalo === 'quinzenal') {
+                let novaData = new Date(dataBase);
+                novaData.setDate(novaData.getDate() + (indiceParcela * 15));
+                return novaData;
+            }
+            return dataBase;
+        }
+
+        function formatarData(dataISO) {
+            const d = new Date(dataISO + "T00:00:00");
+            return d.toLocaleDateString('pt-BR');
+        }
+
+        function calcularLucro(custo, venda) {
+            const lucroValor = venda - custo;
+            let lucroPercentual = 0;
+            if(custo > 0) {
+                lucroPercentual = ((lucroValor / custo) * 100).toFixed(2);
+            }
+            return { valor: lucroValor, percentual: lucroPercentual };
+        }
+
+        // ======================
+        // FUNÇÕES DO SISTEMA
+        // ======================
+        function mostrarAba(indice) {
+            if(indice === 5 && usuarioLogado?.nivel !== 'total') return;
+
+            document.querySelectorAll('.aba').forEach((aba, i) => aba.classList.toggle('ativa', i === indice));
+            document.querySelectorAll('.aba-conteudo').forEach((conteudo, i) => conteudo.classList.toggle('ativa', i === indice));
+
+            if(indice === 1) listarClientes();
+            if(indice === 2) relatorioSemanal();
+            if(indice === 3) resumoVendas();
+            if(indice === 5) listarUsuarios();
+        }
+
+        function cadastrarCliente() {
+            if(usuarioLogado?.nivel === 'leitura') return;
+
+            const nome = sanitizarHTML(document.getElementById('nome').value.trim());
+            const mercadoria = sanitizarHTML(document.getElementById('mercadoria').value.trim());
+            const valorCusto = parseFloat(document.getElementById('valorCusto').value) || 0;
+            const valorVenda = parseFloat(document.getElementById('valorVenda').value) || 0;
+            const qtdParcelas = parseInt(document.getElementById('qtdParcelas').value);
+            const dataPrimeira = new Date(document.getElementById('dataPrimeira').value + "T00:00:00");
+            const intervalo = document.getElementById('intervalo').value;
+
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            if(dataPrimeira < hoje) {
+                document.getElementById('avisoCadastro').textContent = 'A data do primeiro pagamento não pode ser no passado!';
+                document.getElementById('avisoCadastro').style.display = 'block';
+                document.getElementById('sucessoCadastro').style.display = 'none';
+                return;
+            }
+
+            if(!nome || !mercadoria || isNaN(qtdParcelas) || isNaN(dataPrimeira.getTime()) || !intervalo) {
+                document.getElementById('avisoCadastro').textContent = 'Preencha todos os campos corretamente!';
+                document.getElementById('avisoCadastro').style.display = 'block';
+                document.getElementById('sucessoCadastro').style.display = 'none';
+                return;
+            }
+            document.getElementById('avisoCadastro').style.display = 'none';
+
+            const valorParcela = valorVenda / qtdParcelas;
+            const parcelas = [];
+            for(let i=0; i<qtdParcelas; i++) {
+                parcelas.push({
+                    numero: i+1,
+                    data: calcularDataCorreta(dataPrimeira, i, intervalo).toISOString().split('T')[0],
+                    valor: valorParcela
+                });
+            }
+
+            bancoDados.push({
+                id: crypto.randomUUID(),
+                nome, mercadoria, valorCusto, valorVenda,
+                qtdParcelas, intervalo, dataPrimeira: dataPrimeira.toISOString().split('T')[0],
+                parcelas, dataCadastro: new Date().toISOString().split('T')[0]
+            });
+            localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
+
+            document.getElementById('sucessoCadastro').style.display = 'block';
+            mostrarResumoParcelas(parcelas);
+
+            setTimeout(() => {
+                document.getElementById('nome').value = ''; 
+                document.getElementById('mercadoria').value = '';
+                document.getElementById('valorCusto').value = ''; 
+                document.getElementById('valorVenda').value = '';
+                document.getElementById('qtdParcelas').value = '1'; 
+                document.getElementById('dataPrimeira').value = '';
+                document.getElementById('intervalo').value = ''; 
+                document.getElementById('sucessoCadastro').style.display = 'none';
+                document.getElementById('resumoParcelas').style.display = 'none';
+            }, 4000);
+        }
+
+        function mostrarResumoParcelas(listaParcelas) {
+            const container = document.getElementById('listaParcelasResumo');
+            container.innerHTML = '';
+            listaParcelas.forEach(p => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td class="valor-centro">${p.numero}</td>
+                    <td class="valor-centro">${formatarData(p.data)}</td>
+                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                `;
+                container.appendChild(linha);
+            });
+            document.getElementById('resumoParcelas').style.display = 'block';
+        }
+
+        function listarClientes() {
+            const container = document.getElementById('listaClientes');
+            container.innerHTML = '';
+            
+            if(bancoDados.length === 0) {
+                container.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#7f8c8d; padding:20px;">Nenhum cliente cadastrado.</td></tr>';
+                return;
+            }
+
+            bancoDados.forEach(c => {
+                const lucro = calcularLucro(c.valorCusto || 0, c.valorVenda || 0);
+                const classeLucro = lucro.valor >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+                
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${sanitizarHTML(c.nome)}</td>
+                    <td>${sanitizarHTML(c.mercadoria)}</td>
+                    <td class="valor-direita">R$ ${(c.valorCusto || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td class="valor-direita">R$ ${(c.valorVenda || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td class="valor-direita ${classeLucro}">R$ ${lucro.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td class="valor-centro ${classeLucro}">${lucro.percentual}%</td>
+                    <td class="valor-centro">${c.qtdParcelas}</td>
+                    <td class="valor-centro">${c.intervalo.charAt(0).toUpperCase() + c.intervalo.slice(1)}</td>
+                    <td class="valor-centro">${formatarData(c.dataPrimeira)}</td>
+                    <td class="valor-centro">
+                        <button class="botao botao-menor" onclick="abrirDetalhe('${c.id}')">🔍 Detalhar</button>
+                    </td>
+                `;
+                container.appendChild(linha);
+            });
+        }
+
+        function relatorioSemanal() {
+            const container = document.getElementById('listaRelatorioSemanal');
+            const containerSoma = document.getElementById('somaPorDia');
+            container.innerHTML = ''; 
+            containerSoma.innerHTML = '';
+
+            const hoje = new Date();
+            const inicioSemana = new Date(hoje);
+            inicioSemana.setDate(hoje.getDate() - hoje.getDay());
+            inicioSemana.setHours(0, 0, 0, 0);
+            
+            const fimSemana = new Date(inicioSemana);
+            fimSemana.setDate(inicioSemana.getDate() + 6);
+            fimSemana.setHours(23, 59, 59, 999);
+
+            let parcelasSemana = [];
+            bancoDados.forEach(cliente => {
+                cliente.parcelas.forEach(p => {
+                    const dataP = new Date(p.data);
+                    if(dataP >= inicioSemana && dataP <= fimSemana) {
+                        parcelasSemana.push({
+                            nome: cliente.nome, 
+                            data: p.data, 
+                            valor: p.valor
+                        });
+                    }
+                });
+            });
+
+            if(parcelasSemana.length === 0) { 
+                container.innerHTML = '<p style="text-align:center; color:#7f8c8d; padding:20px;">Nenhum pagamento previsto para essa semana.</p>'; 
+                return; 
+            }
+
+            const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+            const valoresPorDia = {};
+            let tabela = '<table><thead><tr><th>Cliente</th><th>Dia</th><th class="valor-direita">Valor (R$)</th></tr></thead><tbody>';
+
+            parcelasSemana.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(item => {
+                const nomeDia = dias[new Date(item.data).getDay()];
+                valoresPorDia[nomeDia] = (valoresPorDia[nomeDia] || 0) + item.valor;
+                tabela += `<tr><td>${sanitizarHTML(item.nome)}</td><td>${nomeDia}</td><td class="valor-direita">R$ ${item.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td></tr>`;
+            });
+            tabela += '</tbody></table>';
+            container.innerHTML = tabela;
+
+            let htmlSoma = '<h4 style="margin-bottom:10px;">📊 Total por Dia:</h4>';
+            let totalGeral = 0;
+            for(const dia in valoresPorDia) {
+                totalGeral += valoresPorDia[dia];
+                htmlSoma += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>${dia}:</span> <strong>R$ ${valoresPorDia[dia].toLocaleString('pt-BR', {minimumFractionDigits:2})}</strong></div>`;
+            }
+            htmlSoma += `<div style="display:flex; justify-content:space-between; padding:8px 0; margin-top:8px; border-top:2px solid #bbb; font-weight:bold; font-size:16px;"><span>TOTAL DA SEMANA:</span> <span>R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span></div>`;
+            containerSoma.innerHTML = htmlSoma;
+        }
+
+        function resumoVendas() {
+            const container = document.getElementById('resumoVendas');
+            const totalEl = document.getElementById('valorTotalVendas');
+            container.innerHTML = ''; 
+            let totalGeral = 0;
+            
+            bancoDados.forEach(c => {
+                totalGeral += (c.valorVenda || 0);
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${sanitizarHTML(c.nome)}</td>
+                    <td>${sanitizarHTML(c.mercadoria)}</td>
+                    <td class="valor-direita">R$ ${(c.valorVenda || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                    <td class="valor-centro">${c.qtdParcelas}</td>
+                    <td class="valor-centro">${formatarData(c.dataCadastro)}</td>
+                    <td class="valor-centro"><button class="botao botao-menor" onclick="abrirDetalhe('${c.id}')">🔍 Detalhar</button></td>
+                `;
+                container.appendChild(linha);
+            });
+            totalEl.textContent = `R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
+        }
+
+        // ======================
+        // BACKUP
+        // ======================
+        function exportarBackup() {
+            if(usuarioLogado?.nivel !== 'total') return;
+            const blob = new Blob([JSON.stringify(bancoDados, null, 2)], {type:'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.json`;
+            a.click(); 
+            URL.revokeObjectURL(a.href);
+            document.getElementById('sucessoBackup').style.display = 'block'; 
+            setTimeout(() => document.getElementById('sucessoBackup').style.display = 'none',3000);
+        }
+
+        function validarSchemaBackup(dados) {
+            if (!Array.isArray(dados)) return false;
+            for (const item of dados) {
+                if (!item.nome || typeof item.nome !== 'string') return false;
+                if (!item.mercadoria || typeof item.mercadoria !== 'string') return false;
+                if (typeof item.valorVenda !== 'number') return false;
+            }
+            return true;
+        }
+
+        function importarBackup(e) {
+            if(usuarioLogado?.nivel !== 'total') return;
+            const leitor = new FileReader();
+            leitor.onload = function(ev) {
+                try {
+                    const dados = JSON.parse(ev.target.result);
+                    
+                    if (!validarSchemaBackup(dados)) {
+                        throw new Error('Arquivo de backup inválido!');
+                    }
+                    
+                    if(confirm('Isso substituirá todos os dados atuais! Tem certeza que deseja continuar?')) {
+                        bancoDados = dados.map(cliente => ({
+                            id: cliente.id || crypto.randomUUID(),
+                            nome: sanitizarHTML(cliente.nome),
+                            mercadoria: sanitizarHTML(cliente.mercadoria),
+                            valorCusto: cliente.valorCusto || 0,
+                            valorVenda: cliente.valorVenda || cliente.valorTotal || 0,
+                            qtdParcelas: cliente.qtdParcelas || 1,
+                            intervalo: cliente.intervalo || 'mensal',
+                            dataPrimeira: cliente.dataPrimeira || new Date().toISOString().split('T')[0],
+                            parcelas: cliente.parcelas || [],
+                            dataCadastro: cliente.dataCadastro || new Date().toISOString().split('T')[0]
+                        }));
+                        localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
+                        document.getElementById('sucessoBackup').style.display = 'block';
+                        document.getElementById('erroBackup').style.display = 'none';
+                        setTimeout(() => {
+                            document.getElementById('sucessoBackup').style.display = 'none';
+                            location.reload();
+                        }, 1500);
+                    }
+                } catch (erro) {
+                    document.getElementById('erroBackup').textContent = `❌ ${erro.message}`;
+                    document.getElementById('erroBackup').style.display = 'block';
+                    document.getElementById('sucessoBackup').style.display = 'none';
+                    setTimeout(() => {
+                        document.getElementById('erroBackup').style.display = 'none';
+                    }, 3000);
+                }
+            };
+            leitor.readAsText(e.target.files[0]);
+            e.target.value = '';
+        }
+
+        // ======================
+        // GERENCIAMENTO DE USUÁRIOS
+        // ======================
+        async function cadastrarNovoUsuario() {
+            if(usuarioLogado?.nivel !== 'total') return;
+            const user = sanitizarHTML(document.getElementById('novoUsuario').value.trim());
+            const pass = document.getElementById('novaSenha').value;
+            const nivel = document.getElementById('novoNivel').value;
+
+            if(!user || !pass) { 
+                alert('Preencha usuário e senha!'); 
+                return; 
+            }
+            if(bancoUsuarios.some(u => u.usuario === user)) { 
+                alert('Usuário já existe no sistema!'); 
+                return; 
+            }
+
+            const senhaHash = await hashPassword(pass);
+            bancoUsuarios.push({usuario: user, senha: senhaHash, nivel: nivel});
+            localStorage.setItem('gerenciadorUsuarios', JSON.stringify(bancoUsuarios));
+            
+            document.getElementById('novoUsuario').value = ''; 
+            document.getElementById('novaSenha').value = '';
+            listarUsuarios();
+            alert('Usuário cadastrado com sucesso!');
+        }
+
+        function listarUsuarios() {
+            const container = document.getElementById('listaUsuarios');
+            container.innerHTML = '';
+            bancoUsuarios.forEach((u,i) => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td>${sanitizarHTML(u.usuario)}</td>
+                    <td>${u.nivel.toUpperCase()}</td>
+                    <td class="valor-centro">
+                        ${u.usuario !== 'admin' ? 
+                            `<button class="botao botao-apagar botao-menor" onclick="apagarUsuario(${i})">🗑️ Apagar</button>` 
+                            : '<span style="color:#7f8c8d;">Administrador</span>'}
+                    </td>
+                `;
+                container.appendChild(linha);
+            });
+        }
+
+        function apagarUsuario(i) {
+            if(usuarioLogado?.nivel !== 'total' || bancoUsuarios[i].usuario === 'admin') return;
+            if(confirm('Tem certeza que deseja apagar este usuário?')) { 
+                bancoUsuarios.splice(i,1); 
+                localStorage.setItem('gerenciadorUsuarios', JSON.stringify(bancoUsuarios)); 
+                listarUsuarios(); 
+            }
+        }
+
+        // ======================
+        // MODAL E EDIÇÃO
+        // ======================
+        let clienteEmEdicao = null;
+
+        function abrirDetalhe(id) {
+            clienteEmEdicao = bancoDados.find(c => c.id === id);
+            if(!clienteEmEdicao) return;
+
+            document.getElementById('tituloModal').textContent = `Detalhes: ${clienteEmEdicao.nome}`;
+            document.getElementById('det-nome').value = clienteEmEdicao.nome;
+            document.getElementById('det-mercadoria').value = clienteEmEdicao.mercadoria;
+            document.getElementById('det-custo').value = clienteEmEdicao.valorCusto || 0;
+            document.getElementById('det-venda').value = clienteEmEdicao.valorVenda || 0;
+            document.getElementById('det-qtd').value = clienteEmEdicao.qtdParcelas;
+            document.getElementById('det-intervalo').value = clienteEmEdicao.intervalo;
+            document.getElementById('det-data').value = clienteEmEdicao.dataPrimeira;
+
+            const listaParcelas = document.getElementById('det-lista-parcelas');
+            listaParcelas.innerHTML = '';
+            clienteEmEdicao.parcelas.forEach(p => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td class="valor-centro">${p.numero}</td>
+                    <td class="valor-centro">${formatarData(p.data)}</td>
+                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                `;
+                listaParcelas.appendChild(linha);
+            });
+
+            document.getElementById('btnEditar').style.display = 'block';
+            document.getElementById('btnSalvar').style.display = 'none';
+            document.getElementById('sucessoEdicao').style.display = 'none';
+
+            if(usuarioLogado?.nivel === 'leitura') {
+                document.getElementById('btnEditar').style.display = 'none';
+                document.getElementById('btnApagar').style.display = 'none';
+            }
+            if(usuarioLogado?.nivel === 'parcial') {
+                document.getElementById('btnApagar').style.display = 'none';
+            }
+
+            document.getElementById('modalDetalhe').style.display = 'block';
+        }
+
+        function fecharModal() {
+            document.getElementById('modalDetalhe').style.display = 'none';
+            clienteEmEdicao = null;
+            desabilitarEdicao();
+        }
+
+        function habilitarEdicao() {
+            if(usuarioLogado?.nivel === 'leitura') return;
+
+            document.getElementById('det-nome').disabled = false;
+            document.getElementById('det-mercadoria').disabled = false;
+            document.getElementById('det-custo').disabled = false;
+            document.getElementById('det-venda').disabled = false;
+            document.getElementById('det-qtd').disabled = false;
+            document.getElementById('det-intervalo').disabled = false;
+            document.getElementById('det-data').disabled = false;
+
+            document.getElementById('btnEditar').style.display = 'none';
+            document.getElementById('btnSalvar').style.display = 'block';
+        }
+
+        function desabilitarEdicao() {
+            document.getElementById('det-nome').disabled = true;
+            document.getElementById('det-mercadoria').disabled = true;
+            document.getElementById('det-custo').disabled = true;
+            document.getElementById('det-venda').disabled = true;
+            document.getElementById('det-qtd').disabled = true;
+            document.getElementById('det-intervalo').disabled = true;
+            document.getElementById('det-data').disabled = true;
+
+            document.getElementById('btnEditar').style.display = 'block';
+            document.getElementById('btnSalvar').style.display = 'none';
+        }
+
+        function salvarEdicao() {
+            if(!clienteEmEdicao || usuarioLogado?.nivel === 'leitura') return;
+
+            const novoNome = sanitizarHTML(document.getElementById('det-nome').value.trim());
+            const novaMercadoria = sanitizarHTML(document.getElementById('det-mercadoria').value.trim());
+            const novoCusto = parseFloat(document.getElementById('det-custo').value) || 0;
+            const novaVenda = parseFloat(document.getElementById('det-venda').value) || 0;
+            const novaQtd = parseInt(document.getElementById('det-qtd').value);
+            const novoIntervalo = document.getElementById('det-intervalo').value;
+            const novaData = new Date(document.getElementById('det-data').value + "T00:00:00");
+
+            if(!novoNome || !novaMercadoria || isNaN(novaQtd) || isNaN(novaData.getTime()) || !novoIntervalo) {
+                alert('Preencha todos os campos corretamente!');
+                return;
+            }
+
+            const novoValorParcela = novaVenda / novaQtd;
+            const novasParcelas = [];
+            for(let i=0; i<novaQtd; i++) {
+                novasParcelas.push({
+                    numero: i+1,
+                    data: calcularDataCorreta(novaData, i, novoIntervalo).toISOString().split('T')[0],
+                    valor: novoValorParcela
+                });
+            }
+
+            clienteEmEdicao.nome = novoNome;
+            clienteEmEdicao.mercadoria = novaMercadoria;
+            clienteEmEdicao.valorCusto = novoCusto;
+            clienteEmEdicao.valorVenda = novaVenda;
+            clienteEmEdicao.qtdParcelas = novaQtd;
+            clienteEmEdicao.intervalo = novoIntervalo;
+            clienteEmEdicao.dataPrimeira = novaData.toISOString().split('T')[0];
+            clienteEmEdicao.parcelas = novasParcelas;
+
+            localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
+
+            document.getElementById('sucessoEdicao').style.display = 'block';
+            desabilitarEdicao();
+
+            const listaParcelas = document.getElementById('det-lista-parcelas');
+            listaParcelas.innerHTML = '';
+            novasParcelas.forEach(p => {
+                const linha = document.createElement('tr');
+                linha.innerHTML = `
+                    <td class="valor-centro">${p.numero}</td>
+                    <td class="valor-centro">${formatarData(p.data)}</td>
+                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
+                `;
+                listaParcelas.appendChild(linha);
+            });
+
+            if(document.querySelectorAll('.aba')[1].classList.contains('ativa')) {
+                listarClientes();
+            }
+            if(document.querySelectorAll('.aba')[3].classList.contains('ativa')) {
+                resumoVendas();
+            }
+
+            setTimeout(() => { document.getElementById('sucessoEdicao').style.display = 'none'; }, 3000);
+        }
+
+        function apagarCliente() {
+            if(!clienteEmEdicao || usuarioLogado?.nivel !== 'total') return;
+
+            if(confirm('Tem certeza que deseja APAGAR este cliente? Essa ação não pode ser desfeita!')) {
+                bancoDados = bancoDados.filter(c => c.id !== clienteEmEdicao.id);
+                localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
+                fecharModal();
+                
+                if(document.querySelectorAll('.aba')[1].classList.contains('ativa')) {
+                    listarClientes();
+                }
+                if(document.querySelectorAll('.aba')[3].classList.contains('ativa')) {
+                    resumoVendas();
+                }
+            }
+        }
+
+        // ======================
+        // INICIALIZAÇÃO
+        // ======================
+        window.onload = async function() {
+            await carregarDados();
+            verificarSessao();
+            
+            console.log('%c✅ SISTEMA PRONTO!', 'color: #27ae60; font-size: 16px; font-weight: bold;');
+            console.log('%c📋 USUÁRIOS CADASTRADOS:', 'color: #3498db; font-weight: bold;');
+            bancoUsuarios.forEach(user => {
+                console.log(`   → ${user.usuario} (${user.nivel})`);
+            });
+            console.log('%c🔑 SENHAS ORIGINAIS:', 'color: #f39c12; font-weight: bold;');
+            console.log('   → admin: 131188');
+            console.log('   → marcos: @Santana13');
+        };
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalDetalhe');
+            if (event.target == modal) {
+                fecharModal();
+            }
+        }
+    </script>
+</body>
+</html>
