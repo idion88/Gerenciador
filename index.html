@@ -2,1500 +2,1412 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador de Pagamentos - Seguro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Dashboard Financeiro - Calculadoras Integradas</title>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
+        :root {
+            --cor-fundo: #f0f4f8;
+            --cor-container: #ffffff;
+            --cor-texto: #2c3e50;
+            --cor-texto-secundario: #34495e;
+            --cor-texto-claro: #7f8c8d;
+            --cor-destaque: #00b494;
+            --cor-destaque-escuro: #00997a;
+            --cor-borda: #dcdde1;
+            --cor-borda-clara: #e9ecef;
+            --cor-campo-desativado: #f5f6fa;
+            --cor-resultado-fundo: #1a1a2e;
+            --cor-resultado-texto: #ffffff;
+            --cor-valor-destaque: #00e0b8;
+            --cor-lucro-positivo: #2ecc71;
+            --cor-lucro-negativo: #e74c3c;
+            --cor-botao-secundario: #f39c12;
+            --cor-botao-perigo: #e74c3c;
+            --cor-relatorio-fundo: #f8f9fa;
+            --cor-sombra: rgba(0,0,0,0.08);
+            --cor-aba: #e8eaed;
+            --cor-aba-ativa: white;
+            --cor-aba-texto: #5f6368;
+            --cor-aba-texto-ativa: #00b494;
+            --cor-aviso: #e74c3c;
+            --cor-card: #f8f9fa;
+            --cor-botao-cliente: #8e44ad;
+            --cor-botao-cliente-escuro: #6c3483;
+            --cor-botao-fornecedor: #2c3e50;
+            --cor-botao-fornecedor-escuro: #1a252f;
+            --cor-lmaia: #9b59b6;
+            --cor-custo: #e67e22;
+        }
+
+        .tema-escuro {
+            --cor-fundo: #121212;
+            --cor-container: #1e1e2e;
+            --cor-texto: #e0e0e0;
+            --cor-texto-secundario: #b0b0b0;
+            --cor-texto-claro: #a0a0a0;
+            --cor-destaque: #00d4a0;
+            --cor-destaque-escuro: #00b884;
+            --cor-borda: #2d2d3a;
+            --cor-borda-clara: #333344;
+            --cor-campo-desativado: #2a2a35;
+            --cor-resultado-fundo: #0d0d15;
+            --cor-resultado-texto: #ffffff;
+            --cor-valor-destaque: #00e8c0;
+            --cor-lucro-positivo: #2ecc71;
+            --cor-lucro-negativo: #ff6b6b;
+            --cor-botao-secundario: #f39c12;
+            --cor-botao-perigo: #e74c3c;
+            --cor-relatorio-fundo: #252530;
+            --cor-sombra: rgba(0,0,0,0.3);
+            --cor-aba: #1a1a22;
+            --cor-aba-ativa: #1e1e2e;
+            --cor-aba-texto: #88889a;
+            --cor-aba-texto-ativa: #00d4a0;
+            --cor-aviso: #ff6b6b;
+            --cor-card: #252530;
+            --cor-botao-cliente: #9b59b6;
+            --cor-botao-cliente-escuro: #7d3c98;
+            --cor-botao-fornecedor: #34495e;
+            --cor-botao-fornecedor-escuro: #283747;
+            --cor-lmaia: #bb8fce;
+            --cor-custo: #f39c12;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-        body {
-            background-color: #f0f4f8;
-            padding: 15px;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            font-size: 22px;
-            font-weight: bold;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s;
         }
 
-        /* ===== TELA DE LOGIN ===== */
-        #telaLogin {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #0052cc;
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        body {
+            background-color: var(--cor-fundo);
+            padding: 15px;
+            min-height: 100vh;
         }
-        .card-login {
-            background: white;
-            padding: 35px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
         }
-        .card-login h2 {
-            color: #2c3e50;
-            margin-bottom: 20px;
-        }
-        .login-campo {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-        .login-campo label {
-            font-weight: bold;
-            color: #34495e;
-            font-size: 14px;
-        }
-        .login-campo input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-        .btn-login {
-            width: 100%;
-            padding: 12px;
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-login:hover {
-            background-color: #219653;
-        }
-        .erro-login {
-            color: #e74c3c;
-            margin-top: 10px;
-            font-weight: bold;
-            display: none;
-        }
-        .info-usuario {
-            background-color: #2c3e50;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
+
+        .dashboard-header {
+            background: var(--cor-container);
+            border-radius: 20px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px var(--cor-sombra);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }
-        .btn-sair {
-            background: #e74c3c;
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--cor-destaque), var(--cor-destaque-escuro));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .logo-area h1 { color: var(--cor-texto); font-size: 20px; }
+        .logo-area p  { color: var(--cor-texto-claro); font-size: 12px; margin-top: 4px; }
+
+        .botao-tema {
+            padding: 8px 16px;
+            background-color: var(--cor-destaque);
             color: white;
             border: none;
-            padding: 4px 10px;
-            border-radius: 4px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: bold;
-        }
-
-        /* ===== ESTILOS GERAIS ===== */
-        .abas {
-            display: flex;
-            background: white;
-            border-radius: 10px 10px 0 0;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            margin-bottom: -1px;
-            flex-wrap: wrap;
-        }
-        .aba {
-            padding: 12px 15px;
-            background-color: #ecf0f1;
-            cursor: pointer;
-            font-weight: bold;
-            color: #34495e;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-            text-align: center;
             font-size: 14px;
-            flex: 1;
-            min-width: 120px;
-        }
-        .aba.ativa {
-            background-color: white;
-            color: #27ae60;
-            border-bottom: 3px solid #27ae60;
-        }
-        .aba:hover:not(.ativa):not(.bloqueada) {
-            background-color: #d0d7d9;
-        }
-        .aba.bloqueada {
-            opacity: 0.4;
-            cursor: not-allowed;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .conteudo {
-            background: white;
+        .botao-tema:hover { background-color: var(--cor-destaque-escuro); transform: translateY(-1px); }
+
+        .abas { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 0; }
+
+        .aba {
+            background: var(--cor-aba);
+            padding: 12px 20px;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--cor-aba-texto);
+            transition: all 0.2s;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .aba.ativa { background: var(--cor-aba-ativa); color: var(--cor-aba-texto-ativa); border-bottom: 3px solid var(--cor-destaque); }
+        .aba:hover:not(.ativa) { background: var(--cor-card); color: var(--cor-texto); }
+
+        .conteudo-aba {
+            background: var(--cor-container);
+            border-radius: 0 12px 12px 12px;
             padding: 25px;
-            border-radius: 0 0 10px 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             margin-bottom: 25px;
-        }
-        .aba-conteudo {
-            display: none;
-        }
-        .aba-conteudo.ativa {
-            display: block;
+            box-shadow: 0 4px 12px var(--cor-sombra);
         }
 
-        .campos {
+        .aba-conteudo { display: none; }
+        .aba-conteudo.ativa { display: block; }
+
+        .form-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 15px;
             margin-bottom: 20px;
         }
-        .campo-linha {
-            grid-column: 1 / -1;
-        }
-        .campo {
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: bold;
-            color: #34495e;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-        input, select, textarea {
-            padding: 10px 8px;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            font-size: 16px;
-            height: 45px;
-            width: 100%;
-            background-color: #fff;
-        }
-        textarea {
-            height: 80px;
-            resize: none;
-        }
-        input:disabled, select:disabled, textarea:disabled {
-            background-color: #f3f3f3;
-            color: #666;
-            border-color: #ddd;
-        }
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #27ae60;
-            box-shadow: 0 0 0 2px rgba(39, 174, 96, 0.1);
-        }
-        .botao {
-            padding: 12px;
-            background-color: #27ae60;
+
+        .campo { display: flex; flex-direction: column; }
+        .campo label { font-weight: 600; color: var(--cor-texto-secundario); margin-bottom: 6px; font-size: 13px; }
+
+        .label-com-info { display: flex; align-items: center; gap: 6px; }
+
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: var(--cor-destaque);
             color: white;
+            font-size: 11px;
+            cursor: help;
+            font-weight: bold;
+        }
+
+        .campo input, .campo select {
+            padding: 10px 12px;
+            border: 2px solid var(--cor-borda);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: var(--cor-container);
+            color: var(--cor-texto);
+        }
+
+        .campo input:focus, .campo select:focus { outline: none; border-color: var(--cor-destaque); }
+        .campo input:disabled, .campo select:disabled { background-color: var(--cor-campo-desativado); cursor: not-allowed; }
+
+        .btn {
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.2s;
             margin-right: 10px;
             margin-bottom: 10px;
-        }
-        .botao:disabled {
-            background-color: #95a5a6;
-            cursor: not-allowed;
-        }
-        .botao:hover:not(:disabled) {
-            background-color: #219653;
-        }
-        .botao-menor {
-            padding: 6px 12px;
             font-size: 13px;
         }
-        .botao-editar {
-            background-color: #f39c12;
+
+        .btn-primary { background-color: var(--cor-destaque); color: white; }
+        .btn-primary:hover { background-color: var(--cor-destaque-escuro); transform: translateY(-1px); }
+        .btn-secondary { background-color: var(--cor-botao-secundario); color: white; }
+        .btn-danger { background-color: var(--cor-botao-perigo); color: white; }
+        .btn-export-cliente { background-color: var(--cor-botao-cliente); color: white; }
+        .btn-export-fornecedor { background-color: var(--cor-botao-fornecedor); color: white; }
+
+        .resultado-card {
+            background: var(--cor-resultado-fundo);
+            color: var(--cor-resultado-texto);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
         }
-        .botao-editar:hover:not(:disabled) {
-            background-color: #e67e22;
+
+        .resultado-item { margin: 10px 0; font-size: 14px; }
+
+        .resultado-valor {
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--cor-valor-destaque);
+            display: block;
+            margin-top: 5px;
         }
-        .botao-apagar {
-            background-color: #e74c3c;
+
+        .resultado-destaque { font-size: 24px; font-weight: bold; color: var(--cor-valor-destaque); }
+
+        /* Opções de toggle - aba Depix */
+        .opcoes-linha { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+        .opcao-toggle {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: var(--cor-card);
+            border: 1px solid var(--cor-borda);
+            border-radius: 20px;
+            cursor: pointer;
+            color: var(--cor-texto);
+            transition: all 0.2s;
         }
-        .botao-apagar:hover:not(:disabled) {
-            background-color: #c0392b;
-        }
-        .botao-exportar {
-            background-color: #3498db;
-            margin-bottom: 15px;
-        }
-        .botao-exportar:hover:not(:disabled) {
-            background-color: #2980b9;
-        }
-        .botao-importar {
-            background-color: #9b59b6;
-        }
-        .botao-importar:hover:not(:disabled) {
-            background-color: #8e44ad;
-        }
-        .botoes-topo {
+
+        .opcao-toggle.ativa { background: var(--cor-destaque); color: white; border-color: var(--cor-destaque); }
+        .opcao-toggle.lmaia.ativa { background: var(--cor-lmaia); color: white; border-color: var(--cor-lmaia); }
+
+        /* Relatório Depix */
+        .depix-relatorios {
             display: flex;
             gap: 10px;
-            justify-content: flex-end;
-            margin-bottom: 20px;
+            margin-top: 20px;
             flex-wrap: wrap;
         }
-        .aviso {
-            margin-top: 15px;
-            text-align: center;
-            color: #e74c3c;
-            font-size: 14px;
-            font-weight: 500;
-            display: none;
-            padding: 8px;
-            background-color: rgba(231, 76, 60, 0.1);
-            border-radius: 6px;
-        }
-        .sucesso {
-            color: #27ae60;
-            background-color: rgba(39, 174, 96, 0.1);
-            display: none;
-        }
-        .info-backup {
-            background-color: #eaf2f8;
-            padding: 15px;
+
+        .depix-relatorio {
+            flex: 1;
+            min-width: 220px;
+            padding: 14px;
+            background-color: var(--cor-relatorio-fundo);
             border-radius: 8px;
-            color: #2c3e50;
-            font-size: 14px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3498db;
+            border: 1px solid var(--cor-borda);
+            font-size: 11px;
+            line-height: 1.6;
+            color: var(--cor-texto);
         }
 
-        .tabela-container {
-            overflow-x: auto;
-            margin-top: 15px;
+        .depix-relatorio h4 {
+            text-align: center;
+            color: var(--cor-texto);
+            margin-bottom: 10px;
+            font-size: 13px;
+            border-bottom: 1px solid var(--cor-destaque);
+            padding-bottom: 5px;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+
+        .depix-relatorio strong { color: var(--cor-destaque); }
+
+        .destaque-custo {
+            background-color: rgba(230, 126, 34, 0.1);
+            padding: 5px;
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+
+        /* Alerta Depix */
+        .alerta {
+            background: var(--cor-card);
+            border-left: 4px solid var(--cor-aviso);
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            color: var(--cor-texto);
             font-size: 13px;
         }
-        th, td {
-            padding: 8px 6px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #27ae60;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f8f2;
-        }
-        .valor-centro {
-            text-align: center;
-        }
-        .valor-direita {
-            text-align: right;
-        }
-        .soma-total {
-            font-weight: bold;
-            font-size: 16px;
-            background-color: #ecf0f1;
-        }
-        .lucro-positivo {
-            color: #27ae60;
-            font-weight: bold;
-        }
-        .lucro-negativo {
-            color: #e74c3c;
-            font-weight: bold;
+
+        /* Foto e Upload */
+        .foto-campo-compacto { display: flex; gap: 8px; align-items: flex-end; }
+
+        .btn-foto {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: 2px dashed var(--cor-borda);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            background-color: var(--cor-card);
         }
 
-        .modal {
+        .btn-foto.tem-foto { border-style: solid; border-color: #27ae60; }
+
+        .foto-preview-mini {
+            display: none;
+            margin-top: 8px;
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 6px;
+            overflow: hidden;
+            border: 2px solid var(--cor-borda);
+        }
+
+        .foto-preview-mini.visivel { display: block; }
+        .foto-preview-mini img { width: 100%; height: 100%; object-fit: cover; }
+
+        .btn-remover-foto-mini {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--cor-botao-perigo);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 10px;
+        }
+
+        /* Relatório Preços */
+        .relatorio {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--cor-relatorio-fundo);
+            border-radius: 8px;
+            border: 1px solid var(--cor-borda);
+        }
+
+        .relatorio-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .relatorio-conteudo { display: flex; gap: 20px; align-items: flex-start; }
+        .relatorio-texto { flex: 1; }
+        .relatorio-imagem { flex: 0 0 150px; display: none; }
+        .relatorio-imagem.visivel { display: block; }
+
+        .relatorio-imagem img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid var(--cor-borda);
+        }
+
+        .separador { border-top: 1px dashed var(--cor-borda); margin: 10px 0; }
+
+        /* Modal */
+        .modal-overlay {
             display: none;
             position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            padding-top: 20px;
+            justify-content: center;
+            align-items: center;
         }
-        .modal-conteudo {
-            background-color: #fefefe;
-            margin: 2% auto;
+
+        .modal-overlay.visivel { display: flex; }
+
+        .modal {
+            background: var(--cor-container);
             padding: 25px;
-            border: 1px solid #888;
-            width: 95%;
-            max-width: 600px;
             border-radius: 12px;
-            position: relative;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
         }
-        .fechar {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
+
+        .modal-botoes { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+
+        /* Recibo */
+        .recibo-preview-container { background: var(--cor-container); border-radius: 12px; overflow: hidden; border: 1px solid var(--cor-borda); }
+
+        .recibo-header-toolbar {
+            background: var(--cor-destaque);
+            padding: 12px 20px;
+            color: white;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        #reciboPreview { background: white; color: #333; max-width: 100%; overflow-x: auto; }
+        body.tema-escuro #reciboPreview { background: #2a2a3e; color: #e0e0e0; }
+
+        .recibo-logo-area {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo-container { display: flex; align-items: center; gap: 12px; }
+
+        .recibo-logo-icon {
+            width: 50px; height: 50px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            font-weight: 900;
+            color: #764ba2;
+        }
+
+        .logo-texto { color: white; font-weight: 700; font-size: 1.4em; }
+        .logo-subtexto { color: rgba(255,255,255,0.8); font-size: 0.7em; }
+        .recibo-titulo-area { text-align: right; color: white; }
+        .recibo-titulo-area h3 { font-size: 1em; font-weight: 600; margin: 0; }
+        .recibo-conteudo { padding: 25px; }
+
+        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .info-label { font-weight: 700; color: #555; }
+        .info-value { text-align: right; word-break: break-word; max-width: 60%; }
+
+        .valor-destaque { background: #f8f4ff; padding: 10px; border-radius: 8px; border: 2px solid #764ba2; }
+
+        .assinatura {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+            width: 200px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+
+        .rodape-recibo {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .download-recibo-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: -10px;
-        }
-        .fechar:hover, .fechar:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
+            margin-top: 15px;
         }
 
-        .logo-preview {
-            max-width: 200px;
-            max-height: 100px;
-            margin-top: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            padding: 5px;
-            display: none;
+        @media (max-width: 768px) {
+            .dashboard-header { flex-direction: column; text-align: center; }
+            .aba { padding: 8px 12px; font-size: 12px; }
+            .conteudo-aba { padding: 15px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .relatorio-conteudo { flex-direction: column; }
+            .relatorio-imagem { width: 100%; }
+            .depix-relatorios { flex-direction: column; }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+<div class="dashboard-container">
 
-    <!-- ===== TELA DE LOGIN ===== -->
-    <div id="telaLogin">
-        <div class="card-login">
-            <h2>🔐 Acesso ao Sistema</h2>
-            <div class="login-campo">
-                <label>Usuário:</label>
-                <input type="text" id="usuarioLogin" placeholder="Digite seu usuário" autocomplete="off">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="logo-area">
+            <div class="logo-icon"><i class="fas fa-calculator"></i></div>
+            <div>
+                <h1><i class="fas fa-chart-line"></i> Dashboard Financeiro</h1>
+                <p>Calculadoras integradas para gestão de negócios</p>
             </div>
-            <div class="login-campo">
-                <label>Senha:</label>
-                <input type="password" id="senhaLogin" placeholder="Digite sua senha">
+        </div>
+        <button class="botao-tema" id="alternarTema">
+            <i class="fas fa-moon"></i> Tema Escuro
+        </button>
+    </div>
+
+    <!-- Abas -->
+    <div class="abas">
+        <div class="aba ativa" onclick="mostrarAba(0)"><i class="fas fa-exchange-alt"></i> Depix</div>
+        <div class="aba" onclick="mostrarAba(1)"><i class="fas fa-percent"></i> Juros</div>
+        <div class="aba" onclick="mostrarAba(2)"><i class="fas fa-receipt"></i> Parcelas</div>
+        <div class="aba" onclick="mostrarAba(3)"><i class="fas fa-tags"></i> Preços</div>
+        <div class="aba" onclick="mostrarAba(4)"><i class="fas fa-file-alt"></i> Recibos</div>
+    </div>
+
+    <!-- ==================== ABA 1: DEPIX ==================== -->
+    <div class="conteudo-aba aba-conteudo ativa" id="abaDepix">
+        <h2 style="color: var(--cor-destaque); margin-bottom: 20px;"><i class="fas fa-exchange-alt"></i> Calculadora Depix</h2>
+
+        <div class="alerta" id="alertaDepix" style="display: none;"></div>
+
+        <!-- Envio -->
+        <div style="margin-bottom: 25px;">
+            <h3 style="margin-bottom: 15px;"><i class="fas fa-paper-plane"></i> 📤 Envio</h3>
+            <div class="opcoes-linha">
+                <button class="opcao-toggle" id="opcaoSaltsailEnvio" onclick="ativarModoEnvio('saltsail')">Saltsail</button>
+                <button class="opcao-toggle lmaia" id="opcaoLMaiaEnvio" onclick="ativarModoEnvio('lmaia')">L Maia</button>
+                <button class="opcao-toggle ativa" id="opcaoManualEnvio" onclick="ativarModoEnvio('manual')">Manual</button>
             </div>
-            <button class="btn-login" onclick="fazerLogin()">Entrar</button>
-            <div class="erro-login" id="erroLogin">Usuário ou senha incorretos!</div>
+            <div class="form-grid">
+                <div class="campo"><label>💰 Valor Desejado:</label><input type="number" id="depixValorDesejado" step="0.01" min="0" value="100.00"></div>
+                <div class="campo"><label>📌 Taxa Fixa Envio:</label><input type="number" id="depixTaxaFixaEnvio" step="0.01" min="0" value="0.00"></div>
+                <div class="campo"><label>📊 Taxa % Envio:</label><input type="number" id="depixPorcentagemEnvio" step="0.01" min="0" value="0.00"></div>
+                <div class="campo"><label>📤 Total a Enviar:</label><input type="text" id="depixValorEnviar" readonly></div>
+            </div>
+        </div>
+
+        <!-- Lucro -->
+        <div style="margin-bottom: 25px;">
+            <h3 style="margin-bottom: 15px;"><i class="fas fa-chart-line"></i> 💹 Lucro</h3>
+            <div class="form-grid">
+                <div class="campo"><label>📈 Margem Desejada (%):</label><input type="number" id="depixPorcentagemDesejada" step="0.01" min="0" value="10.00"></div>
+                <div class="campo"><label>💵 Montante:</label><input type="text" id="depixMontante" readonly></div>
+            </div>
+            <div class="campo" id="depixCampoMontanteOpcional" style="display: none; max-width: 320px;">
+                <label for="depixMontanteOpcional">✏️ Montante Alternativo (R$):</label>
+                <input type="number" id="depixMontanteOpcional" step="0.01" min="0" placeholder="Valor para simular outro cenário">
+            </div>
+        </div>
+
+        <!-- Recebimento -->
+        <div style="margin-bottom: 25px;">
+            <h3 style="margin-bottom: 15px;"><i class="fas fa-inbox"></i> 📥 Recebimento</h3>
+            <div class="opcoes-linha">
+                <button class="opcao-toggle" id="opcaoSaltsailReceb" onclick="ativarModoRecebimento('saltsail')">Saltsail</button>
+                <button class="opcao-toggle lmaia" id="opcaoLMaiaReceb" onclick="ativarModoRecebimento('lmaia')">L Maia</button>
+                <button class="opcao-toggle ativa" id="opcaoManualReceb" onclick="ativarModoRecebimento('manual')">Manual</button>
+            </div>
+            <div class="form-grid">
+                <div class="campo"><label>📌 Taxa Fixa (R$/parcela):</label><input type="number" id="depixTaxaFixaReceb" step="0.01" min="0" value="0.00"></div>
+                <div class="campo"><label>📊 Taxa % (por parcela):</label><input type="number" id="depixPorcentagemReceb" step="0.01" min="0" value="0.00"></div>
+                <div class="campo"><label>🔢 Parcelas:</label><input type="number" id="depixParcelas" min="1" max="360" value="1"></div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="calcularDepix()"><i class="fas fa-calculator"></i> Calcular</button>
+        <button class="btn btn-secondary" id="depixBotaoRecalcular" onclick="calcularDepixAlternativo()" style="display:none;"><i class="fas fa-sync-alt"></i> Recalcular (Alt.)</button>
+        <button class="btn btn-danger" onclick="limparDepix()"><i class="fas fa-eraser"></i> Limpar</button>
+
+        <!-- Resultados -->
+        <div class="resultado-card">
+            <div class="resultado-item">📊 Líquido Total: <span id="depixLiquidoTotal" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">📊 Líquido por Parcela: <span id="depixLiquidoParcela" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">✏️ Líquido Total (Alt.): <span id="depixLiquidoTotalAlt" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">✏️ Líquido por Parcela (Alt.): <span id="depixLiquidoParcelaAlt" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item" style="border-top: 1px solid #333; margin-top: 12px; padding-top: 12px;">
+                📈 Lucro: <span id="depixLucro" class="resultado-valor">R$ 0,00</span>
+            </div>
+            <div class="resultado-item">📈 Percentual: <span id="depixPercentualLucro" class="resultado-valor">0,00%</span></div>
+            <div class="resultado-item">📈 Lucro (Alt.): <span id="depixLucroAlt" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">📈 Percentual (Alt.): <span id="depixPercentualLucroAlt" class="resultado-valor">0,00%</span></div>
+        </div>
+
+        <!-- Relatórios lado a lado -->
+        <div class="depix-relatorios">
+            <div class="depix-relatorio">
+                <h4>📋 Relatório Padrão</h4>
+                <div id="depixRelatorioPadrao">Preencha e clique em Calcular...</div>
+            </div>
+            <div class="depix-relatorio">
+                <h4>📋 Relatório Alternativo</h4>
+                <div id="depixRelatorioAlternativo"><em>Calcule primeiro e insira um montante alternativo...</em></div>
+            </div>
         </div>
     </div>
 
-    <div class="container">
-        <h1>📋 Gerenciador de Pagamentos</h1>
+    <!-- ==================== ABA 2: JUROS ==================== -->
+    <div class="conteudo-aba aba-conteudo" id="abaJuros">
+        <h2 style="color: var(--cor-destaque); margin-bottom: 20px;"><i class="fas fa-percent"></i> Calculadora de Juros</h2>
+        <div class="form-grid">
+            <div class="campo"><label>💰 Valor da Parcela (R$):</label><input type="number" id="jurosValorParcela" step="0.01"></div>
+            <div class="campo"><label>📅 Data Inicial:</label><input type="date" id="jurosDataInicial"></div>
+            <div class="campo"><label>📅 Data Final:</label><input type="date" id="jurosDataFinal"></div>
+            <div class="campo"><label>📊 Taxa de Juros (% ao mês):</label><input type="number" id="jurosTaxa" step="0.01"></div>
+        </div>
+        <button class="btn btn-primary" onclick="calcularJuros()"><i class="fas fa-calculator"></i> Calcular</button>
+        <button class="btn btn-danger" onclick="limparJuros()"><i class="fas fa-eraser"></i> Limpar</button>
+        <div class="resultado-card" id="resultadoJuros" style="display: none;">
+            <div class="resultado-item">📅 Dias: <span id="jurosQtdDias" class="resultado-valor"></span></div>
+            <div class="resultado-item">📊 Taxa efetiva: <span id="jurosTaxaEfetiva" class="resultado-valor"></span></div>
+            <div class="resultado-item">💰 Juros: <span id="jurosValor" class="resultado-valor"></span></div>
+            <div class="resultado-item">💵 Valor Total: <span id="jurosTotal" class="resultado-valor"></span></div>
+        </div>
+    </div>
 
-        <div class="info-usuario">
-            <span>Usuário: <strong id="nomeUsuarioLogado">-</strong> | Nível: <strong id="nivelUsuarioLogado">-</strong></span>
-            <button class="btn-sair" onclick="sairSistema()">Sair</button>
+    <!-- ==================== ABA 3: PARCELAS ==================== -->
+    <div class="conteudo-aba aba-conteudo" id="abaParcelas">
+        <h2 style="color: var(--cor-destaque); margin-bottom: 20px;"><i class="fas fa-receipt"></i> Simulador de Parcelas</h2>
+        <div class="form-grid">
+            <div class="campo"><label>💰 Valor Desejado (R$):</label><input type="number" id="parcelasValor" step="0.01" value="100"></div>
+            <div class="campo"><label>🔢 Parcelas (1-21):</label><input type="number" id="parcelasQtd" min="1" max="21" value="1"></div>
+        </div>
+        <button class="btn btn-primary" onclick="calcularParcelas()"><i class="fas fa-calculator"></i> Simular</button>
+        <button class="btn btn-danger" onclick="limparParcelas()"><i class="fas fa-eraser"></i> Limpar</button>
+        <div class="resultado-card">
+            <div class="resultado-item">💳 Valor da Parcela: <span id="parcelasValorParcela" class="resultado-destaque">R$ 0,00</span></div>
+            <div class="resultado-item">💰 Valor Total: <span id="parcelasValorTotal" class="resultado-destaque">R$ 0,00</span></div>
+        </div>
+    </div>
+
+    <!-- ==================== ABA 4: PREÇOS ==================== -->
+    <div class="conteudo-aba aba-conteudo" id="abaPrecos">
+        <h2 style="color: var(--cor-destaque); margin-bottom: 20px;"><i class="fas fa-tags"></i> Calculadora de Preços</h2>
+
+        <div class="campo" style="margin-bottom: 15px;">
+            <label for="precosNome">📦 Nome / Descrição do Produto:</label>
+            <input type="text" id="precosNome" placeholder="Ex: Smartphone, Camiseta, Eletrônico...">
         </div>
 
-        <div class="abas">
-            <div class="aba ativa" onclick="mostrarAba(0)">Cadastrar Cliente</div>
-            <div class="aba" onclick="mostrarAba(1)">Clientes Cadastrados</div>
-            <div class="aba" onclick="mostrarAba(2)">Relatório Semanal</div>
-            <div class="aba" onclick="mostrarAba(3)">Resumo de Vendas</div>
-            <div class="aba" onclick="mostrarAba(4)">Backup</div>
-            <div class="aba" onclick="mostrarAba(5)" id="abaUsuarios">Usuários</div>
-            <div class="aba" onclick="mostrarAba(6)">Empresa</div>
-        </div>
-
-        <!-- CONTEÚDO: CADASTRAR CLIENTE -->
-        <div class="conteudo aba-conteudo ativa">
-            <div class="campos">
-                <div class="campo campo-linha">
-                    <label>Nome do Cliente:</label>
-                    <input type="text" id="nome" placeholder="Digite o nome completo" required>
+        <div class="campo" style="margin-bottom: 15px;">
+            <label>📸 Foto do Produto:</label>
+            <div class="foto-campo-compacto">
+                <div class="foto-upload-mini">
+                    <div class="btn-foto" id="btnFoto" onclick="document.getElementById('inputFoto').click()">📁</div>
+                    <input type="file" id="inputFoto" accept="image/*" style="display: none;" onchange="carregarFoto(event)">
+                    <div class="foto-preview-mini" id="fotoPreviewMini">
+                        <img id="imagemPreviewMini" src="" alt="Preview">
+                        <button class="btn-remover-foto-mini" onclick="removerFoto(event)">✕</button>
+                    </div>
                 </div>
-                <div class="campo campo-linha">
-                    <label>Mercadoria / Produto:</label>
-                    <input type="text" id="mercadoria" placeholder="Descrição do produto" required>
-                </div>
-                <div class="campo">
-                    <label>Valor de Custo (Mercadoria R$):</label>
-                    <input type="number" id="valorCusto" min="0" step="0.01" placeholder="0,00" required>
-                </div>
-                <div class="campo">
-                    <label>Valor de Venda (R$):</label>
-                    <input type="number" id="valorVenda" min="0" step="0.01" placeholder="0,00" required>
-                </div>
-                <div class="campo">
-                    <label>Quantidade de Parcelas:</label>
-                    <input type="number" id="qtdParcelas" min="1" max="60" value="1" required>
-                </div>
-                <div class="campo">
-                    <label>Dia do Primeiro Pagamento:</label>
-                    <input type="date" id="dataPrimeira" required>
-                </div>
-                <div class="campo">
-                    <label>Intervalo de Pagamento:</label>
-                    <select id="intervalo" required>
-                        <option value="">Escolha...</option>
-                        <option value="semanal">Semanal (7 dias)</option>
-                        <option value="quinzenal">Quinzenal (15 dias)</option>
-                        <option value="mensal">Mensal (mesmo dia todo mês)</option>
-                    </select>
-                </div>
-            </div>
-
-            <button class="botao" onclick="cadastrarCliente()">💾 Salvar Cliente</button>
-            
-            <div class="aviso" id="avisoCadastro">Preencha todos os campos corretamente!</div>
-            <div class="aviso sucesso" id="sucessoCadastro">✅ Cliente cadastrado com sucesso!</div>
-
-            <div id="resumoParcelas" style="margin-top:25px; display:none;">
-                <h3 style="color:#2c3e50; margin-bottom:10px; border-bottom:1px solid #27ae60; padding-bottom:5px;">📅 Parcelas Geradas</h3>
-                <div class="tabela-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Nº Parcela</th>
-                                <th>Data de Vencimento</th>
-                                <th class="valor-direita">Valor (R$)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="listaParcelasResumo"></tbody>
-                    </table>
+                <div class="foto-url-input" style="flex:1">
+                    <input type="text" id="urlFoto" placeholder="Ou cole o endereço (URL) de uma imagem..." oninput="carregarFotoURL()">
                 </div>
             </div>
         </div>
 
-        <!-- CONTEÚDO: CLIENTES CADASTRADOS -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">📑 Lista de Clientes e Rentabilidade</h3>
-            <div class="tabela-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Mercadoria</th>
-                            <th class="valor-direita">Valor Custo</th>
-                            <th class="valor-direita">Valor Venda</th>
-                            <th class="valor-direita">Lucro (R$)</th>
-                            <th class="valor-centro">Lucro (%)</th>
-                            <th>Parcelas</th>
-                            <th>Intervalo</th>
-                            <th>Primeiro Venc.</th>
-                            <th class="valor-centro">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaClientes"></tbody>
-                </table>
+        <div class="form-grid">
+            <div class="campo"><div class="label-com-info"><label>💰 Valor do Produto:</label><span class="info-icon" title="Valor de custo do produto sem taxas">?</span></div><input type="number" id="precosValor" step="0.01" placeholder="0,00"></div>
+            <div class="campo"><div class="label-com-info"><label>📋 Taxa de Compra:</label><span class="info-icon" title="Taxa fixa adicional (frete, embalagem, etc)">?</span></div><input type="number" id="precosTaxaCompra" step="0.01" value="0"></div>
+            <div class="campo"><div class="label-com-info"><label>💳 Taxa do Cartão:</label><span class="info-icon" title="Porcentagem cobrada pela operadora">?</span></div><input type="number" id="precosTaxaCartao" step="0.01" value="0"></div>
+            <div class="campo"><div class="label-com-info"><label>📈 Juros de Venda:</label><span class="info-icon" title="Porcentagem de lucro desejada">?</span></div><input type="number" id="precosJurosVenda" step="0.01" value="0"></div>
+            <div class="campo"><div class="label-com-info"><label>📅 Parcelas:</label><span class="info-icon" title="Número de parcelas (1 a 24)">?</span></div><input type="number" id="precosParcelas" min="1" max="24" value="1"></div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="calcularPrecos()"><i class="fas fa-calculator"></i> Calcular Preço</button>
+            <button class="btn btn-danger" onclick="confirmarLimparPrecos()"><i class="fas fa-eraser"></i> Limpar Tudo</button>
+        </div>
+
+        <div class="resultado-card" id="resultadoPrecos" style="margin-bottom: 20px;">
+            <div class="resultado-item">📊 Custo Total do Produto: <span id="precosCustoTotal" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">📋 Detalhamento dos Custos: <span id="precosCustosDetalhados" class="resultado-valor">---</span></div>
+            <div class="resultado-item">🎯 Valor de Venda Final: <span id="precosValorVenda" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">💳 Valor de cada Parcela: <span id="precosValorParcela" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">🤑 Lucro Real: <span id="precosLucro" class="resultado-valor">R$ 0,00</span></div>
+            <div class="resultado-item">📊 Margem de Lucro: <span id="precosMargem" class="resultado-valor">0,00%</span></div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <div style="font-weight: 600; margin-bottom: 10px;">📤 Exportar Resultado</div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-export-cliente" id="btnExportCliente" onclick="exportarCliente()" disabled>👤 Versão Cliente</button>
+                <button class="btn btn-export-fornecedor" id="btnExportFornecedor" onclick="exportarFornecedor()" disabled>🏢 Versão Fornecedor</button>
             </div>
         </div>
 
-        <!-- CONTEÚDO: RELATÓRIO SEMANAL -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">📆 Relatório de Recebimentos da Semana</h3>
-            <p style="margin-bottom:15px; color:#7f8c8d; font-size:14px;">Clientes ordenados por nome | Valores por dia da semana</p>
-            <div id="listaRelatorioSemanal"></div>
-            <div id="somaPorDia" style="margin-top:20px; padding:15px; background:#ecf0f1; border-radius:8px;"></div>
-        </div>
-
-        <!-- CONTEÚDO: RESUMO DE VENDAS -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">💰 Resumo Geral de Vendas</h3>
-            <div class="tabela-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Cliente</th>
-                            <th>Produto</th>
-                            <th>Valor Total</th>
-                            <th>Qtd Parcelas</th>
-                            <th>Data Cadastro</th>
-                            <th class="valor-centro">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resumoVendas"></tbody>
-                    <tfoot>
-                        <tr class="soma-total">
-                            <td colspan="2">TOTAL GERAL</td>
-                            <td id="valorTotalVendas" class="valor-direita">0,00</td>
-                            <td colspan="3"></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-
-        <!-- CONTEÚDO: BACKUP -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">💾 Backup e Restauração</h3>
-            <div class="info-backup">
-                <p><strong>Exportar:</strong> Baixa um arquivo com todos os seus dados salvos.</p>
-                <p><strong>Importar:</strong> Restaura todos os dados a partir de um arquivo de backup. <strong>Atenção:</strong> Isso substituirá todos os dados atuais!</p>
-            </div>
-            <button class="botao botao-exportar" onclick="exportarBackup()">⬇️ Exportar Arquivo de Backup</button>
-            <br>
-            <input type="file" id="arquivoBackup" accept=".json" style="display: none;" onchange="importarBackup(event)">
-            <button class="botao botao-importar" onclick="document.getElementById('arquivoBackup').click()">⬆️ Importar Arquivo de Backup</button>
-
-            <div class="aviso sucesso" id="sucessoBackup" style="margin-top:20px;">✅ Operação realizada com sucesso!</div>
-            <div class="aviso" id="erroBackup" style="margin-top:20px;">❌ Erro ao processar o arquivo.</div>
-        </div>
-
-        <!-- CONTEÚDO: GERENCIAR USUÁRIOS -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">👤 Gerenciamento de Usuários</h3>
-            
-            <div class="campos">
-                <div class="campo">
-                    <label>Nome de Usuário:</label>
-                    <input type="text" id="novoUsuario" placeholder="Ex: marcos">
-                </div>
-                <div class="campo">
-                    <label>Senha:</label>
-                    <input type="password" id="novaSenha" placeholder="Digite a senha">
-                </div>
-                <div class="campo">
-                    <label>Nível de Permissão:</label>
-                    <select id="novoNivel">
-                        <option value="total">Acesso Total</option>
-                        <option value="parcial">Acesso Parcial</option>
-                        <option value="leitura">Apenas Leitura</option>
-                    </select>
-                </div>
-                <div class="campo">
-                    <label style="visibility:hidden;">Botão</label>
-                    <button class="botao" onclick="cadastrarNovoUsuario()">➕ Adicionar Usuário</button>
+        <div class="relatorio" id="blocoRelatorio">
+            <div class="relatorio-header">
+                <h3>📋 Relatório Completo</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="copiarRelatorio()">📋 Copiar</button>
+                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="compartilharWhatsApp()">📱 WhatsApp</button>
                 </div>
             </div>
-
-            <div class="tabela-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Usuário</th>
-                            <th>Nível de Acesso</th>
-                            <th class="valor-centro">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaUsuarios"></tbody>
-                </table>
+            <div class="relatorio-conteudo">
+                <div class="relatorio-texto">
+                    <p><strong>📦 Produto:</strong> <span id="relNomeProduto">---</span></p>
+                    <p><strong>💰 Valor do Produto:</strong> <span id="relValProduto">R$ 0,00</span></p>
+                    <p><strong>📋 Taxa de Compra:</strong> <span id="relTaxaCompra">R$ 0,00</span></p>
+                    <div class="separador"></div>
+                    <p><strong>💳 Taxa do Cartão:</strong> <span id="relTaxaCartao">0,00%</span></p>
+                    <p><strong>📊 Custo Total:</strong> <span id="relCustoTotal">R$ 0,00</span></p>
+                    <div class="separador"></div>
+                    <p><strong>📈 Juros de Venda:</strong> <span id="relJurosVenda">0,00%</span></p>
+                    <p><strong>🎯 Valor Final:</strong> <span id="relValorVenda">R$ 0,00</span></p>
+                    <div class="separador"></div>
+                    <p><strong>📅 Parcelas:</strong> <span id="relParcelas">1x</span></p>
+                    <p><strong>💳 Valor da Parcela:</strong> <span id="relValorParcela">R$ 0,00</span></p>
+                    <div class="separador"></div>
+                    <p><strong>🤑 Lucro Obtido:</strong> <span id="relLucro">R$ 0,00</span></p>
+                    <p><strong>📊 Margem:</strong> <span id="relMargem">0,00%</span></p>
+                </div>
+                <div class="relatorio-imagem" id="relatorioImagem">
+                    <img id="imagemRelatorio" src="" alt="Foto do produto">
+                </div>
             </div>
         </div>
+    </div>
 
-        <!-- CONTEÚDO: EMPRESA -->
-        <div class="conteudo aba-conteudo">
-            <h3 style="color:#2c3e50; margin-bottom:15px;">🏢 Dados da Empresa</h3>
+    <!-- ==================== ABA 5: RECIBOS ==================== -->
+    <div class="conteudo-aba aba-conteudo" id="abaRecibos">
+        <h2 style="color: var(--cor-destaque); margin-bottom: 20px;"><i class="fas fa-file-alt"></i> Gerador de Recibo de Pagamento</h2>
+        <div class="form-grid">
+            <div class="campo"><label>👤 Beneficiário (Nome completo)</label><input type="text" id="reciboBeneficiario" placeholder="Ex: João da Silva Santos" oninput="atualizarRecibo()"></div>
+            <div class="campo"><label>🔑 Chave PIX do Beneficiário</label><input type="text" id="reciboChavePix" placeholder="Ex: CPF, e-mail ou telefone" oninput="atualizarRecibo()"></div>
+            <div class="campo"><label>🔢 CPF do Beneficiário</label><input type="text" id="reciboCpf" placeholder="Ex: 123.456.789-00" oninput="atualizarRecibo(); formatarCPF(this)" maxlength="14"></div>
+            <div class="campo"><label>💰 Valor do Pagamento (R$)</label><input type="text" id="reciboValor" placeholder="Ex: 1500,00" oninput="atualizarRecibo(); formatarMoedaInput(this)" onblur="formatarMoedaInput(this)"></div>
+            <div class="campo"><label>📝 Descrição / Referente a</label><input type="text" id="reciboDescricao" placeholder="Ex: Serviços de consultoria" oninput="atualizarRecibo()"></div>
+            <div class="campo"><label>📅 Data do Pagamento</label><input type="date" id="reciboData" oninput="atualizarRecibo()"></div>
+        </div>
 
-            <div class="campos">
-                <div class="campo campo-linha">
-                    <label>Nome Fantasia:</label>
-                    <input type="text" id="empresaNomeFantasia" disabled>
+        <div class="recibo-preview-container" style="margin-top: 20px;">
+            <div class="recibo-header-toolbar">
+                <span><i class="fas fa-print"></i> Pré-visualização do Recibo</span>
+                <span id="reciboNumeroDisplay" style="font-size: 12px;">Nº ---</span>
+            </div>
+            <div id="reciboPreview" style="padding: 20px;">
+                <div class="recibo-logo-area">
+                    <div class="logo-container">
+                        <div class="recibo-logo-icon">P</div>
+                        <div>
+                            <div class="logo-texto">PLABZ</div>
+                            <div class="logo-subtexto">Tecnologia</div>
+                        </div>
+                    </div>
+                    <div class="recibo-titulo-area"><h3>RECIBO</h3></div>
                 </div>
-                <div class="campo">
-                    <label>CNPJ:</label>
-                    <input type="text" id="empresaCnpj" disabled>
-                </div>
-                <div class="campo">
-                    <label>Inscrição Estadual:</label>
-                    <input type="text" id="empresaIe" disabled>
-                </div>
-                <div class="campo campo-linha">
-                    <label>Endereço Completo:</label>
-                    <textarea id="empresaEndereco" disabled></textarea>
-                </div>
-                <div class="campo campo-linha">
-                    <label>Logomarca:</label>
-                    <input type="file" id="empresaLogoInput" accept="image/*" style="display: none;" onchange="carregarLogo(event)" disabled>
-                    <button class="botao botao-menor" type="button" id="btnEscolherLogo" onclick="document.getElementById('empresaLogoInput').click()" disabled>📁 Escolher Imagem</button>
-                    <div>
-                        <img id="logoPreview" class="logo-preview" alt="Logomarca da Empresa">
+                <div class="recibo-conteudo">
+                    <div class="info-row valor-destaque">
+                        <span class="info-label" style="font-size: 1.1em;">💵 VALOR RECEBIDO:</span>
+                        <span class="info-value" id="previewValor" style="font-size: 1.4em; font-weight: 800; color: #764ba2;">R$ 0,00</span>
+                    </div>
+                    <div class="info-row"><span class="info-label">📝 Referente a:</span><span class="info-value" id="previewDescricao">-</span></div>
+                    <div class="info-row"><span class="info-label">🏢 Recebi de:</span><span class="info-value"><strong>Plabz Tecnologia Ltda</strong></span></div>
+                    <div class="info-row"><span class="info-label">📋 CNPJ Pagador:</span><span class="info-value">45.808.899/0001-01</span></div>
+                    <div class="info-row"><span class="info-label">👤 Beneficiário:</span><span class="info-value" id="previewBeneficiario">-</span></div>
+                    <div class="info-row"><span class="info-label">🔢 CPF:</span><span class="info-value" id="previewCPF">-</span></div>
+                    <div class="info-row"><span class="info-label">🔑 Chave PIX:</span><span class="info-value" id="previewPix">-</span></div>
+                    <div class="info-row"><span class="info-label">📅 Data:</span><span class="info-value" id="previewData">-</span></div>
+                    <div class="recibo-footer" style="margin-top: 30px; text-align: center;">
+                        <p>Declaro ter recebido de <strong>Plabz Tecnologia Ltda</strong> o valor acima mencionado, dando plena e total quitação.</p>
+                        <div class="assinatura">
+                            ________________________________<br>
+                            Assinatura do Beneficiário
+                        </div>
+                    </div>
+                    <div class="rodape-recibo">
+                        <span>Plabz Tecnologia Ltda</span>
+                        <span>CNPJ: 45.808.899/0001-01</span>
                     </div>
                 </div>
             </div>
-
-            <div>
-                <button class="botao botao-editar" id="btnEditarEmpresa" onclick="editarDadosEmpresa()">✏️ Editar Dados</button>
-                <button class="botao" id="btnSalvarEmpresa" onclick="salvarDadosEmpresa()" style="display: none;">💾 Salvar Dados</button>
-            </div>
-
-            <div class="aviso sucesso" id="sucessoEmpresa">✅ Dados da empresa salvos com sucesso!</div>
+            <button class="download-recibo-btn" onclick="baixarReciboJPG()"><i class="fas fa-download"></i> Baixar Recibo em JPG</button>
         </div>
     </div>
 
-    <!-- MODAL DE DETALHES -->
-    <div id="modalDetalhe" class="modal">
-        <div class="modal-conteudo">
-            <span class="fechar" onclick="fecharModal()">&times;</span>
-            
-            <div class="botoes-topo">
-                <button class="botao botao-apagar" id="btnApagar" onclick="apagarCliente()">🗑️ Apagar</button>
-                <button class="botao botao-editar" id="btnEditar" onclick="habilitarEdicao()">✏️ Editar</button>
-                <button class="botao" id="btnSalvar" onclick="salvarEdicao()" style="display:none;">💾 Salvar</button>
-            </div>
+</div><!-- /dashboard-container -->
 
-            <h2 style="text-align:center; color:#2c3e50; margin-bottom:20px;" id="tituloModal"></h2>
-
-            <div class="campos dados-cliente">
-                <div class="campo campo-linha">
-                    <label>Nome:</label>
-                    <input type="text" id="det-nome" disabled>
-                </div>
-                <div class="campo campo-linha">
-                    <label>Produto/Mercadoria:</label>
-                    <input type="text" id="det-mercadoria" disabled>
-                </div>
-                <div class="campo">
-                    <label>Valor Custo (R$):</label>
-                    <input type="number" id="det-custo" step="0.01" disabled>
-                </div>
-                <div class="campo">
-                    <label>Valor Venda (R$):</label>
-                    <input type="number" id="det-venda" step="0.01" disabled>
-                </div>
-                <div class="campo">
-                    <label>Quantidade de Parcelas:</label>
-                    <input type="number" id="det-qtd" disabled>
-                </div>
-                <div class="campo">
-                    <label>Intervalo:</label>
-                    <select id="det-intervalo" disabled>
-                        <option value="semanal">Semanal</option>
-                        <option value="quinzenal">Quinzenal</option>
-                        <option value="mensal">Mensal</option>
-                    </select>
-                </div>
-                <div class="campo">
-                    <label>Primeiro Vencimento:</label>
-                    <input type="date" id="det-data" disabled>
-                </div>
-            </div>
-
-            <h4 style="margin:20px 0 10px; border-bottom:1px solid #27ae60; padding-bottom:5px;">📅 Datas de Pagamento</h4>
-            <div class="tabela-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nº</th>
-                            <th>Data</th>
-                            <th class="valor-direita">Valor (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="det-lista-parcelas"></tbody>
-                </table>
-            </div>
-
-            <div class="aviso sucesso" id="sucessoEdicao">✅ Dados atualizados com sucesso!</div>
+<!-- Modal -->
+<div class="modal-overlay" id="modalConfirmacao">
+    <div class="modal">
+        <p>⚠️ <strong>Tem certeza que deseja limpar todos os campos?</strong></p>
+        <p style="font-size: 14px; opacity: 0.8;">Esta ação não pode ser desfeita.</p>
+        <div class="modal-botoes">
+            <button class="btn" onclick="fecharModal()">Cancelar</button>
+            <button class="btn btn-danger" onclick="limparTudoPrecos()">Sim, Limpar</button>
         </div>
     </div>
+</div>
 
-    <script>
-        // ======================
-        // FUNÇÕES DE SEGURANÇA
-        // ======================
-        
-        async function hashPassword(password) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(password);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
+<script>
+    // ====================== TEMA ======================
+    let fotoProdutoDataURL = null;
+
+    function aplicarTema() {
+        if (localStorage.getItem('dashboardTema') === 'escuro') {
+            document.body.classList.add('tema-escuro');
+            document.getElementById('alternarTema').innerHTML = '<i class="fas fa-sun"></i> Tema Claro';
+        }
+    }
+
+    function alternarTema() {
+        document.body.classList.toggle('tema-escuro');
+        const isEscuro = document.body.classList.contains('tema-escuro');
+        localStorage.setItem('dashboardTema', isEscuro ? 'escuro' : 'claro');
+        document.getElementById('alternarTema').innerHTML = isEscuro
+            ? '<i class="fas fa-sun"></i> Tema Claro'
+            : '<i class="fas fa-moon"></i> Tema Escuro';
+    }
+
+    document.getElementById('alternarTema').addEventListener('click', alternarTema);
+    aplicarTema();
+
+    // ====================== NAVEGAÇÃO ======================
+    function mostrarAba(indice) {
+        document.querySelectorAll('.aba').forEach((a, i) => a.classList.toggle('ativa', i === indice));
+        document.querySelectorAll('.aba-conteudo').forEach((c, i) => c.classList.toggle('ativa', i === indice));
+        if (indice === 4) {
+            atualizarRecibo();
+            document.getElementById('reciboNumeroDisplay').innerHTML = 'Nº ' + gerarNumeroRecibo();
+        }
+    }
+
+    // ====================== DEPIX ======================
+    let depixModoEnvio = 'manual';
+    let depixModoRecebimento = 'manual';
+    let depixDadosCalculados = {};
+
+    // Taxas pré-definidas
+    // Envio: valor <= 99,99 → fixa R$1,00 + 0% | valor >= 100 → fixa 0 + 1,011%
+    const DEPIX_TAXAS = {
+        saltsail: { envio: { fixa: 0.00, perc: 1.011 }, receb: { fixa: 0.99, perc: 0.80 } },
+        lmaia:    { envio: { fixa: 0.00, perc: 1.011 }, receb: { fixa: 0.99, perc: 0.10 } }
+    };
+
+    function depixTaxasEnvioEfetivas(modo, valorDesejado) {
+        if (modo === 'manual') return null;
+        if (valorDesejado <= 99.99) return { fixa: 1.00, perc: 0 };
+        return { fixa: DEPIX_TAXAS[modo].envio.fixa, perc: DEPIX_TAXAS[modo].envio.perc };
+    }
+
+    function depixMostrarAlerta(msg) {
+        const el = document.getElementById('alertaDepix');
+        el.textContent = msg;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 2500);
+    }
+
+    function ativarModoEnvio(modo) {
+        depixModoEnvio = modo;
+        ['Saltsail','LMaia','Manual'].forEach(n =>
+            document.getElementById('opcao' + n + 'Envio').classList.remove('ativa'));
+        const btn = modo === 'saltsail' ? 'Saltsail' : modo === 'lmaia' ? 'LMaia' : 'Manual';
+        document.getElementById('opcao' + btn + 'Envio').classList.add('ativa');
+
+        const campoFixa = document.getElementById('depixTaxaFixaEnvio');
+        const campoPerc = document.getElementById('depixPorcentagemEnvio');
+
+        if (modo === 'saltsail' || modo === 'lmaia') {
+            const valor = parseFloat(document.getElementById('depixValorDesejado').value) || 0;
+            const taxas = depixTaxasEnvioEfetivas(modo, valor);
+            campoFixa.value = taxas.fixa.toFixed(2);
+            campoPerc.value = taxas.perc.toFixed(3);
+            campoFixa.disabled = true;
+            campoPerc.disabled = true;
+        } else {
+            campoFixa.disabled = false;
+            campoPerc.disabled = false;
+        }
+        calcularDepix();
+    }
+
+    function ativarModoRecebimento(modo) {
+        depixModoRecebimento = modo;
+        ['Saltsail','LMaia','Manual'].forEach(n =>
+            document.getElementById('opcao' + n + 'Receb').classList.remove('ativa'));
+        const btn = modo === 'saltsail' ? 'Saltsail' : modo === 'lmaia' ? 'LMaia' : 'Manual';
+        document.getElementById('opcao' + btn + 'Receb').classList.add('ativa');
+
+        const campoFixa = document.getElementById('depixTaxaFixaReceb');
+        const campoPerc = document.getElementById('depixPorcentagemReceb');
+
+        if (modo === 'saltsail' || modo === 'lmaia') {
+            campoFixa.value = DEPIX_TAXAS[modo].receb.fixa.toFixed(2);
+            campoPerc.value = DEPIX_TAXAS[modo].receb.perc.toFixed(2);
+            campoFixa.disabled = true;
+            campoPerc.disabled = true;
+        } else {
+            campoFixa.disabled = false;
+            campoPerc.disabled = false;
+        }
+        calcularDepix();
+    }
+
+    function calcularDepix() {
+        const valorDesejado = parseFloat(document.getElementById('depixValorDesejado').value) || 0;
+        if (valorDesejado <= 0) return;
+
+        const porcentagemDesejada = parseFloat(document.getElementById('depixPorcentagemDesejada').value) || 0;
+        const taxaFixaReceb       = parseFloat(document.getElementById('depixTaxaFixaReceb').value)       || 0;
+        const porcentagemReceb    = parseFloat(document.getElementById('depixPorcentagemReceb').value)    || 0;
+        const parcelas            = parseInt(document.getElementById('depixParcelas').value)              || 1;
+
+        let taxaFixaEnvio, porcentagemEnvio;
+        if (depixModoEnvio === 'saltsail' || depixModoEnvio === 'lmaia') {
+            const taxas = depixTaxasEnvioEfetivas(depixModoEnvio, valorDesejado);
+            taxaFixaEnvio    = taxas.fixa;
+            porcentagemEnvio = taxas.perc;
+            document.getElementById('depixTaxaFixaEnvio').value    = taxaFixaEnvio.toFixed(2);
+            document.getElementById('depixPorcentagemEnvio').value = porcentagemEnvio.toFixed(3);
+        } else {
+            taxaFixaEnvio    = parseFloat(document.getElementById('depixTaxaFixaEnvio').value)    || 0;
+            porcentagemEnvio = parseFloat(document.getElementById('depixPorcentagemEnvio').value) || 0;
         }
 
-        function sanitizarHTML(texto) {
-            if (!texto) return '';
-            const div = document.createElement('div');
-            div.textContent = texto;
-            return div.innerHTML;
-        }
-
-        // ======================
-        // VARIÁVEIS GLOBAIS
-        // ======================
-        let usuarioLogado = null;
-        let bancoDados = [];
-        let bancoUsuarios = [];
-        let dadosEmpresa = {};
-
-        // ======================
-        // FUNÇÕES DE INICIALIZAÇÃO
-        // ======================
-        
-        async function inicializarUsuariosPadrao() {
-            const hashAdmin = await hashPassword("131188");
-            const hashMarcos = await hashPassword("@Santana13");
-            
-            const usuarios = [
-                { usuario: "admin", senha: hashAdmin, nivel: "total" },
-                { usuario: "marcos", senha: hashMarcos, nivel: "parcial" }
-            ];
-            localStorage.setItem('gerenciadorUsuarios', JSON.stringify(usuarios));
-            return usuarios;
-        }
-
-        async function carregarDados() {
-            // Carregar usuários
-            const usuariosSalvos = localStorage.getItem('gerenciadorUsuarios');
-            if (usuariosSalvos) {
-                bancoUsuarios = JSON.parse(usuariosSalvos);
-            } else {
-                bancoUsuarios = await inicializarUsuariosPadrao();
-            }
-            
-            // Carregar clientes
-            const clientesSalvos = localStorage.getItem('gerenciadorPagamentos');
-            if (clientesSalvos) {
-                bancoDados = JSON.parse(clientesSalvos);
-                bancoDados = bancoDados.map(cliente => ({
-                    id: cliente.id || crypto.randomUUID(),
-                    nome: sanitizarHTML(cliente.nome || ''),
-                    mercadoria: sanitizarHTML(cliente.mercadoria || ''),
-                    valorCusto: cliente.valorCusto || 0,
-                    valorVenda: cliente.valorVenda || cliente.valorTotal || 0,
-                    qtdParcelas: cliente.qtdParcelas || 1,
-                    intervalo: cliente.intervalo || 'mensal',
-                    dataPrimeira: cliente.dataPrimeira || new Date().toISOString().split('T')[0],
-                    parcelas: cliente.parcelas || [],
-                    dataCadastro: cliente.dataCadastro || new Date().toISOString().split('T')[0]
-                }));
-            } else {
-                bancoDados = [];
-            }
-            
-            // Carregar dados da empresa
-            const empresaSalva = localStorage.getItem('dadosEmpresa');
-            dadosEmpresa = empresaSalva ? JSON.parse(empresaSalva) : {
-                nomeFantasia: '',
-                cnpj: '',
-                ie: '',
-                endereco: '',
-                logo: ''
-            };
-        }
-
-        // ======================
-        // FUNÇÕES DE LOGIN (CORRIGIDAS)
-        // ======================
-        
-        async function fazerLogin() {
-            const user = document.getElementById('usuarioLogin').value.trim();
-            const pass = document.getElementById('senhaLogin').value;
-
-            if (!user || !pass) {
-                document.getElementById('erroLogin').textContent = 'Preencha usuário e senha!';
-                document.getElementById('erroLogin').style.display = 'block';
-                setTimeout(() => { document.getElementById('erroLogin').style.display = 'none'; }, 3000);
-                return;
-            }
-
-            // Recarregar usuários do localStorage para garantir dados atualizados
-            const usuariosSalvos = localStorage.getItem('gerenciadorUsuarios');
-            if (usuariosSalvos) {
-                bancoUsuarios = JSON.parse(usuariosSalvos);
-            }
-
-            const senhaHash = await hashPassword(pass);
-            const encontrado = bancoUsuarios.find(u => u.usuario === user && u.senha === senhaHash);
-
-            if(encontrado) {
-                usuarioLogado = { usuario: encontrado.usuario, nivel: encontrado.nivel };
-                localStorage.setItem('sessaoUsuario', JSON.stringify(usuarioLogado));
-                document.getElementById('telaLogin').style.display = 'none';
-                atualizarInterfacePermissoes();
-                carregarDadosEmpresa();
-                
-                // Limpar campos de login
-                document.getElementById('usuarioLogin').value = '';
-                document.getElementById('senhaLogin').value = '';
-                document.getElementById('erroLogin').style.display = 'none';
-            } else {
-                document.getElementById('erroLogin').textContent = 'Usuário ou senha incorretos!';
-                document.getElementById('erroLogin').style.display = 'block';
-                setTimeout(() => { document.getElementById('erroLogin').style.display = 'none'; }, 3000);
-            }
-        }
-
-        function verificarSessao() {
-            const sessaoSalva = localStorage.getItem('sessaoUsuario');
-            if(sessaoSalva) {
-                usuarioLogado = JSON.parse(sessaoSalva);
-                document.getElementById('telaLogin').style.display = 'none';
-                atualizarInterfacePermissoes();
-                carregarDadosEmpresa();
-            } else {
-                document.getElementById('telaLogin').style.display = 'flex';
-            }
-        }
-
-        function sairSistema() {
-            usuarioLogado = null;
-            localStorage.removeItem('sessaoUsuario');
-            
-            // Resetar interface
-            document.getElementById('nomeUsuarioLogado').textContent = '-';
-            document.getElementById('nivelUsuarioLogado').textContent = '-';
-            
-            // Mostrar tela de login
-            document.getElementById('telaLogin').style.display = 'flex';
-            
-            // Limpar campos de login
-            document.getElementById('usuarioLogin').value = '';
-            document.getElementById('senhaLogin').value = '';
-            document.getElementById('erroLogin').style.display = 'none';
-            
-            // Recarregar dados para garantir consistência
-            carregarDados();
-            
-            console.log('Sessão encerrada. Faça login novamente.');
-        }
-
-        function atualizarInterfacePermissoes() {
-            document.getElementById('nomeUsuarioLogado').textContent = usuarioLogado.usuario;
-            document.getElementById('nivelUsuarioLogado').textContent = usuarioLogado.nivel.toUpperCase();
-
-            const abaUsuarios = document.getElementById('abaUsuarios');
-            if(usuarioLogado.nivel === 'total') {
-                abaUsuarios.style.display = 'flex';
-            } else {
-                abaUsuarios.style.display = 'none';
-                if(document.querySelectorAll('.aba')[5] && document.querySelectorAll('.aba')[5].classList.contains('ativa')) {
-                    mostrarAba(0);
-                }
-            }
-
-            const botoes = document.querySelectorAll('.botao:not(.btn-sair):not(.fechar)');
-            botoes.forEach(btn => {
-                btn.disabled = (usuarioLogado.nivel === 'leitura');
-            });
-
-            if(usuarioLogado.nivel === 'parcial') {
-                const btnApagar = document.getElementById('btnApagar');
-                if(btnApagar) btnApagar.disabled = true;
-                const btnExport = document.querySelector('.botao-exportar');
-                if(btnExport) btnExport.disabled = true;
-                const btnImport = document.querySelector('.botao-importar');
-                if(btnImport) btnImport.disabled = true;
-            }
-        }
-
-        // ======================
-        // FUNÇÕES DA EMPRESA
-        // ======================
-        function carregarDadosEmpresa() {
-            document.getElementById('empresaNomeFantasia').value = dadosEmpresa.nomeFantasia || '';
-            document.getElementById('empresaCnpj').value = dadosEmpresa.cnpj || '';
-            document.getElementById('empresaIe').value = dadosEmpresa.ie || '';
-            document.getElementById('empresaEndereco').value = dadosEmpresa.endereco || '';
-            
-            if(dadosEmpresa.logo) {
-                document.getElementById('logoPreview').src = dadosEmpresa.logo;
-                document.getElementById('logoPreview').style.display = 'block';
-            } else {
-                document.getElementById('logoPreview').style.display = 'none';
-            }
-        }
-
-        function editarDadosEmpresa() {
-            if(usuarioLogado?.nivel === 'leitura') return;
-
-            document.getElementById('empresaNomeFantasia').disabled = false;
-            document.getElementById('empresaCnpj').disabled = false;
-            document.getElementById('empresaIe').disabled = false;
-            document.getElementById('empresaEndereco').disabled = false;
-            document.getElementById('empresaLogoInput').disabled = false;
-            document.getElementById('btnEscolherLogo').disabled = false;
-
-            document.getElementById('btnEditarEmpresa').style.display = 'none';
-            document.getElementById('btnSalvarEmpresa').style.display = 'block';
-            document.getElementById('sucessoEmpresa').style.display = 'none';
-        }
-
-        function salvarDadosEmpresa() {
-            dadosEmpresa.nomeFantasia = sanitizarHTML(document.getElementById('empresaNomeFantasia').value);
-            dadosEmpresa.cnpj = sanitizarHTML(document.getElementById('empresaCnpj').value);
-            dadosEmpresa.ie = sanitizarHTML(document.getElementById('empresaIe').value);
-            dadosEmpresa.endereco = sanitizarHTML(document.getElementById('empresaEndereco').value);
-
-            localStorage.setItem('dadosEmpresa', JSON.stringify(dadosEmpresa));
-
-            document.getElementById('empresaNomeFantasia').disabled = true;
-            document.getElementById('empresaCnpj').disabled = true;
-            document.getElementById('empresaIe').disabled = true;
-            document.getElementById('empresaEndereco').disabled = true;
-            document.getElementById('empresaLogoInput').disabled = true;
-            document.getElementById('btnEscolherLogo').disabled = true;
-
-            document.getElementById('btnEditarEmpresa').style.display = 'block';
-            document.getElementById('btnSalvarEmpresa').style.display = 'none';
-            document.getElementById('sucessoEmpresa').style.display = 'block';
-
-            setTimeout(() => { document.getElementById('sucessoEmpresa').style.display = 'none'; }, 3000);
-        }
-
-        function carregarLogo(event) {
-            const arquivo = event.target.files[0];
-            if (arquivo) {
-                const leitor = new FileReader();
-                leitor.onload = function(e) {
-                    dadosEmpresa.logo = e.target.result;
-                    document.getElementById('logoPreview').src = e.target.result;
-                    document.getElementById('logoPreview').style.display = 'block';
-                    localStorage.setItem('dadosEmpresa', JSON.stringify(dadosEmpresa));
-                };
-                leitor.readAsDataURL(arquivo);
-            }
-        }
-
-        // ======================
-        // FUNÇÕES DE CÁLCULO
-        // ======================
-        function calcularDataCorreta(dataBase, indiceParcela, tipoIntervalo) {
-            if (tipoIntervalo === 'mensal') {
-                const diaEscolhido = dataBase.getDate();
-                let ano = dataBase.getFullYear();
-                let mes = dataBase.getMonth() + indiceParcela;
-                let ultimoDia = new Date(ano, mes + 1, 0).getDate();
-                return new Date(ano, mes, Math.min(diaEscolhido, ultimoDia));
-            } 
-            else if (tipoIntervalo === 'semanal') {
-                let novaData = new Date(dataBase);
-                novaData.setDate(novaData.getDate() + (indiceParcela * 7));
-                return novaData;
-            } 
-            else if (tipoIntervalo === 'quinzenal') {
-                let novaData = new Date(dataBase);
-                novaData.setDate(novaData.getDate() + (indiceParcela * 15));
-                return novaData;
-            }
-            return dataBase;
-        }
-
-        function formatarData(dataISO) {
-            const d = new Date(dataISO + "T00:00:00");
-            return d.toLocaleDateString('pt-BR');
-        }
-
-        function calcularLucro(custo, venda) {
-            const lucroValor = venda - custo;
-            let lucroPercentual = 0;
-            if(custo > 0) {
-                lucroPercentual = ((lucroValor / custo) * 100).toFixed(2);
-            }
-            return { valor: lucroValor, percentual: lucroPercentual };
-        }
-
-        // ======================
-        // FUNÇÕES DO SISTEMA
-        // ======================
-        function mostrarAba(indice) {
-            if(indice === 5 && usuarioLogado?.nivel !== 'total') return;
-
-            document.querySelectorAll('.aba').forEach((aba, i) => aba.classList.toggle('ativa', i === indice));
-            document.querySelectorAll('.aba-conteudo').forEach((conteudo, i) => conteudo.classList.toggle('ativa', i === indice));
-
-            if(indice === 1) listarClientes();
-            if(indice === 2) relatorioSemanal();
-            if(indice === 3) resumoVendas();
-            if(indice === 5) listarUsuarios();
-        }
-
-        function cadastrarCliente() {
-            if(usuarioLogado?.nivel === 'leitura') return;
-
-            const nome = sanitizarHTML(document.getElementById('nome').value.trim());
-            const mercadoria = sanitizarHTML(document.getElementById('mercadoria').value.trim());
-            const valorCusto = parseFloat(document.getElementById('valorCusto').value) || 0;
-            const valorVenda = parseFloat(document.getElementById('valorVenda').value) || 0;
-            const qtdParcelas = parseInt(document.getElementById('qtdParcelas').value);
-            const dataPrimeira = new Date(document.getElementById('dataPrimeira').value + "T00:00:00");
-            const intervalo = document.getElementById('intervalo').value;
-
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            if(dataPrimeira < hoje) {
-                document.getElementById('avisoCadastro').textContent = 'A data do primeiro pagamento não pode ser no passado!';
-                document.getElementById('avisoCadastro').style.display = 'block';
-                document.getElementById('sucessoCadastro').style.display = 'none';
-                return;
-            }
-
-            if(!nome || !mercadoria || isNaN(qtdParcelas) || isNaN(dataPrimeira.getTime()) || !intervalo) {
-                document.getElementById('avisoCadastro').textContent = 'Preencha todos os campos corretamente!';
-                document.getElementById('avisoCadastro').style.display = 'block';
-                document.getElementById('sucessoCadastro').style.display = 'none';
-                return;
-            }
-            document.getElementById('avisoCadastro').style.display = 'none';
-
-            const valorParcela = valorVenda / qtdParcelas;
-            const parcelas = [];
-            for(let i=0; i<qtdParcelas; i++) {
-                parcelas.push({
-                    numero: i+1,
-                    data: calcularDataCorreta(dataPrimeira, i, intervalo).toISOString().split('T')[0],
-                    valor: valorParcela
-                });
-            }
-
-            bancoDados.push({
-                id: crypto.randomUUID(),
-                nome, mercadoria, valorCusto, valorVenda,
-                qtdParcelas, intervalo, dataPrimeira: dataPrimeira.toISOString().split('T')[0],
-                parcelas, dataCadastro: new Date().toISOString().split('T')[0]
-            });
-            localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
-
-            document.getElementById('sucessoCadastro').style.display = 'block';
-            mostrarResumoParcelas(parcelas);
-
-            setTimeout(() => {
-                document.getElementById('nome').value = ''; 
-                document.getElementById('mercadoria').value = '';
-                document.getElementById('valorCusto').value = ''; 
-                document.getElementById('valorVenda').value = '';
-                document.getElementById('qtdParcelas').value = '1'; 
-                document.getElementById('dataPrimeira').value = '';
-                document.getElementById('intervalo').value = ''; 
-                document.getElementById('sucessoCadastro').style.display = 'none';
-                document.getElementById('resumoParcelas').style.display = 'none';
-            }, 4000);
-        }
-
-        function mostrarResumoParcelas(listaParcelas) {
-            const container = document.getElementById('listaParcelasResumo');
-            container.innerHTML = '';
-            listaParcelas.forEach(p => {
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td class="valor-centro">${p.numero}</td>
-                    <td class="valor-centro">${formatarData(p.data)}</td>
-                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                `;
-                container.appendChild(linha);
-            });
-            document.getElementById('resumoParcelas').style.display = 'block';
-        }
-
-        function listarClientes() {
-            const container = document.getElementById('listaClientes');
-            container.innerHTML = '';
-            
-            if(bancoDados.length === 0) {
-                container.innerHTML = '<tr><td colspan="10" style="text-align:center; color:#7f8c8d; padding:20px;">Nenhum cliente cadastrado.</td></tr>';
-                return;
-            }
-
-            bancoDados.forEach(c => {
-                const lucro = calcularLucro(c.valorCusto || 0, c.valorVenda || 0);
-                const classeLucro = lucro.valor >= 0 ? 'lucro-positivo' : 'lucro-negativo';
-                
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td>${sanitizarHTML(c.nome)}</td>
-                    <td>${sanitizarHTML(c.mercadoria)}</td>
-                    <td class="valor-direita">R$ ${(c.valorCusto || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                    <td class="valor-direita">R$ ${(c.valorVenda || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                    <td class="valor-direita ${classeLucro}">R$ ${lucro.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                    <td class="valor-centro ${classeLucro}">${lucro.percentual}%</td>
-                    <td class="valor-centro">${c.qtdParcelas}</td>
-                    <td class="valor-centro">${c.intervalo.charAt(0).toUpperCase() + c.intervalo.slice(1)}</td>
-                    <td class="valor-centro">${formatarData(c.dataPrimeira)}</td>
-                    <td class="valor-centro">
-                        <button class="botao botao-menor" onclick="abrirDetalhe('${c.id}')">🔍 Detalhar</button>
-                    </td>
-                `;
-                container.appendChild(linha);
-            });
-        }
-
-        function relatorioSemanal() {
-            const container = document.getElementById('listaRelatorioSemanal');
-            const containerSoma = document.getElementById('somaPorDia');
-            container.innerHTML = ''; 
-            containerSoma.innerHTML = '';
-
-            const hoje = new Date();
-            const inicioSemana = new Date(hoje);
-            inicioSemana.setDate(hoje.getDate() - hoje.getDay());
-            inicioSemana.setHours(0, 0, 0, 0);
-            
-            const fimSemana = new Date(inicioSemana);
-            fimSemana.setDate(inicioSemana.getDate() + 6);
-            fimSemana.setHours(23, 59, 59, 999);
-
-            let parcelasSemana = [];
-            bancoDados.forEach(cliente => {
-                cliente.parcelas.forEach(p => {
-                    const dataP = new Date(p.data);
-                    if(dataP >= inicioSemana && dataP <= fimSemana) {
-                        parcelasSemana.push({
-                            nome: cliente.nome, 
-                            data: p.data, 
-                            valor: p.valor
-                        });
-                    }
-                });
-            });
-
-            if(parcelasSemana.length === 0) { 
-                container.innerHTML = '<p style="text-align:center; color:#7f8c8d; padding:20px;">Nenhum pagamento previsto para essa semana.</p>'; 
-                return; 
-            }
-
-            const dias = ['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
-            const valoresPorDia = {};
-            let tabela = '<table><thead><tr><th>Cliente</th><th>Dia</th><th class="valor-direita">Valor (R$)</th></tr></thead><tbody>';
-
-            parcelasSemana.sort((a,b) => a.nome.localeCompare(b.nome)).forEach(item => {
-                const nomeDia = dias[new Date(item.data).getDay()];
-                valoresPorDia[nomeDia] = (valoresPorDia[nomeDia] || 0) + item.valor;
-                tabela += `<tr><td>${sanitizarHTML(item.nome)}</td><td>${nomeDia}</td><td class="valor-direita">R$ ${item.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td></tr>`;
-            });
-            tabela += '</tbody></table>';
-            container.innerHTML = tabela;
-
-            let htmlSoma = '<h4 style="margin-bottom:10px;">📊 Total por Dia:</h4>';
-            let totalGeral = 0;
-            for(const dia in valoresPorDia) {
-                totalGeral += valoresPorDia[dia];
-                htmlSoma += `<div style="display:flex; justify-content:space-between; padding:4px 0;"><span>${dia}:</span> <strong>R$ ${valoresPorDia[dia].toLocaleString('pt-BR', {minimumFractionDigits:2})}</strong></div>`;
-            }
-            htmlSoma += `<div style="display:flex; justify-content:space-between; padding:8px 0; margin-top:8px; border-top:2px solid #bbb; font-weight:bold; font-size:16px;"><span>TOTAL DA SEMANA:</span> <span>R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits:2})}</span></div>`;
-            containerSoma.innerHTML = htmlSoma;
-        }
-
-        function resumoVendas() {
-            const container = document.getElementById('resumoVendas');
-            const totalEl = document.getElementById('valorTotalVendas');
-            container.innerHTML = ''; 
-            let totalGeral = 0;
-            
-            bancoDados.forEach(c => {
-                totalGeral += (c.valorVenda || 0);
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td>${sanitizarHTML(c.nome)}</td>
-                    <td>${sanitizarHTML(c.mercadoria)}</td>
-                    <td class="valor-direita">R$ ${(c.valorVenda || 0).toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                    <td class="valor-centro">${c.qtdParcelas}</td>
-                    <td class="valor-centro">${formatarData(c.dataCadastro)}</td>
-                    <td class="valor-centro"><button class="botao botao-menor" onclick="abrirDetalhe('${c.id}')">🔍 Detalhar</button></td>
-                `;
-                container.appendChild(linha);
-            });
-            totalEl.textContent = `R$ ${totalGeral.toLocaleString('pt-BR', {minimumFractionDigits:2})}`;
-        }
-
-        // ======================
-        // BACKUP
-        // ======================
-        function exportarBackup() {
-            if(usuarioLogado?.nivel !== 'total') return;
-            const blob = new Blob([JSON.stringify(bancoDados, null, 2)], {type:'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `backup_${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.json`;
-            a.click(); 
-            URL.revokeObjectURL(a.href);
-            document.getElementById('sucessoBackup').style.display = 'block'; 
-            setTimeout(() => document.getElementById('sucessoBackup').style.display = 'none',3000);
-        }
-
-        function validarSchemaBackup(dados) {
-            if (!Array.isArray(dados)) return false;
-            for (const item of dados) {
-                if (!item.nome || typeof item.nome !== 'string') return false;
-                if (!item.mercadoria || typeof item.mercadoria !== 'string') return false;
-                if (typeof item.valorVenda !== 'number') return false;
-            }
-            return true;
-        }
-
-        function importarBackup(e) {
-            if(usuarioLogado?.nivel !== 'total') return;
-            const leitor = new FileReader();
-            leitor.onload = function(ev) {
-                try {
-                    const dados = JSON.parse(ev.target.result);
-                    
-                    if (!validarSchemaBackup(dados)) {
-                        throw new Error('Arquivo de backup inválido!');
-                    }
-                    
-                    if(confirm('Isso substituirá todos os dados atuais! Tem certeza que deseja continuar?')) {
-                        bancoDados = dados.map(cliente => ({
-                            id: cliente.id || crypto.randomUUID(),
-                            nome: sanitizarHTML(cliente.nome),
-                            mercadoria: sanitizarHTML(cliente.mercadoria),
-                            valorCusto: cliente.valorCusto || 0,
-                            valorVenda: cliente.valorVenda || cliente.valorTotal || 0,
-                            qtdParcelas: cliente.qtdParcelas || 1,
-                            intervalo: cliente.intervalo || 'mensal',
-                            dataPrimeira: cliente.dataPrimeira || new Date().toISOString().split('T')[0],
-                            parcelas: cliente.parcelas || [],
-                            dataCadastro: cliente.dataCadastro || new Date().toISOString().split('T')[0]
-                        }));
-                        localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
-                        document.getElementById('sucessoBackup').style.display = 'block';
-                        document.getElementById('erroBackup').style.display = 'none';
-                        setTimeout(() => {
-                            document.getElementById('sucessoBackup').style.display = 'none';
-                            location.reload();
-                        }, 1500);
-                    }
-                } catch (erro) {
-                    document.getElementById('erroBackup').textContent = `❌ ${erro.message}`;
-                    document.getElementById('erroBackup').style.display = 'block';
-                    document.getElementById('sucessoBackup').style.display = 'none';
-                    setTimeout(() => {
-                        document.getElementById('erroBackup').style.display = 'none';
-                    }, 3000);
-                }
-            };
-            leitor.readAsText(e.target.files[0]);
-            e.target.value = '';
-        }
-
-        // ======================
-        // GERENCIAMENTO DE USUÁRIOS
-        // ======================
-        async function cadastrarNovoUsuario() {
-            if(usuarioLogado?.nivel !== 'total') return;
-            const user = sanitizarHTML(document.getElementById('novoUsuario').value.trim());
-            const pass = document.getElementById('novaSenha').value;
-            const nivel = document.getElementById('novoNivel').value;
-
-            if(!user || !pass) { 
-                alert('Preencha usuário e senha!'); 
-                return; 
-            }
-            if(bancoUsuarios.some(u => u.usuario === user)) { 
-                alert('Usuário já existe no sistema!'); 
-                return; 
-            }
-
-            const senhaHash = await hashPassword(pass);
-            bancoUsuarios.push({usuario: user, senha: senhaHash, nivel: nivel});
-            localStorage.setItem('gerenciadorUsuarios', JSON.stringify(bancoUsuarios));
-            
-            document.getElementById('novoUsuario').value = ''; 
-            document.getElementById('novaSenha').value = '';
-            listarUsuarios();
-            alert('Usuário cadastrado com sucesso!');
-        }
-
-        function listarUsuarios() {
-            const container = document.getElementById('listaUsuarios');
-            container.innerHTML = '';
-            bancoUsuarios.forEach((u,i) => {
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td>${sanitizarHTML(u.usuario)}</td>
-                    <td>${u.nivel.toUpperCase()}</td>
-                    <td class="valor-centro">
-                        ${u.usuario !== 'admin' ? 
-                            `<button class="botao botao-apagar botao-menor" onclick="apagarUsuario(${i})">🗑️ Apagar</button>` 
-                            : '<span style="color:#7f8c8d;">Administrador</span>'}
-                    </td>
-                `;
-                container.appendChild(linha);
-            });
-        }
-
-        function apagarUsuario(i) {
-            if(usuarioLogado?.nivel !== 'total' || bancoUsuarios[i].usuario === 'admin') return;
-            if(confirm('Tem certeza que deseja apagar este usuário?')) { 
-                bancoUsuarios.splice(i,1); 
-                localStorage.setItem('gerenciadorUsuarios', JSON.stringify(bancoUsuarios)); 
-                listarUsuarios(); 
-            }
-        }
-
-        // ======================
-        // MODAL E EDIÇÃO
-        // ======================
-        let clienteEmEdicao = null;
-
-        function abrirDetalhe(id) {
-            clienteEmEdicao = bancoDados.find(c => c.id === id);
-            if(!clienteEmEdicao) return;
-
-            document.getElementById('tituloModal').textContent = `Detalhes: ${clienteEmEdicao.nome}`;
-            document.getElementById('det-nome').value = clienteEmEdicao.nome;
-            document.getElementById('det-mercadoria').value = clienteEmEdicao.mercadoria;
-            document.getElementById('det-custo').value = clienteEmEdicao.valorCusto || 0;
-            document.getElementById('det-venda').value = clienteEmEdicao.valorVenda || 0;
-            document.getElementById('det-qtd').value = clienteEmEdicao.qtdParcelas;
-            document.getElementById('det-intervalo').value = clienteEmEdicao.intervalo;
-            document.getElementById('det-data').value = clienteEmEdicao.dataPrimeira;
-
-            const listaParcelas = document.getElementById('det-lista-parcelas');
-            listaParcelas.innerHTML = '';
-            clienteEmEdicao.parcelas.forEach(p => {
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td class="valor-centro">${p.numero}</td>
-                    <td class="valor-centro">${formatarData(p.data)}</td>
-                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                `;
-                listaParcelas.appendChild(linha);
-            });
-
-            document.getElementById('btnEditar').style.display = 'block';
-            document.getElementById('btnSalvar').style.display = 'none';
-            document.getElementById('sucessoEdicao').style.display = 'none';
-
-            if(usuarioLogado?.nivel === 'leitura') {
-                document.getElementById('btnEditar').style.display = 'none';
-                document.getElementById('btnApagar').style.display = 'none';
-            }
-            if(usuarioLogado?.nivel === 'parcial') {
-                document.getElementById('btnApagar').style.display = 'none';
-            }
-
-            document.getElementById('modalDetalhe').style.display = 'block';
-        }
-
-        function fecharModal() {
-            document.getElementById('modalDetalhe').style.display = 'none';
-            clienteEmEdicao = null;
-            desabilitarEdicao();
-        }
-
-        function habilitarEdicao() {
-            if(usuarioLogado?.nivel === 'leitura') return;
-
-            document.getElementById('det-nome').disabled = false;
-            document.getElementById('det-mercadoria').disabled = false;
-            document.getElementById('det-custo').disabled = false;
-            document.getElementById('det-venda').disabled = false;
-            document.getElementById('det-qtd').disabled = false;
-            document.getElementById('det-intervalo').disabled = false;
-            document.getElementById('det-data').disabled = false;
-
-            document.getElementById('btnEditar').style.display = 'none';
-            document.getElementById('btnSalvar').style.display = 'block';
-        }
-
-        function desabilitarEdicao() {
-            document.getElementById('det-nome').disabled = true;
-            document.getElementById('det-mercadoria').disabled = true;
-            document.getElementById('det-custo').disabled = true;
-            document.getElementById('det-venda').disabled = true;
-            document.getElementById('det-qtd').disabled = true;
-            document.getElementById('det-intervalo').disabled = true;
-            document.getElementById('det-data').disabled = true;
-
-            document.getElementById('btnEditar').style.display = 'block';
-            document.getElementById('btnSalvar').style.display = 'none';
-        }
-
-        function salvarEdicao() {
-            if(!clienteEmEdicao || usuarioLogado?.nivel === 'leitura') return;
-
-            const novoNome = sanitizarHTML(document.getElementById('det-nome').value.trim());
-            const novaMercadoria = sanitizarHTML(document.getElementById('det-mercadoria').value.trim());
-            const novoCusto = parseFloat(document.getElementById('det-custo').value) || 0;
-            const novaVenda = parseFloat(document.getElementById('det-venda').value) || 0;
-            const novaQtd = parseInt(document.getElementById('det-qtd').value);
-            const novoIntervalo = document.getElementById('det-intervalo').value;
-            const novaData = new Date(document.getElementById('det-data').value + "T00:00:00");
-
-            if(!novoNome || !novaMercadoria || isNaN(novaQtd) || isNaN(novaData.getTime()) || !novoIntervalo) {
-                alert('Preencha todos os campos corretamente!');
-                return;
-            }
-
-            const novoValorParcela = novaVenda / novaQtd;
-            const novasParcelas = [];
-            for(let i=0; i<novaQtd; i++) {
-                novasParcelas.push({
-                    numero: i+1,
-                    data: calcularDataCorreta(novaData, i, novoIntervalo).toISOString().split('T')[0],
-                    valor: novoValorParcela
-                });
-            }
-
-            clienteEmEdicao.nome = novoNome;
-            clienteEmEdicao.mercadoria = novaMercadoria;
-            clienteEmEdicao.valorCusto = novoCusto;
-            clienteEmEdicao.valorVenda = novaVenda;
-            clienteEmEdicao.qtdParcelas = novaQtd;
-            clienteEmEdicao.intervalo = novoIntervalo;
-            clienteEmEdicao.dataPrimeira = novaData.toISOString().split('T')[0];
-            clienteEmEdicao.parcelas = novasParcelas;
-
-            localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
-
-            document.getElementById('sucessoEdicao').style.display = 'block';
-            desabilitarEdicao();
-
-            const listaParcelas = document.getElementById('det-lista-parcelas');
-            listaParcelas.innerHTML = '';
-            novasParcelas.forEach(p => {
-                const linha = document.createElement('tr');
-                linha.innerHTML = `
-                    <td class="valor-centro">${p.numero}</td>
-                    <td class="valor-centro">${formatarData(p.data)}</td>
-                    <td class="valor-direita">R$ ${p.valor.toLocaleString('pt-BR', {minimumFractionDigits:2})}</td>
-                `;
-                listaParcelas.appendChild(linha);
-            });
-
-            if(document.querySelectorAll('.aba')[1].classList.contains('ativa')) {
-                listarClientes();
-            }
-            if(document.querySelectorAll('.aba')[3].classList.contains('ativa')) {
-                resumoVendas();
-            }
-
-            setTimeout(() => { document.getElementById('sucessoEdicao').style.display = 'none'; }, 3000);
-        }
-
-        function apagarCliente() {
-            if(!clienteEmEdicao || usuarioLogado?.nivel !== 'total') return;
-
-            if(confirm('Tem certeza que deseja APAGAR este cliente? Essa ação não pode ser desfeita!')) {
-                bancoDados = bancoDados.filter(c => c.id !== clienteEmEdicao.id);
-                localStorage.setItem('gerenciadorPagamentos', JSON.stringify(bancoDados));
-                fecharModal();
-                
-                if(document.querySelectorAll('.aba')[1].classList.contains('ativa')) {
-                    listarClientes();
-                }
-                if(document.querySelectorAll('.aba')[3].classList.contains('ativa')) {
-                    resumoVendas();
-                }
-            }
-        }
-
-        // ======================
-        // INICIALIZAÇÃO
-        // ======================
-        window.onload = async function() {
-            await carregarDados();
-            verificarSessao();
-            
-            console.log('%c✅ SISTEMA PRONTO!', 'color: #27ae60; font-size: 16px; font-weight: bold;');
-            console.log('%c📋 USUÁRIOS CADASTRADOS:', 'color: #3498db; font-weight: bold;');
-            bancoUsuarios.forEach(user => {
-                console.log(`   → ${user.usuario} (${user.nivel})`);
-            });
-            console.log('%c🔑 SENHAS ORIGINAIS:', 'color: #f39c12; font-weight: bold;');
-            console.log('   → admin: 131188');
-            console.log('   → marcos: @Santana13');
+        const acrescimoEnvio  = valorDesejado * (porcentagemEnvio / 100);
+        const valorEnviar     = valorDesejado + taxaFixaEnvio + acrescimoEnvio;
+        const custoTotalEnvio = taxaFixaEnvio + acrescimoEnvio;
+
+        document.getElementById('depixValorEnviar').value = valorEnviar.toFixed(2);
+
+        const acrescimoLucro    = valorEnviar * (porcentagemDesejada / 100);
+        const montanteCalculado = valorEnviar + acrescimoLucro;
+        document.getElementById('depixMontante').value = montanteCalculado.toFixed(2);
+
+        const valorBrutoParcela   = montanteCalculado / parcelas;
+        const descontoPorParcela  = (valorBrutoParcela * (porcentagemReceb / 100)) + taxaFixaReceb;
+        const valorLiquidoParcela = valorBrutoParcela - descontoPorParcela;
+        const valorLiquidoTotal   = valorLiquidoParcela * parcelas;
+
+        const custoTotalDescontos = descontoPorParcela * parcelas;
+        const custoTotalOperacao  = custoTotalEnvio + custoTotalDescontos;
+        const valorTotalComCustos = valorDesejado + custoTotalOperacao;
+
+        const lucroValor = valorLiquidoTotal - valorDesejado;
+        const lucroPorc  = (lucroValor / valorDesejado) * 100;
+
+        depixDadosCalculados = {
+            valorDesejado, taxaFixaEnvio, porcentagemEnvio, porcentagemDesejada,
+            taxaFixaReceb, porcentagemReceb, parcelas, valorEnviar, montanteCalculado,
+            acrescimoEnvio, acrescimoLucro, valorBrutoParcela, descontoPorParcela,
+            custoTotalEnvio, custoTotalDescontos, custoTotalOperacao, valorTotalComCustos,
+            modoEnvio: depixModoEnvio, modoRecebimento: depixModoRecebimento
         };
 
-        window.onclick = function(event) {
-            const modal = document.getElementById('modalDetalhe');
-            if (event.target == modal) {
-                fecharModal();
-            }
+        document.getElementById('depixLiquidoTotal').innerHTML   = formatarMoeda(valorLiquidoTotal);
+        document.getElementById('depixLiquidoParcela').innerHTML = formatarMoeda(valorLiquidoParcela);
+        document.getElementById('depixLucro').innerHTML          = formatarMoeda(lucroValor);
+        document.getElementById('depixPercentualLucro').innerHTML = lucroPorc.toFixed(2) + '%';
+
+        const labelEnvio = depixModoEnvio === 'lmaia' ? 'L Maia' : depixModoEnvio === 'saltsail' ? 'Saltsail' : 'Manual';
+        const labelReceb = depixModoRecebimento === 'lmaia' ? 'L Maia' : depixModoRecebimento === 'saltsail' ? 'Saltsail' : 'Manual';
+        const corLucro   = lucroValor >= 0 ? 'var(--cor-lucro-positivo)' : 'var(--cor-lucro-negativo)';
+        const moeda = { style: 'currency', currency: 'BRL' };
+        const fmt   = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+
+        document.getElementById('depixRelatorioPadrao').innerHTML = depixGerarRelatorio({
+            valorDesejado, taxaFixaEnvio, porcentagemEnvio, acrescimoEnvio,
+            custoTotalEnvio, valorEnviar, porcentagemDesejada, acrescimoLucro,
+            montante: montanteCalculado, parcelas, taxaFixaReceb, porcentagemReceb,
+            valorBrutoParcela, descontoPorParcela, custoTotalDescontos, custoTotalOperacao,
+            valorLiquidoTotal, valorTotalComCustos, lucroValor, lucroPorc,
+            labelEnvio, labelReceb, corLucro, fmt, moeda
+        });
+
+        document.getElementById('depixCampoMontanteOpcional').style.display = 'flex';
+        document.getElementById('depixBotaoRecalcular').style.display       = 'inline-block';
+        document.getElementById('depixMontanteOpcional').value = '';
+        document.getElementById('depixRelatorioAlternativo').innerHTML = '<em>Insira um montante alternativo e clique em Recalcular...</em>';
+        document.getElementById('depixLiquidoTotalAlt').innerHTML    = formatarMoeda(0);
+        document.getElementById('depixLiquidoParcelaAlt').innerHTML  = formatarMoeda(0);
+        document.getElementById('depixLucroAlt').innerHTML           = formatarMoeda(0);
+        document.getElementById('depixPercentualLucroAlt').innerHTML = '0,00%';
+    }
+
+    function calcularDepixAlternativo() {
+        if (!depixDadosCalculados.montanteCalculado) {
+            depixMostrarAlerta('Calcule o padrão primeiro');
+            return;
         }
-    </script>
+        const montanteAlt = parseFloat(document.getElementById('depixMontanteOpcional').value);
+        if (!montanteAlt || montanteAlt <= 0) {
+            depixMostrarAlerta('Insira um montante alternativo válido');
+            return;
+        }
+
+        const { valorDesejado, taxaFixaEnvio, porcentagemEnvio, acrescimoEnvio,
+                custoTotalEnvio, taxaFixaReceb, porcentagemReceb, parcelas,
+                modoEnvio: mE, modoRecebimento: mR } = depixDadosCalculados;
+
+        const valorBrutoParcela   = montanteAlt / parcelas;
+        const descontoPorParcela  = (valorBrutoParcela * (porcentagemReceb / 100)) + taxaFixaReceb;
+        const valorLiquidoParcela = valorBrutoParcela - descontoPorParcela;
+        const valorLiquidoTotal   = valorLiquidoParcela * parcelas;
+        const custoTotalDescontos = descontoPorParcela * parcelas;
+        const custoTotalOperacao  = custoTotalEnvio + custoTotalDescontos;
+        const valorTotalComCustos = valorDesejado + custoTotalOperacao;
+        const lucroValor = valorLiquidoTotal - valorDesejado;
+        const lucroPorc  = (lucroValor / valorDesejado) * 100;
+
+        const moeda    = { style: 'currency', currency: 'BRL' };
+        const fmt      = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+        const corLucro = lucroValor >= 0 ? 'var(--cor-lucro-positivo)' : 'var(--cor-lucro-negativo)';
+
+        document.getElementById('depixLiquidoTotalAlt').innerHTML    = formatarMoeda(valorLiquidoTotal);
+        document.getElementById('depixLiquidoParcelaAlt').innerHTML  = formatarMoeda(valorLiquidoParcela);
+        document.getElementById('depixLucroAlt').innerHTML           = formatarMoeda(lucroValor);
+        document.getElementById('depixPercentualLucroAlt').innerHTML = lucroPorc.toFixed(2) + '%';
+
+        const labelEnvio = mE === 'lmaia' ? 'L Maia' : mE === 'saltsail' ? 'Saltsail' : 'Manual';
+        const labelReceb = mR === 'lmaia' ? 'L Maia' : mR === 'saltsail' ? 'Saltsail' : 'Manual';
+
+        document.getElementById('depixRelatorioAlternativo').innerHTML = depixGerarRelatorio({
+            valorDesejado, taxaFixaEnvio, porcentagemEnvio, acrescimoEnvio,
+            custoTotalEnvio, valorEnviar: depixDadosCalculados.valorEnviar,
+            porcentagemDesejada: null, acrescimoLucro: null,
+            montante: montanteAlt, parcelas, taxaFixaReceb, porcentagemReceb,
+            valorBrutoParcela, descontoPorParcela, custoTotalDescontos, custoTotalOperacao,
+            valorLiquidoTotal, valorTotalComCustos, lucroValor, lucroPorc,
+            labelEnvio, labelReceb, corLucro, fmt, moeda, alternativo: true
+        });
+    }
+
+    function depixGerarRelatorio(d) {
+        const moeda = d.moeda, fmt = d.fmt;
+        const bloco = d.alternativo
+            ? `<strong>✏️ Montante Alternativo:</strong> ${d.montante.toLocaleString('pt-BR', moeda)}`
+            : `<strong>📤 Total a Enviar:</strong> ${d.valorEnviar.toLocaleString('pt-BR', moeda)}<br>
+               <strong>📈 Lucro ${d.porcentagemDesejada}%:</strong> +R$ ${d.acrescimoLucro.toLocaleString('pt-BR', fmt)}<br>
+               <strong>💵 Montante:</strong> ${d.montante.toLocaleString('pt-BR', moeda)}`;
+        return `
+            <strong>💰 Valor Desejado:</strong> ${d.valorDesejado.toLocaleString('pt-BR', moeda)}<br><br>
+            <strong>📤 ENVIO (${d.labelEnvio}):</strong><br>
+            &nbsp;Taxa Fixa: R$ ${d.taxaFixaEnvio.toLocaleString('pt-BR', fmt)}<br>
+            &nbsp;Taxa %: ${d.porcentagemEnvio.toLocaleString('pt-BR', fmt)}% (+R$ ${d.acrescimoEnvio.toLocaleString('pt-BR', fmt)})<br>
+            <strong>💰 Custo Envio:</strong> ${d.custoTotalEnvio.toLocaleString('pt-BR', moeda)}<br><br>
+            ${bloco}<br><br>
+            <strong>🔢 RECEBIMENTO (${d.labelReceb}):</strong><br>
+            &nbsp;${d.parcelas}x parcelas<br>
+            &nbsp;Taxa Fixa: R$ ${d.taxaFixaReceb.toLocaleString('pt-BR', fmt)}/parcela<br>
+            &nbsp;Taxa %: ${d.porcentagemReceb.toLocaleString('pt-BR', fmt)}%/parcela<br>
+            <strong>💰 Bruto/parcela:</strong> ${d.valorBrutoParcela.toLocaleString('pt-BR', moeda)}<br>
+            <strong>💸 Desconto/parcela:</strong> R$ ${d.descontoPorParcela.toLocaleString('pt-BR', fmt)}<br>
+            <strong>💰 Total Descontos:</strong> ${d.custoTotalDescontos.toLocaleString('pt-BR', moeda)}<br>
+            <strong>✅ Líquido/parcela:</strong> ${(d.valorLiquidoTotal / d.parcelas).toLocaleString('pt-BR', moeda)}<br><br>
+            <div class="destaque-custo">
+                <strong>📊 CUSTOS TOTAIS:</strong><br>
+                &nbsp;Envio: ${d.custoTotalEnvio.toLocaleString('pt-BR', moeda)}<br>
+                &nbsp;Parcelas: ${d.custoTotalDescontos.toLocaleString('pt-BR', moeda)}<br>
+                <strong>💰 TOTAL:</strong> ${d.custoTotalOperacao.toLocaleString('pt-BR', moeda)}
+            </div><br>
+            <strong>💵 LÍQUIDO TOTAL:</strong> ${d.valorLiquidoTotal.toLocaleString('pt-BR', moeda)}<br>
+            <strong>📈 LUCRO:</strong> <span style="color:${d.corLucro}">${d.lucroValor.toLocaleString('pt-BR', moeda)} (${d.lucroPorc.toLocaleString('pt-BR', fmt)}%)</span>
+        `;
+    }
+
+    function limparDepix() {
+        document.getElementById('depixValorDesejado').value       = '100.00';
+        document.getElementById('depixPorcentagemDesejada').value = '10.00';
+        document.getElementById('depixParcelas').value            = '1';
+        ativarModoEnvio('manual');
+        ativarModoRecebimento('manual');
+        document.getElementById('depixTaxaFixaEnvio').value    = '0.00';
+        document.getElementById('depixPorcentagemEnvio').value = '0.00';
+        document.getElementById('depixTaxaFixaReceb').value    = '0.00';
+        document.getElementById('depixPorcentagemReceb').value = '0.00';
+        document.getElementById('depixValorEnviar').value      = '';
+        document.getElementById('depixMontante').value         = '';
+        document.getElementById('depixMontanteOpcional').value = '';
+        document.getElementById('depixCampoMontanteOpcional').style.display = 'none';
+        document.getElementById('depixBotaoRecalcular').style.display       = 'none';
+        ['depixLiquidoTotal','depixLiquidoParcela','depixLiquidoTotalAlt','depixLiquidoParcelaAlt',
+         'depixLucro','depixLucroAlt'].forEach(id => {
+            document.getElementById(id).innerHTML = formatarMoeda(0);
+        });
+        document.getElementById('depixPercentualLucro').innerHTML    = '0,00%';
+        document.getElementById('depixPercentualLucroAlt').innerHTML = '0,00%';
+        document.getElementById('depixRelatorioPadrao').innerHTML       = 'Preencha e clique em Calcular...';
+        document.getElementById('depixRelatorioAlternativo').innerHTML  = '<em>Calcule primeiro e insira um montante alternativo...</em>';
+        depixDadosCalculados = {};
+    }
+
+    // Atualiza taxas de envio em tempo real ao digitar o valor
+    document.getElementById('depixValorDesejado').addEventListener('input', () => {
+        if (depixModoEnvio === 'saltsail' || depixModoEnvio === 'lmaia') {
+            const valor = parseFloat(document.getElementById('depixValorDesejado').value) || 0;
+            const taxas = depixTaxasEnvioEfetivas(depixModoEnvio, valor);
+            document.getElementById('depixTaxaFixaEnvio').value    = taxas.fixa.toFixed(2);
+            document.getElementById('depixPorcentagemEnvio').value = taxas.perc.toFixed(3);
+        }
+        calcularDepix();
+    });
+
+    document.getElementById('depixPorcentagemDesejada').addEventListener('input', calcularDepix);
+    document.getElementById('depixParcelas').addEventListener('input', calcularDepix);
+
+    // ====================== JUROS ======================
+    function calcularJuros() {
+        const valorParcela = parseFloat(document.getElementById('jurosValorParcela').value);
+        const dataInicial  = new Date(document.getElementById('jurosDataInicial').value);
+        const dataFinal    = new Date(document.getElementById('jurosDataFinal').value);
+        const taxaJuros    = parseFloat(document.getElementById('jurosTaxa').value);
+        if (isNaN(valorParcela) || isNaN(taxaJuros) || isNaN(dataInicial.getTime()) || isNaN(dataFinal.getTime())) {
+            alert('Preencha todos os campos!'); return;
+        }
+        const qtdDias    = Math.ceil((dataFinal - dataInicial) / (1000 * 60 * 60 * 24));
+        const taxaEfetiva = (taxaJuros / 30) * qtdDias;
+        const valorJuros  = valorParcela * (taxaEfetiva / 100);
+        document.getElementById('jurosQtdDias').textContent    = qtdDias;
+        document.getElementById('jurosTaxaEfetiva').textContent = taxaEfetiva.toFixed(2) + '%';
+        document.getElementById('jurosValor').textContent      = formatarMoeda(valorJuros);
+        document.getElementById('jurosTotal').textContent      = formatarMoeda(valorParcela + valorJuros);
+        document.getElementById('resultadoJuros').style.display = 'block';
+    }
+
+    function limparJuros() {
+        ['jurosValorParcela','jurosDataInicial','jurosDataFinal','jurosTaxa'].forEach(id => {
+            document.getElementById(id).value = '';
+        });
+        document.getElementById('resultadoJuros').style.display = 'none';
+    }
+
+    // ====================== PARCELAS ======================
+    const taxasPrimeiro = {1:1.100,2:1.110,3:1.118,4:1.118,5:1.125,6:1.125,7:1.127,8:1.127,9:1.127,10:1.128,11:1.137,12:1.137,13:1.170,14:1.170,15:1.170,16:1.200,17:1.200,18:1.200,19:1.240,20:1.240,21:1.240};
+    const taxasSegundo  = {1:1.15,2:1.20,3:1.25,4:1.30,5:1.35,6:1.40,7:1.45,8:1.50,9:1.55,10:1.60,11:1.65,12:1.70,13:1.75,14:1.85,15:1.90,16:1.95,17:2.00,18:2.05,19:2.10,20:2.15,21:2.20};
+
+    function arredondarRegraNova(valor) {
+        const resto = valor % 10;
+        if (resto >= 0.01 && resto <= 5.00) return valor - resto + 5.00;
+        if (resto > 5.00 && resto <= 9.99)  return valor - resto + 10.00;
+        return valor;
+    }
+
+    function calcularParcelas() {
+        const valor = parseFloat(document.getElementById('parcelasValor').value) || 0;
+        const qtd   = parseInt(document.getElementById('parcelasQtd').value) || 1;
+        if (qtd < 1 || qtd > 21) { alert('Parcelas: 1 a 21'); return; }
+        const totalFinal  = arredondarRegraNova(valor * taxasPrimeiro[qtd] * taxasSegundo[qtd]);
+        const parcelaFinal = arredondarRegraNova(totalFinal / qtd);
+        document.getElementById('parcelasValorParcela').innerHTML = formatarMoeda(parcelaFinal);
+        document.getElementById('parcelasValorTotal').innerHTML   = formatarMoeda(parcelaFinal * qtd);
+    }
+
+    function limparParcelas() {
+        document.getElementById('parcelasValor').value = '100';
+        document.getElementById('parcelasQtd').value   = '1';
+        calcularParcelas();
+    }
+
+    // ====================== PREÇOS ======================
+    function formatarMoeda(valor) {
+        return valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2, style: 'currency', currency: 'BRL' });
+    }
+
+    function carregarFoto(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            fotoProdutoDataURL = e.target.result;
+            document.getElementById('imagemPreviewMini').src = e.target.result;
+            document.getElementById('fotoPreviewMini').classList.add('visivel');
+            document.getElementById('btnFoto').classList.add('tem-foto');
+            document.getElementById('imagemRelatorio').src = e.target.result;
+            document.getElementById('relatorioImagem').classList.add('visivel');
+            document.getElementById('urlFoto').value = '';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function carregarFotoURL() {
+        const url = document.getElementById('urlFoto').value.trim();
+        if (!url) { removerFoto(); return; }
+        const img = new Image();
+        img.onload = function() {
+            fotoProdutoDataURL = url;
+            document.getElementById('imagemPreviewMini').src = url;
+            document.getElementById('fotoPreviewMini').classList.add('visivel');
+            document.getElementById('btnFoto').classList.add('tem-foto');
+            document.getElementById('imagemRelatorio').src = url;
+            document.getElementById('relatorioImagem').classList.add('visivel');
+            document.getElementById('inputFoto').value = '';
+        };
+        img.src = url;
+    }
+
+    function removerFoto() {
+        fotoProdutoDataURL = null;
+        document.getElementById('imagemPreviewMini').src = '';
+        document.getElementById('fotoPreviewMini').classList.remove('visivel');
+        document.getElementById('btnFoto').classList.remove('tem-foto');
+        document.getElementById('inputFoto').value = '';
+        document.getElementById('urlFoto').value   = '';
+        document.getElementById('imagemRelatorio').src = '';
+        document.getElementById('relatorioImagem').classList.remove('visivel');
+    }
+
+    function calcularPrecos() {
+        const nome        = document.getElementById('precosNome').value.trim() || "Não informado";
+        const valorProduto = parseFloat(document.getElementById('precosValor').value)       || 0;
+        const taxaCompra   = parseFloat(document.getElementById('precosTaxaCompra').value)  || 0;
+        const taxaCartao   = parseFloat(document.getElementById('precosTaxaCartao').value)  || 0;
+        const jurosVenda   = parseFloat(document.getElementById('precosJurosVenda').value)  || 0;
+        const parcelas     = parseInt(document.getElementById('precosParcelas').value)       || 1;
+
+        const somaInicial     = valorProduto + taxaCompra;
+        const valorTaxaCartao = somaInicial * (taxaCartao / 100);
+        const custoTotal      = somaInicial + valorTaxaCartao;
+        const valorFinal      = Math.ceil(custoTotal + custoTotal * (jurosVenda / 100));
+        const valorParcela    = Math.ceil(valorFinal / parcelas);
+        const valorTotalAjustado = valorParcela * parcelas;
+        const lucroReal       = valorTotalAjustado - custoTotal;
+        const margem          = valorTotalAjustado > 0 ? (lucroReal / valorTotalAjustado) * 100 : 0;
+
+        document.getElementById('precosCustoTotal').innerHTML      = formatarMoeda(custoTotal);
+        document.getElementById('precosCustosDetalhados').innerHTML = `Produto: ${formatarMoeda(valorProduto)} + Taxa: ${formatarMoeda(taxaCompra)} + Cartão ${taxaCartao.toFixed(1)}%`;
+        document.getElementById('precosValorVenda').innerHTML      = formatarMoeda(valorTotalAjustado);
+        document.getElementById('precosValorParcela').innerHTML    = `${parcelas}x de ${formatarMoeda(valorParcela)}`;
+        document.getElementById('precosLucro').innerHTML           = formatarMoeda(lucroReal);
+        document.getElementById('precosMargem').innerHTML          = margem.toFixed(2) + '%';
+
+        document.getElementById('relNomeProduto').innerHTML = nome;
+        document.getElementById('relValProduto').innerHTML  = formatarMoeda(valorProduto);
+        document.getElementById('relTaxaCompra').innerHTML  = formatarMoeda(taxaCompra);
+        document.getElementById('relTaxaCartao').innerHTML  = `${taxaCartao.toFixed(2)}% (${formatarMoeda(valorTaxaCartao)})`;
+        document.getElementById('relCustoTotal').innerHTML  = formatarMoeda(custoTotal);
+        document.getElementById('relJurosVenda').innerHTML  = `${jurosVenda.toFixed(2)}%`;
+        document.getElementById('relValorVenda').innerHTML  = formatarMoeda(valorTotalAjustado);
+        document.getElementById('relParcelas').innerHTML    = `${parcelas}x`;
+        document.getElementById('relValorParcela').innerHTML = `${parcelas}x de ${formatarMoeda(valorParcela)}`;
+        document.getElementById('relLucro').innerHTML       = formatarMoeda(lucroReal);
+        document.getElementById('relMargem').innerHTML      = `${margem.toFixed(2)}%`;
+
+        const pode = valorProduto > 0 && valorTotalAjustado > 0;
+        document.getElementById('btnExportCliente').disabled    = !pode;
+        document.getElementById('btnExportFornecedor').disabled = !pode;
+
+        window.dadosExportacao = { nome, valorProduto, taxaCompra, taxaCartao, valorTaxaCartao, custoTotal, jurosVenda, parcelas, valorTotalAjustado, valorParcela, lucroReal, margem };
+    }
+
+    function confirmarLimparPrecos() { document.getElementById('modalConfirmacao').classList.add('visivel'); }
+    function fecharModal()           { document.getElementById('modalConfirmacao').classList.remove('visivel'); }
+
+    function limparTudoPrecos() {
+        ['precosNome','precosValor','precosTaxaCompra','precosTaxaCartao','precosJurosVenda'].forEach(id => {
+            document.getElementById(id).value = id === 'precosNome' ? '' : '0';
+        });
+        document.getElementById('precosParcelas').value = '1';
+        removerFoto();
+        calcularPrecos();
+        fecharModal();
+    }
+
+    function copiarRelatorio() {
+        navigator.clipboard.writeText(document.querySelector('#abaPrecos .relatorio-texto').innerText);
+        alert('Relatório copiado!');
+    }
+
+    function compartilharWhatsApp() {
+        if (!window.dadosExportacao) { alert('Calcule primeiro!'); return; }
+        const d = window.dadosExportacao;
+        const texto = `*📋 Relatório de Preços*\n\n📦 Produto: ${d.nome}\n💰 Valor: ${formatarMoeda(d.valorProduto)}\n📋 Taxa: ${formatarMoeda(d.taxaCompra)}\n💳 Cartão: ${d.taxaCartao}%\n📊 Custo: ${formatarMoeda(d.custoTotal)}\n📈 Juros: ${d.jurosVenda}%\n🎯 Venda: ${formatarMoeda(d.valorTotalAjustado)}\n📅 ${d.parcelas}x de ${formatarMoeda(d.valorParcela)}\n🤑 Lucro: ${formatarMoeda(d.lucroReal)} (${d.margem.toFixed(1)}%)`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+    }
+
+    async function capturarEDownload(elemento, nomeArquivo) {
+        const canvas = await html2canvas(elemento, { scale: 2 });
+        const link = document.createElement('a');
+        link.download = nomeArquivo;
+        link.href = canvas.toDataURL('image/jpeg', 0.95);
+        link.click();
+    }
+
+    async function exportarCliente() {
+        if (!window.dadosExportacao) { alert('Calcule primeiro!'); return; }
+        const btn = document.getElementById('btnExportCliente');
+        btn.disabled = true; btn.innerHTML = '⏳ Gerando...';
+        try {
+            const d = window.dadosExportacao;
+            const card = document.createElement('div');
+            card.style.cssText = `background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%); color: white; padding: 30px; border-radius: 16px; font-family: 'Segoe UI', Arial, sans-serif; min-width: 380px; max-width: 450px;`;
+            const fotoHTML = fotoProdutoDataURL ? `<div style="text-align:center;margin-bottom:15px;"><img src="${fotoProdutoDataURL}" style="max-width:100%;max-height:200px;border-radius:12px;"></div>` : '';
+            card.innerHTML = `${fotoHTML}<div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:20px;text-align:center;"><p style="font-size:22px;font-weight:bold;">${d.nome}</p></div><div style="text-align:center;"><p>em até</p><p style="font-size:40px;font-weight:bold;">${d.parcelas}x</p><p>de</p><p style="font-size:36px;font-weight:bold;">${formatarMoeda(d.valorParcela)}</p><p>sem juros</p></div><div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:15px;text-align:center;"><p>Valor total: ${formatarMoeda(d.valorTotalAjustado)}</p></div><p style="text-align:center;font-size:12px;">Consulte condições</p>`;
+            await capturarEDownload(card, `oferta_${d.nome.replace(/\s+/g,'_')}.jpg`);
+            btn.innerHTML = '✅ Exportado!';
+            setTimeout(() => { btn.innerHTML = '👤 Versão Cliente'; btn.disabled = false; }, 2000);
+        } catch(e) { alert('Erro ao exportar'); btn.innerHTML = '👤 Versão Cliente'; btn.disabled = false; }
+    }
+
+    async function exportarFornecedor() {
+        if (!window.dadosExportacao) { alert('Calcule primeiro!'); return; }
+        const btn = document.getElementById('btnExportFornecedor');
+        btn.disabled = true; btn.innerHTML = '⏳ Gerando...';
+        try {
+            const d = window.dadosExportacao;
+            const card = document.createElement('div');
+            card.style.cssText = `background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: white; padding: 30px; border-radius: 16px; font-family: 'Segoe UI', Arial, sans-serif; min-width: 380px; max-width: 450px;`;
+            const fotoHTML = fotoProdutoDataURL ? `<div style="text-align:center;margin-bottom:15px;"><img src="${fotoProdutoDataURL}" style="max-width:100%;max-height:180px;border-radius:12px;"></div>` : '';
+            card.innerHTML = `${fotoHTML}<div style="text-align:center;margin-bottom:20px;"><h2>📋 Nota de Compra</h2><p>Informações do Produto</p></div><div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:20px;"><p><strong>📦 Produto:</strong> ${d.nome}</p><p><strong>💰 Valor:</strong> ${formatarMoeda(d.valorProduto)}</p><p><strong>📋 Taxa:</strong> ${formatarMoeda(d.taxaCompra)}</p><p><strong>💳 Taxa Cartão:</strong> ${d.taxaCartao}% (${formatarMoeda(d.valorTaxaCartao)})</p><p><strong>📊 Custo Total:</strong> ${formatarMoeda(d.custoTotal)}</p><p><strong>📈 Juros:</strong> ${d.jurosVenda}%</p><p><strong>🎯 Valor Final:</strong> ${formatarMoeda(d.valorTotalAjustado)}</p><p><strong>📅 Parcelas:</strong> ${d.parcelas}x de ${formatarMoeda(d.valorParcela)}</p><p><strong>🤑 Lucro:</strong> ${formatarMoeda(d.lucroReal)} (${d.margem.toFixed(1)}%)</p></div><p style="text-align:center;font-size:11px;">Documento interno - Uso exclusivo do fornecedor</p>`;
+            await capturarEDownload(card, `nota_${d.nome.replace(/\s+/g,'_')}.jpg`);
+            btn.innerHTML = '✅ Exportado!';
+            setTimeout(() => { btn.innerHTML = '🏢 Versão Fornecedor'; btn.disabled = false; }, 2000);
+        } catch(e) { alert('Erro ao exportar'); btn.innerHTML = '🏢 Versão Fornecedor'; btn.disabled = false; }
+    }
+
+    // ====================== RECIBOS ======================
+    function formatarCPF(input) {
+        let v = input.value.replace(/\D/g,'');
+        if (v.length <= 11) input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+    }
+
+    function formatarMoedaInput(input) {
+        const n = parseFloat(input.value.replace(/[^\d,]/g,'').replace(',','.'));
+        if (!isNaN(n)) input.value = n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function gerarNumeroRecibo() {
+        const d = new Date();
+        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+
+    function atualizarRecibo() {
+        const valor = document.getElementById('reciboValor').value;
+        let valorFormatado = 'R$ 0,00';
+        if (valor) {
+            const n = parseFloat(valor.replace(/\./g,'').replace(',','.'));
+            if (!isNaN(n)) valorFormatado = 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        const dataPgto = document.getElementById('reciboData').value;
+        let dataFormatada = new Date().toLocaleDateString('pt-BR');
+        if (dataPgto) {
+            const [ano, mes, dia] = dataPgto.split('-');
+            dataFormatada = `${dia}/${mes}/${ano}`;
+        }
+        document.getElementById('previewValor').textContent       = valorFormatado;
+        document.getElementById('previewDescricao').textContent   = document.getElementById('reciboDescricao').value || '-';
+        document.getElementById('previewBeneficiario').textContent = document.getElementById('reciboBeneficiario').value || '-';
+        document.getElementById('previewCPF').textContent         = document.getElementById('reciboCpf').value || '-';
+        document.getElementById('previewPix').textContent         = document.getElementById('reciboChavePix').value || '-';
+        document.getElementById('previewData').textContent        = dataFormatada;
+    }
+
+    function baixarReciboJPG() {
+        const beneficiario = document.getElementById('reciboBeneficiario').value;
+        const valor        = document.getElementById('reciboValor').value;
+        if (!beneficiario || !valor) {
+            alert('⚠️ Preencha o nome do beneficiário e o valor antes de baixar.');
+            return;
+        }
+        const btn = document.querySelector('.download-recibo-btn');
+        const textoOriginal = btn.textContent;
+        btn.textContent = '⏳ Gerando imagem...';
+        btn.disabled = true;
+        html2canvas(document.getElementById('reciboPreview'), { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Recibo_${beneficiario.replace(/\s+/g,'_').substring(0,30)}_${gerarNumeroRecibo()}.jpg`;
+            link.href = canvas.toDataURL('image/jpeg', 0.98);
+            link.click();
+            btn.textContent = '✅ Recibo baixado!';
+            setTimeout(() => { btn.textContent = textoOriginal; btn.disabled = false; }, 2000);
+        }).catch(() => {
+            alert('❌ Erro ao gerar o recibo. Tente novamente.');
+            btn.textContent = textoOriginal;
+            btn.disabled = false;
+        });
+    }
+
+    // Listeners preços
+    ['precosValor','precosTaxaCompra','precosTaxaCartao','precosJurosVenda','precosParcelas'].forEach(id => {
+        document.getElementById(id).addEventListener('input', calcularPrecos);
+    });
+
+    // Inicialização
+    calcularDepix();
+    calcularParcelas();
+    calcularPrecos();
+    document.getElementById('reciboData').value = new Date().toISOString().split('T')[0];
+    atualizarRecibo();
+    document.getElementById('reciboNumeroDisplay').innerHTML = 'Nº ' + gerarNumeroRecibo();
+</script>
 </body>
 </html>
