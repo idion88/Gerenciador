@@ -6,6 +6,7 @@
     <title>Dashboard Financeiro - Calculadoras Integradas</title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
+        /* ===== ESTILOS GERAIS (mesmos de antes) ===== */
         :root {
             --cor-fundo: #f0f4f8;
             --cor-container: #ffffff;
@@ -250,7 +251,6 @@
 
         .resultado-destaque { font-size: 24px; font-weight: bold; color: var(--cor-valor-destaque); }
 
-        /* Opções de toggle - aba Depix */
         .opcoes-linha { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
 
         .opcao-toggle {
@@ -267,7 +267,6 @@
         .opcao-toggle.ativa { background: var(--cor-destaque); color: white; border-color: var(--cor-destaque); }
         .opcao-toggle.lmaia.ativa { background: var(--cor-lmaia); color: white; border-color: var(--cor-lmaia); }
 
-        /* Relatório Depix */
         .depix-relatorios {
             display: flex;
             gap: 10px;
@@ -305,7 +304,6 @@
             margin: 5px 0;
         }
 
-        /* Alerta Depix */
         .alerta {
             background: var(--cor-card);
             border-left: 4px solid var(--cor-aviso);
@@ -316,7 +314,6 @@
             font-size: 13px;
         }
 
-        /* Foto e Upload */
         .foto-campo-compacto { display: flex; gap: 8px; align-items: flex-end; }
 
         .btn-foto {
@@ -362,7 +359,6 @@
             font-size: 10px;
         }
 
-        /* Relatório Preços */
         .relatorio {
             margin-top: 20px;
             padding: 20px;
@@ -395,7 +391,6 @@
 
         .separador { border-top: 1px dashed var(--cor-borda); margin: 10px 0; }
 
-        /* Modal */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -420,91 +415,125 @@
 
         .modal-botoes { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
 
-        /* Recibo */
-        .recibo-preview-container { background: var(--cor-container); border-radius: 12px; overflow: hidden; border: 1px solid var(--cor-borda); }
+        /* ===== RECIBO ESTILO CUPOM – LARGURA 320px ===== */
+        .recibo-preview-container {
+            background: var(--cor-container);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--cor-borda);
+            max-width: 340px;
+            margin: 0 auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
 
         .recibo-header-toolbar {
             background: var(--cor-destaque);
-            padding: 12px 20px;
+            padding: 6px 12px;
             color: white;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 11px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 4px;
         }
 
-        #reciboPreview { background: white; color: #333; max-width: 100%; overflow-x: auto; }
-        body.tema-escuro #reciboPreview { background: #2a2a3e; color: #e0e0e0; }
+        #reciboPreview {
+            background: white;
+            color: #222;
+            width: 320px; /* Largura do cupom */
+            margin: 0 auto;
+            font-size: 11px;
+            line-height: 1.5;
+            font-family: 'Courier New', monospace; /* Estilo cupom */
+            overflow: hidden;
+            padding: 8px 10px;
+            box-sizing: border-box;
+        }
+        body.tema-escuro #reciboPreview {
+            background: #2a2a3e;
+            color: #e0e0e0;
+        }
 
         .recibo-logo-area {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px 25px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 4px;
+            border-radius: 4px;
+            margin-bottom: 8px;
         }
 
-        .logo-container { display: flex; align-items: center; gap: 12px; }
+        .logo-container { display: flex; align-items: center; gap: 6px; }
 
         .recibo-logo-icon {
-            width: 50px; height: 50px;
+            width: 28px; height: 28px;
             background: white;
-            border-radius: 12px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8em;
+            font-size: 1em;
             font-weight: 900;
             color: #764ba2;
         }
 
-        .logo-texto { color: white; font-weight: 700; font-size: 1.4em; }
-        .logo-subtexto { color: rgba(255,255,255,0.8); font-size: 0.7em; }
+        .logo-texto { color: white; font-weight: 700; font-size: 0.9em; }
+        .logo-subtexto { color: rgba(255,255,255,0.8); font-size: 0.55em; }
         .recibo-titulo-area { text-align: right; color: white; }
-        .recibo-titulo-area h3 { font-size: 1em; font-weight: 600; margin: 0; }
-        .recibo-conteudo { padding: 25px; }
+        .recibo-titulo-area h3 { font-size: 0.8em; font-weight: 600; margin: 0; }
 
-        .info-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .recibo-conteudo { padding: 0; }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 0.9em;
+            line-height: 1.3;
+        }
         .info-label { font-weight: 700; color: #555; }
         .info-value { text-align: right; word-break: break-word; max-width: 60%; }
 
-        .valor-destaque { background: #f8f4ff; padding: 10px; border-radius: 8px; border: 2px solid #764ba2; }
-
-        .assinatura {
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 1px solid #333;
-            width: 200px;
-            margin-left: auto;
-            margin-right: auto;
-            text-align: center;
+        .valor-destaque {
+            background: #f8f4ff;
+            padding: 6px 8px;
+            border-radius: 4px;
+            border: 1px solid #764ba2;
+            margin-bottom: 4px;
         }
+        .valor-destaque .info-label { font-size: 0.9em; }
+        .valor-destaque .info-value { font-size: 1.1em; font-weight: 800; color: #764ba2; }
 
         .rodape-recibo {
             display: flex;
             justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            font-size: 0.8em;
-            color: #999;
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px solid #ddd;
+            font-size: 0.65em;
+            color: #888;
         }
 
         .download-recibo-btn {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 0 0 12px 12px;
             font-weight: bold;
             cursor: pointer;
-            margin-top: 15px;
+            font-size: 13px;
+            margin-top: 0;
+            transition: opacity 0.3s;
         }
+        .download-recibo-btn:hover { opacity: 0.9; }
 
         @media (max-width: 768px) {
             .dashboard-header { flex-direction: column; text-align: center; }
@@ -514,6 +543,8 @@
             .relatorio-conteudo { flex-direction: column; }
             .relatorio-imagem { width: 100%; }
             .depix-relatorios { flex-direction: column; }
+            .recibo-preview-container { max-width: 100%; }
+            #reciboPreview { width: 100%; max-width: 320px; }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -708,10 +739,10 @@
         </div>
 
         <div style="margin-bottom: 20px;">
-            <div style="font-weight: 600; margin-bottom: 10px;">📤 Exportar Resultado</div>
+            <div style="font-weight: 600; margin-bottom: 10px;">📤 Compartilhar JPG</div>
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="btn btn-export-cliente" id="btnExportCliente" onclick="exportarCliente()" disabled>👤 Versão Cliente</button>
-                <button class="btn btn-export-fornecedor" id="btnExportFornecedor" onclick="exportarFornecedor()" disabled>🏢 Versão Fornecedor</button>
+                <button class="btn btn-export-cliente" id="btnExportCliente" onclick="compartilharCliente()" disabled>👤 Versão Cliente</button>
+                <button class="btn btn-export-fornecedor" id="btnExportFornecedor" onclick="compartilharFornecedor()" disabled>🏢 Versão Fornecedor</button>
             </div>
         </div>
 
@@ -755,17 +786,25 @@
             <div class="campo"><label>👤 Beneficiário (Nome completo)</label><input type="text" id="reciboBeneficiario" placeholder="Ex: João da Silva Santos" oninput="atualizarRecibo()"></div>
             <div class="campo"><label>🔑 Chave PIX do Beneficiário</label><input type="text" id="reciboChavePix" placeholder="Ex: CPF, e-mail ou telefone" oninput="atualizarRecibo()"></div>
             <div class="campo"><label>🔢 CPF do Beneficiário</label><input type="text" id="reciboCpf" placeholder="Ex: 123.456.789-00" oninput="atualizarRecibo(); formatarCPF(this)" maxlength="14"></div>
-            <div class="campo"><label>💰 Valor do Pagamento (R$)</label><input type="text" id="reciboValor" placeholder="Ex: 1500,00" oninput="atualizarRecibo(); formatarMoedaInput(this)" onblur="formatarMoedaInput(this)"></div>
+            <div class="campo"><label>💰 Valor do Pagamento (R$)</label>
+                <!-- Removida formatação automática -->
+                <input type="text" id="reciboValor" placeholder="Ex: R$ 1500,00" oninput="atualizarRecibo()">
+            </div>
             <div class="campo"><label>📝 Descrição / Referente a</label><input type="text" id="reciboDescricao" placeholder="Ex: Serviços de consultoria" oninput="atualizarRecibo()"></div>
             <div class="campo"><label>📅 Data do Pagamento</label><input type="date" id="reciboData" oninput="atualizarRecibo()"></div>
         </div>
 
-        <div class="recibo-preview-container" style="margin-top: 20px;">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+            <button class="btn btn-danger" onclick="limparDadosBeneficiario()"><i class="fas fa-eraser"></i> Limpar Dados do Beneficiário</button>
+        </div>
+
+        <div class="recibo-preview-container">
             <div class="recibo-header-toolbar">
-                <span><i class="fas fa-print"></i> Pré-visualização do Recibo</span>
-                <span id="reciboNumeroDisplay" style="font-size: 12px;">Nº ---</span>
+                <span><i class="fas fa-print"></i> Recibo</span>
+                <span id="reciboNumeroDisplay" style="font-size: 10px;">Nº ---</span>
             </div>
-            <div id="reciboPreview" style="padding: 20px;">
+            <!-- Pré-visualização com largura 320px -->
+            <div id="reciboPreview">
                 <div class="recibo-logo-area">
                     <div class="logo-container">
                         <div class="recibo-logo-icon">P</div>
@@ -778,30 +817,23 @@
                 </div>
                 <div class="recibo-conteudo">
                     <div class="info-row valor-destaque">
-                        <span class="info-label" style="font-size: 1.1em;">💵 VALOR RECEBIDO:</span>
-                        <span class="info-value" id="previewValor" style="font-size: 1.4em; font-weight: 800; color: #764ba2;">R$ 0,00</span>
+                        <span class="info-label">💵 VALOR</span>
+                        <span class="info-value" id="previewValor">R$ 0,00</span>
                     </div>
-                    <div class="info-row"><span class="info-label">📝 Referente a:</span><span class="info-value" id="previewDescricao">-</span></div>
-                    <div class="info-row"><span class="info-label">🏢 Recebi de:</span><span class="info-value"><strong>Plabz Tecnologia Ltda</strong></span></div>
-                    <div class="info-row"><span class="info-label">📋 CNPJ Pagador:</span><span class="info-value">45.808.899/0001-01</span></div>
-                    <div class="info-row"><span class="info-label">👤 Beneficiário:</span><span class="info-value" id="previewBeneficiario">-</span></div>
-                    <div class="info-row"><span class="info-label">🔢 CPF:</span><span class="info-value" id="previewCPF">-</span></div>
-                    <div class="info-row"><span class="info-label">🔑 Chave PIX:</span><span class="info-value" id="previewPix">-</span></div>
-                    <div class="info-row"><span class="info-label">📅 Data:</span><span class="info-value" id="previewData">-</span></div>
-                    <div class="recibo-footer" style="margin-top: 30px; text-align: center;">
-                        <p>Declaro ter recebido de <strong>Plabz Tecnologia Ltda</strong> o valor acima mencionado, dando plena e total quitação.</p>
-                        <div class="assinatura">
-                            ________________________________<br>
-                            Assinatura do Beneficiário
-                        </div>
-                    </div>
+                    <div class="info-row"><span class="info-label">Referente</span><span class="info-value" id="previewDescricao">-</span></div>
+                    <div class="info-row"><span class="info-label">Recebi de</span><span class="info-value"><strong>Plabz Tec.</strong></span></div>
+                    <div class="info-row"><span class="info-label">CNPJ</span><span class="info-value">45.808.899/0001-01</span></div>
+                    <div class="info-row"><span class="info-label">Beneficiário</span><span class="info-value" id="previewBeneficiario">-</span></div>
+                    <div class="info-row"><span class="info-label">CPF</span><span class="info-value" id="previewCPF">-</span></div>
+                    <div class="info-row"><span class="info-label">Chave PIX</span><span class="info-value" id="previewPix">-</span></div>
+                    <div class="info-row"><span class="info-label">Data</span><span class="info-value" id="previewData">-</span></div>
                     <div class="rodape-recibo">
-                        <span>Plabz Tecnologia Ltda</span>
+                        <span>Plabz Tec.</span>
                         <span>CNPJ: 45.808.899/0001-01</span>
                     </div>
                 </div>
             </div>
-            <button class="download-recibo-btn" onclick="baixarReciboJPG()"><i class="fas fa-download"></i> Baixar Recibo em JPG</button>
+            <button class="download-recibo-btn" onclick="baixarReciboJPG()"><i class="fas fa-download"></i> Baixar Recibo JPG</button>
         </div>
     </div>
 
@@ -1294,56 +1326,13 @@
         window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
-    async function capturarEDownload(elemento, nomeArquivo) {
-        const canvas = await html2canvas(elemento, { scale: 2 });
-        const link = document.createElement('a');
-        link.download = nomeArquivo;
-        link.href = canvas.toDataURL('image/jpeg', 0.95);
-        link.click();
-    }
-
-    async function exportarCliente() {
-        if (!window.dadosExportacao) { alert('Calcule primeiro!'); return; }
-        const btn = document.getElementById('btnExportCliente');
-        btn.disabled = true; btn.innerHTML = '⏳ Gerando...';
-        try {
-            const d = window.dadosExportacao;
-            const card = document.createElement('div');
-            card.style.cssText = `background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%); color: white; padding: 30px; border-radius: 16px; font-family: 'Segoe UI', Arial, sans-serif; min-width: 380px; max-width: 450px;`;
-            const fotoHTML = fotoProdutoDataURL ? `<div style="text-align:center;margin-bottom:15px;"><img src="${fotoProdutoDataURL}" style="max-width:100%;max-height:200px;border-radius:12px;"></div>` : '';
-            card.innerHTML = `${fotoHTML}<div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:20px;text-align:center;"><p style="font-size:22px;font-weight:bold;">${d.nome}</p></div><div style="text-align:center;"><p>em até</p><p style="font-size:40px;font-weight:bold;">${d.parcelas}x</p><p>de</p><p style="font-size:36px;font-weight:bold;">${formatarMoeda(d.valorParcela)}</p><p>sem juros</p></div><div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:15px;text-align:center;"><p>Valor total: ${formatarMoeda(d.valorTotalAjustado)}</p></div><p style="text-align:center;font-size:12px;">Consulte condições</p>`;
-            await capturarEDownload(card, `oferta_${d.nome.replace(/\s+/g,'_')}.jpg`);
-            btn.innerHTML = '✅ Exportado!';
-            setTimeout(() => { btn.innerHTML = '👤 Versão Cliente'; btn.disabled = false; }, 2000);
-        } catch(e) { alert('Erro ao exportar'); btn.innerHTML = '👤 Versão Cliente'; btn.disabled = false; }
-    }
-
-    async function exportarFornecedor() {
-        if (!window.dadosExportacao) { alert('Calcule primeiro!'); return; }
-        const btn = document.getElementById('btnExportFornecedor');
-        btn.disabled = true; btn.innerHTML = '⏳ Gerando...';
-        try {
-            const d = window.dadosExportacao;
-            const card = document.createElement('div');
-            card.style.cssText = `background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); color: white; padding: 30px; border-radius: 16px; font-family: 'Segoe UI', Arial, sans-serif; min-width: 380px; max-width: 450px;`;
-            const fotoHTML = fotoProdutoDataURL ? `<div style="text-align:center;margin-bottom:15px;"><img src="${fotoProdutoDataURL}" style="max-width:100%;max-height:180px;border-radius:12px;"></div>` : '';
-            card.innerHTML = `${fotoHTML}<div style="text-align:center;margin-bottom:20px;"><h2>📋 Nota de Compra</h2><p>Informações do Produto</p></div><div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:20px;"><p><strong>📦 Produto:</strong> ${d.nome}</p><p><strong>💰 Valor:</strong> ${formatarMoeda(d.valorProduto)}</p><p><strong>📋 Taxa:</strong> ${formatarMoeda(d.taxaCompra)}</p><p><strong>💳 Taxa Cartão:</strong> ${d.taxaCartao}% (${formatarMoeda(d.valorTaxaCartao)})</p><p><strong>📊 Custo Total:</strong> ${formatarMoeda(d.custoTotal)}</p><p><strong>📈 Juros:</strong> ${d.jurosVenda}%</p><p><strong>🎯 Valor Final:</strong> ${formatarMoeda(d.valorTotalAjustado)}</p><p><strong>📅 Parcelas:</strong> ${d.parcelas}x de ${formatarMoeda(d.valorParcela)}</p><p><strong>🤑 Lucro:</strong> ${formatarMoeda(d.lucroReal)} (${d.margem.toFixed(1)}%)</p></div><p style="text-align:center;font-size:11px;">Documento interno - Uso exclusivo do fornecedor</p>`;
-            await capturarEDownload(card, `nota_${d.nome.replace(/\s+/g,'_')}.jpg`);
-            btn.innerHTML = '✅ Exportado!';
-            setTimeout(() => { btn.innerHTML = '🏢 Versão Fornecedor'; btn.disabled = false; }, 2000);
-        } catch(e) { alert('Erro ao exportar'); btn.innerHTML = '🏢 Versão Fornecedor'; btn.disabled = false; }
-    }
-
     // ====================== RECIBOS ======================
     function formatarCPF(input) {
         let v = input.value.replace(/\D/g,'');
         if (v.length <= 11) input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     }
 
-    function formatarMoedaInput(input) {
-        const n = parseFloat(input.value.replace(/[^\d,]/g,'').replace(',','.'));
-        if (!isNaN(n)) input.value = n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    // Função formatarMoedaInput removida – não é mais usada
 
     function gerarNumeroRecibo() {
         const d = new Date();
@@ -1351,26 +1340,35 @@
     }
 
     function atualizarRecibo() {
-        const valor = document.getElementById('reciboValor').value;
-        let valorFormatado = 'R$ 0,00';
-        if (valor) {
-            const n = parseFloat(valor.replace(/\./g,'').replace(',','.'));
-            if (!isNaN(n)) valorFormatado = 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
+        // Valor é exibido exatamente como digitado, sem formatação
+        const valorDigitado = document.getElementById('reciboValor').value || 'R$ 0,00';
+        document.getElementById('previewValor').textContent = valorDigitado;
+
+        document.getElementById('previewDescricao').textContent   = document.getElementById('reciboDescricao').value || '-';
+        document.getElementById('previewBeneficiario').textContent = document.getElementById('reciboBeneficiario').value || '-';
+        document.getElementById('previewCPF').textContent         = document.getElementById('reciboCpf').value || '-';
+        document.getElementById('previewPix').textContent         = document.getElementById('reciboChavePix').value || '-';
+        
         const dataPgto = document.getElementById('reciboData').value;
         let dataFormatada = new Date().toLocaleDateString('pt-BR');
         if (dataPgto) {
             const [ano, mes, dia] = dataPgto.split('-');
             dataFormatada = `${dia}/${mes}/${ano}`;
         }
-        document.getElementById('previewValor').textContent       = valorFormatado;
-        document.getElementById('previewDescricao').textContent   = document.getElementById('reciboDescricao').value || '-';
-        document.getElementById('previewBeneficiario').textContent = document.getElementById('reciboBeneficiario').value || '-';
-        document.getElementById('previewCPF').textContent         = document.getElementById('reciboCpf').value || '-';
-        document.getElementById('previewPix').textContent         = document.getElementById('reciboChavePix').value || '-';
-        document.getElementById('previewData').textContent        = dataFormatada;
+        document.getElementById('previewData').textContent = dataFormatada;
     }
 
+    function limparDadosBeneficiario() {
+        document.getElementById('reciboBeneficiario').value = '';
+        document.getElementById('reciboChavePix').value = '';
+        document.getElementById('reciboCpf').value = '';
+        document.getElementById('reciboValor').value = '';
+        document.getElementById('reciboDescricao').value = '';
+        document.getElementById('reciboData').value = new Date().toISOString().split('T')[0];
+        atualizarRecibo();
+    }
+
+    // Função para baixar o recibo com largura de 800px (scale 2.5 sobre 320px)
     function baixarReciboJPG() {
         const beneficiario = document.getElementById('reciboBeneficiario').value;
         const valor        = document.getElementById('reciboValor').value;
@@ -1382,14 +1380,32 @@
         const textoOriginal = btn.textContent;
         btn.textContent = '⏳ Gerando imagem...';
         btn.disabled = true;
-        html2canvas(document.getElementById('reciboPreview'), { scale: 3, backgroundColor: '#ffffff' }).then(canvas => {
+
+        // Captura com escala 2.5 -> 320px * 2.5 = 800px
+        html2canvas(document.getElementById('reciboPreview'), { 
+            scale: 2.5, 
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+        }).then(canvas => {
+            // Opcional: redimensionar para exatamente 800px (já está próximo)
+            const finalCanvas = document.createElement('canvas');
+            const ctx = finalCanvas.getContext('2d');
+            const targetWidth = 800;
+            const targetHeight = (canvas.height / canvas.width) * targetWidth;
+            finalCanvas.width = targetWidth;
+            finalCanvas.height = targetHeight;
+            ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+            
             const link = document.createElement('a');
             link.download = `Recibo_${beneficiario.replace(/\s+/g,'_').substring(0,30)}_${gerarNumeroRecibo()}.jpg`;
-            link.href = canvas.toDataURL('image/jpeg', 0.98);
+            link.href = finalCanvas.toDataURL('image/jpeg', 0.92);
             link.click();
             btn.textContent = '✅ Recibo baixado!';
             setTimeout(() => { btn.textContent = textoOriginal; btn.disabled = false; }, 2000);
-        }).catch(() => {
+        }).catch((err) => {
+            console.error(err);
             alert('❌ Erro ao gerar o recibo. Tente novamente.');
             btn.textContent = textoOriginal;
             btn.disabled = false;
