@@ -442,11 +442,11 @@
         #reciboPreview {
             background: white;
             color: #222;
-            width: 320px; /* Largura do cupom */
+            width: 320px;
             margin: 0 auto;
             font-size: 11px;
             line-height: 1.5;
-            font-family: 'Courier New', monospace; /* Estilo cupom */
+            font-family: 'Courier New', monospace;
             overflow: hidden;
             padding: 8px 10px;
             box-sizing: border-box;
@@ -535,6 +535,104 @@
         }
         .download-recibo-btn:hover { opacity: 0.9; }
 
+        /* ===== CARDS DE PREÇO PARA GERAR JPG ===== */
+        .card-preco-jpg {
+            width: 360px;
+            background: #ffffff;
+            color: #222;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .card-preco-header {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+        }
+        .card-cliente-header   { background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%); }
+        .card-fornecedor-header{ background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); }
+        .card-preco-logo { display: flex; align-items: center; gap: 8px; }
+        .card-preco-logo-icon {
+            width: 32px; height: 32px;
+            background: #fff;
+            border-radius: 7px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 16px; color: #6c3483;
+        }
+        .card-fornecedor-header .card-preco-logo-icon { color: #2c3e50; }
+        .card-preco-logo-texto { font-weight: 700; font-size: 15px; line-height: 1; }
+        .card-preco-logo-subtexto { font-size: 9px; opacity: 0.85; }
+        .card-preco-titulo { font-size: 15px; font-weight: 700; letter-spacing: 1px; }
+        .card-preco-foto {
+            width: 100%;
+            display: none;
+            background: #f2f2f5;
+        }
+        .card-preco-foto.visivel { display: block; }
+        .card-preco-foto img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        .card-preco-nome {
+            font-size: 17px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-align: center;
+            padding: 14px 16px 4px;
+        }
+        .card-preco-corpo { padding: 8px 18px 16px; }
+        .card-preco-de {
+            text-align: center;
+            color: #999;
+            text-decoration: line-through;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .card-preco-destaque-box {
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+            margin: 8px 0;
+        }
+        .card-cliente-box    { background: #f4ecfa; border: 2px solid #8e44ad; }
+        .card-fornecedor-box { background: #eef2f5; border: 2px solid #2c3e50; }
+        .card-preco-destaque-label { font-size: 12px; color: #666; font-weight: 600; }
+        .card-preco-destaque-valor {
+            font-size: 22px;
+            font-weight: 800;
+            color: #6c3483;
+            margin-top: 2px;
+        }
+        .card-fornecedor-box .card-preco-destaque-valor { color: #2c3e50; }
+        .card-preco-total {
+            text-align: center;
+            font-size: 14px;
+            color: #444;
+            margin-top: 6px;
+        }
+        .card-preco-corpo-detalhe .cf-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            padding: 5px 0;
+            color: #444;
+        }
+        .card-preco-corpo-detalhe .cf-row span:last-child { font-weight: 700; color: #2c3e50; }
+        .cf-sep { border-top: 1px dashed #ccc; }
+        .cf-lucro span:last-child { color: #27ae60; }
+        .card-preco-rodape {
+            background: #f8f9fa;
+            text-align: center;
+            font-size: 10px;
+            color: #888;
+            padding: 8px;
+            border-top: 1px solid #eee;
+        }
+
         @media (max-width: 768px) {
             .dashboard-header { flex-direction: column; text-align: center; }
             .aba { padding: 8px 12px; font-size: 12px; }
@@ -603,6 +701,13 @@
             <div class="form-grid">
                 <div class="campo"><label>📈 Margem Desejada (%):</label><input type="number" id="depixPorcentagemDesejada" step="0.01" min="0" value="10.00"></div>
                 <div class="campo"><label>💵 Montante:</label><input type="text" id="depixMontante" readonly></div>
+                <div class="campo">
+                    <div class="label-com-info">
+                        <label>⭐ Valor Recomendado:</label>
+                        <span class="info-icon" title="Valor que você deve cobrar para que o lucro real seja exatamente a margem desejada (calculada sobre o valor cobrado), já descontando todas as taxas.">?</span>
+                    </div>
+                    <input type="text" id="depixValorRecomendado" readonly style="font-weight: bold; color: var(--cor-destaque); border-color: var(--cor-destaque);">
+                </div>
             </div>
             <div class="campo" id="depixCampoMontanteOpcional" style="display: none; max-width: 320px;">
                 <label for="depixMontanteOpcional">✏️ Montante Alternativo (R$):</label>
@@ -777,6 +882,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- ===== CARDS OCULTOS PARA GERAR JPG (Cliente / Fornecedor) ===== -->
+        <div style="position: fixed; left: -9999px; top: 0;">
+            <!-- CARD CLIENTE -->
+            <div id="cardCliente" class="card-preco-jpg">
+                <div class="card-preco-header card-cliente-header">
+                    <div class="card-preco-logo">
+                        <div class="card-preco-logo-icon">P</div>
+                        <div>
+                            <div class="card-preco-logo-texto">PLABZ</div>
+                            <div class="card-preco-logo-subtexto">Tecnologia</div>
+                        </div>
+                    </div>
+                    <div class="card-preco-titulo">OFERTA</div>
+                </div>
+                <div class="card-preco-foto" id="cardClienteFotoWrap">
+                    <img id="cardClienteFoto" src="" alt="">
+                </div>
+                <div class="card-preco-nome" id="cardClienteNome">---</div>
+                <div class="card-preco-corpo">
+                    <div class="card-preco-de" id="cardClienteDe">De: R$ 0,00</div>
+                    <div class="card-preco-destaque-box card-cliente-box">
+                        <div class="card-preco-destaque-label">Por apenas</div>
+                        <div class="card-preco-destaque-valor" id="cardClienteParcela">1x de R$ 0,00</div>
+                    </div>
+                    <div class="card-preco-total" id="cardClienteTotal">Total: R$ 0,00</div>
+                </div>
+                <div class="card-preco-rodape">✨ Aproveite esta oferta! ✨</div>
+            </div>
+
+            <!-- CARD FORNECEDOR -->
+            <div id="cardFornecedor" class="card-preco-jpg">
+                <div class="card-preco-header card-fornecedor-header">
+                    <div class="card-preco-logo">
+                        <div class="card-preco-logo-icon">P</div>
+                        <div>
+                            <div class="card-preco-logo-texto">PLABZ</div>
+                            <div class="card-preco-logo-subtexto">Tecnologia</div>
+                        </div>
+                    </div>
+                    <div class="card-preco-titulo">COTAÇÃO</div>
+                </div>
+                <div class="card-preco-foto" id="cardFornecedorFotoWrap">
+                    <img id="cardFornecedorFoto" src="" alt="">
+                </div>
+                <div class="card-preco-nome" id="cardFornecedorNome">---</div>
+                <div class="card-preco-corpo card-preco-corpo-detalhe">
+                    <div class="cf-row"><span>💰 Valor Unitário</span><span id="cfValorProduto">R$ 0,00</span></div>
+                    <div class="cf-row"><span>📋 Taxa de Compra</span><span id="cfTaxaCompra">R$ 0,00</span></div>
+                    <div class="cf-row"><span>💳 Taxa Cartão</span><span id="cfTaxaCartao">0,00%</span></div>
+                    <div class="cf-row cf-sep"><span>📊 Custo Total</span><span id="cfCustoTotal">R$ 0,00</span></div>
+                    <div class="cf-row"><span>📈 Margem Aplicada</span><span id="cfMargem">0,00%</span></div>
+                    <div class="card-preco-destaque-box card-fornecedor-box">
+                        <div class="card-preco-destaque-label">Preço Final</div>
+                        <div class="card-preco-destaque-valor" id="cfPrecoFinal">R$ 0,00</div>
+                    </div>
+                    <div class="cf-row"><span>📅 Parcelamento</span><span id="cfParcelamento">1x de R$ 0,00</span></div>
+                    <div class="cf-row cf-lucro"><span>🤑 Lucro Estimado</span><span id="cfLucro">R$ 0,00</span></div>
+                </div>
+                <div class="card-preco-rodape">Plabz Tec. • CNPJ: 45.808.899/0001-01</div>
+            </div>
+        </div>
     </div>
 
     <!-- ==================== ABA 5: RECIBOS ==================== -->
@@ -787,7 +954,6 @@
             <div class="campo"><label>🔑 Chave PIX do Beneficiário</label><input type="text" id="reciboChavePix" placeholder="Ex: CPF, e-mail ou telefone" oninput="atualizarRecibo()"></div>
             <div class="campo"><label>🔢 CPF do Beneficiário</label><input type="text" id="reciboCpf" placeholder="Ex: 123.456.789-00" oninput="atualizarRecibo(); formatarCPF(this)" maxlength="14"></div>
             <div class="campo"><label>💰 Valor do Pagamento (R$)</label>
-                <!-- Removida formatação automática -->
                 <input type="text" id="reciboValor" placeholder="Ex: R$ 1500,00" oninput="atualizarRecibo()">
             </div>
             <div class="campo"><label>📝 Descrição / Referente a</label><input type="text" id="reciboDescricao" placeholder="Ex: Serviços de consultoria" oninput="atualizarRecibo()"></div>
@@ -803,7 +969,6 @@
                 <span><i class="fas fa-print"></i> Recibo</span>
                 <span id="reciboNumeroDisplay" style="font-size: 10px;">Nº ---</span>
             </div>
-            <!-- Pré-visualização com largura 320px -->
             <div id="reciboPreview">
                 <div class="recibo-logo-area">
                     <div class="logo-container">
@@ -833,7 +998,7 @@
                     </div>
                 </div>
             </div>
-            <button class="download-recibo-btn" onclick="baixarReciboJPG()"><i class="fas fa-download"></i> Baixar Recibo JPG</button>
+            <button class="download-recibo-btn" onclick="baixarReciboJPG()"><i class="fas fa-share-alt"></i> Compartilhar Recibo</button>
         </div>
     </div>
 
@@ -890,7 +1055,6 @@
     let depixDadosCalculados = {};
 
     // Taxas pré-definidas
-    // Envio: valor <= 99,99 → fixa R$1,00 + 0% | valor >= 100 → fixa 0 + 1,011%
     const DEPIX_TAXAS = {
         saltsail: { envio: { fixa: 0.00, perc: 1.011 }, receb: { fixa: 0.99, perc: 0.80 } },
         lmaia:    { envio: { fixa: 0.00, perc: 1.011 }, receb: { fixa: 0.99, perc: 0.10 } }
@@ -898,8 +1062,10 @@
 
     function depixTaxasEnvioEfetivas(modo, valorDesejado) {
         if (modo === 'manual') return null;
-        if (valorDesejado <= 99.99) return { fixa: 1.00, perc: 0 };
-        return { fixa: DEPIX_TAXAS[modo].envio.fixa, perc: DEPIX_TAXAS[modo].envio.perc };
+        // De R$ 1,00 a R$ 99,99: taxa fixa de R$ 1,00
+        if (valorDesejado < 100) return { fixa: 1.00, perc: 0 };
+        // De R$ 100,00 em diante: 1%
+        return { fixa: 0.00, perc: 1 };
     }
 
     function depixMostrarAlerta(msg) {
@@ -965,20 +1131,30 @@
         const parcelas            = parseInt(document.getElementById('depixParcelas').value)              || 1;
 
         let taxaFixaEnvio, porcentagemEnvio;
+        let valorEnviar, custoTotalEnvio, acrescimoEnvio;
         if (depixModoEnvio === 'saltsail' || depixModoEnvio === 'lmaia') {
-            const taxas = depixTaxasEnvioEfetivas(depixModoEnvio, valorDesejado);
-            taxaFixaEnvio    = taxas.fixa;
-            porcentagemEnvio = taxas.perc;
+            if (valorDesejado < 100) {
+                // De R$ 1,00 a R$ 99,99: taxa fixa de R$ 1,00
+                taxaFixaEnvio    = 1.00;
+                porcentagemEnvio = 0;
+                valorEnviar      = valorDesejado + taxaFixaEnvio;
+            } else {
+                // R$ 100,00+: 1% sobre o TOTAL a pagar (= valor / 0,99), arredondado p/ cima ao centavo
+                valorEnviar      = Math.ceil((valorDesejado / 0.99) * 100) / 100;
+                taxaFixaEnvio    = 0.00;
+                porcentagemEnvio = 1;
+            }
+            custoTotalEnvio = valorEnviar - valorDesejado;
+            acrescimoEnvio  = custoTotalEnvio - taxaFixaEnvio;
             document.getElementById('depixTaxaFixaEnvio').value    = taxaFixaEnvio.toFixed(2);
             document.getElementById('depixPorcentagemEnvio').value = porcentagemEnvio.toFixed(3);
         } else {
             taxaFixaEnvio    = parseFloat(document.getElementById('depixTaxaFixaEnvio').value)    || 0;
             porcentagemEnvio = parseFloat(document.getElementById('depixPorcentagemEnvio').value) || 0;
+            acrescimoEnvio   = valorDesejado * (porcentagemEnvio / 100);
+            valorEnviar      = valorDesejado + taxaFixaEnvio + acrescimoEnvio;
+            custoTotalEnvio  = taxaFixaEnvio + acrescimoEnvio;
         }
-
-        const acrescimoEnvio  = valorDesejado * (porcentagemEnvio / 100);
-        const valorEnviar     = valorDesejado + taxaFixaEnvio + acrescimoEnvio;
-        const custoTotalEnvio = taxaFixaEnvio + acrescimoEnvio;
 
         document.getElementById('depixValorEnviar').value = valorEnviar.toFixed(2);
 
@@ -997,6 +1173,25 @@
 
         const lucroValor = valorLiquidoTotal - valorDesejado;
         const lucroPorc  = (lucroValor / valorDesejado) * 100;
+
+        // ===== VALOR RECOMENDADO =====
+        // Montante a cobrar (M) para que o LUCRO REAL (Líquido Total - Valor Desejado) seja
+        // exatamente a margem% sobre o Valor Desejado, após todas as taxas de recebimento.
+        // lucro alvo = m * valorDesejado  =>  líquido necessário = valorDesejado * (1 + m)
+        // M - [M*r + F] = líquido necessário  =>  M = (valorDesejado*(1+m) + F) / (1 - r)
+        const mAlvo = porcentagemDesejada / 100;
+        const rReceb = porcentagemReceb / 100;
+        const fReceb = taxaFixaReceb * parcelas;
+        const campoRec = document.getElementById('depixValorRecomendado');
+        if (rReceb < 1 && valorDesejado > 0) {
+            const liquidoNecessario = valorDesejado * (1 + mAlvo);
+            const valorRecomendado  = (liquidoNecessario + fReceb) / (1 - rReceb);
+            campoRec.value = formatarMoeda(valorRecomendado);
+            campoRec.style.color = 'var(--cor-destaque)';
+        } else {
+            campoRec.value = 'Taxa inviável';
+            campoRec.style.color = 'var(--cor-lucro-negativo)';
+        }
 
         depixDadosCalculados = {
             valorDesejado, taxaFixaEnvio, porcentagemEnvio, porcentagemDesejada,
@@ -1129,6 +1324,7 @@
         document.getElementById('depixPorcentagemReceb').value = '0.00';
         document.getElementById('depixValorEnviar').value      = '';
         document.getElementById('depixMontante').value         = '';
+        document.getElementById('depixValorRecomendado').value  = '';
         document.getElementById('depixMontanteOpcional').value = '';
         document.getElementById('depixCampoMontanteOpcional').style.display = 'none';
         document.getElementById('depixBotaoRecalcular').style.display       = 'none';
@@ -1326,13 +1522,127 @@
         window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
     }
 
+    // ====================== COMPARTILHAR PREÇOS (JPG) ======================
+    function compartilharCliente() {
+        if (!window.dadosExportacao) {
+            alert('⚠️ Calcule os preços primeiro!');
+            return;
+        }
+        const d = window.dadosExportacao;
+
+        // Preenche o card cliente
+        document.getElementById('cardClienteNome').textContent    = d.nome || 'Produto';
+        document.getElementById('cardClienteDe').textContent       = `De: ${formatarMoeda(d.valorProduto)}`;
+        document.getElementById('cardClienteParcela').textContent  = `${d.parcelas}x de ${formatarMoeda(d.valorParcela)}`;
+        document.getElementById('cardClienteTotal').textContent    = `Total: ${formatarMoeda(d.valorTotalAjustado)}`;
+
+        const fotoWrap = document.getElementById('cardClienteFotoWrap');
+        if (fotoProdutoDataURL) {
+            document.getElementById('cardClienteFoto').src = fotoProdutoDataURL;
+            fotoWrap.classList.add('visivel');
+        } else {
+            fotoWrap.classList.remove('visivel');
+        }
+
+        gerarJPGPreco('cardCliente', d.nome, 'btnExportCliente', 'Oferta');
+    }
+
+    function compartilharFornecedor() {
+        if (!window.dadosExportacao) {
+            alert('⚠️ Calcule os preços primeiro!');
+            return;
+        }
+        const d = window.dadosExportacao;
+
+        // Preenche o card fornecedor
+        document.getElementById('cardFornecedorNome').textContent = d.nome || 'Produto';
+        document.getElementById('cfValorProduto').textContent     = formatarMoeda(d.valorProduto);
+        document.getElementById('cfTaxaCompra').textContent       = formatarMoeda(d.taxaCompra);
+        document.getElementById('cfTaxaCartao').textContent       = `${d.taxaCartao.toFixed(2)}%`;
+        document.getElementById('cfCustoTotal').textContent       = formatarMoeda(d.custoTotal);
+        document.getElementById('cfMargem').textContent           = `${d.jurosVenda.toFixed(2)}%`;
+        document.getElementById('cfPrecoFinal').textContent       = formatarMoeda(d.valorTotalAjustado);
+        document.getElementById('cfParcelamento').textContent     = `${d.parcelas}x de ${formatarMoeda(d.valorParcela)}`;
+        document.getElementById('cfLucro').textContent            = `${formatarMoeda(d.lucroReal)} (${d.margem.toFixed(2)}%)`;
+
+        const fotoWrap = document.getElementById('cardFornecedorFotoWrap');
+        if (fotoProdutoDataURL) {
+            document.getElementById('cardFornecedorFoto').src = fotoProdutoDataURL;
+            fotoWrap.classList.add('visivel');
+        } else {
+            fotoWrap.classList.remove('visivel');
+        }
+
+        gerarJPGPreco('cardFornecedor', d.nome, 'btnExportFornecedor', 'Cotacao');
+    }
+
+    // Gera o JPG de um card de preço e compartilha (igual ao recibo)
+    function gerarJPGPreco(idCard, nomeProduto, idBtn, prefixo) {
+        const btn = document.getElementById(idBtn);
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = '⏳ Gerando...';
+        btn.disabled = true;
+
+        const nomeArquivo = `${prefixo}_${(nomeProduto || 'produto').replace(/\s+/g,'_').substring(0,30)}.jpg`;
+
+        html2canvas(document.getElementById(idCard), {
+            scale: 2.5,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+        }).then(canvas => {
+            canvas.toBlob(function(blob) {
+                const file = new File([blob], nomeArquivo, { type: 'image/jpeg' });
+
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        title: 'Preço do Produto',
+                        text: `${nomeProduto || 'Produto'}`,
+                        files: [file]
+                    }).then(() => {
+                        btn.innerHTML = '✅ Compartilhado!';
+                        setTimeout(() => { btn.innerHTML = textoOriginal; btn.disabled = false; }, 2000);
+                    }).catch(() => {
+                        downloadFallbackPreco(canvas, nomeArquivo, btn, textoOriginal);
+                    });
+                } else {
+                    downloadFallbackPreco(canvas, nomeArquivo, btn, textoOriginal);
+                }
+            }, 'image/jpeg', 0.92);
+        }).catch((err) => {
+            console.error(err);
+            alert('❌ Erro ao gerar a imagem. Tente novamente.');
+            btn.innerHTML = textoOriginal;
+            btn.disabled = false;
+        });
+    }
+
+    // Fallback de download para os cards de preço
+    function downloadFallbackPreco(canvas, nomeArquivo, btn, textoOriginal) {
+        const finalCanvas = document.createElement('canvas');
+        const ctx = finalCanvas.getContext('2d');
+        const targetWidth = 720;
+        const targetHeight = (canvas.height / canvas.width) * targetWidth;
+        finalCanvas.width = targetWidth;
+        finalCanvas.height = targetHeight;
+        ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+
+        const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.92);
+        const link = document.createElement('a');
+        link.download = nomeArquivo;
+        link.href = dataUrl;
+        link.click();
+
+        btn.innerHTML = '✅ Baixado!';
+        setTimeout(() => { btn.innerHTML = textoOriginal; btn.disabled = false; }, 1500);
+    }
+
     // ====================== RECIBOS ======================
     function formatarCPF(input) {
         let v = input.value.replace(/\D/g,'');
         if (v.length <= 11) input.value = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
     }
-
-    // Função formatarMoedaInput removida – não é mais usada
 
     function gerarNumeroRecibo() {
         const d = new Date();
@@ -1340,7 +1650,6 @@
     }
 
     function atualizarRecibo() {
-        // Valor é exibido exatamente como digitado, sem formatação
         const valorDigitado = document.getElementById('reciboValor').value || 'R$ 0,00';
         document.getElementById('previewValor').textContent = valorDigitado;
 
@@ -1368,17 +1677,19 @@
         atualizarRecibo();
     }
 
-    // Função para baixar o recibo com largura de 800px (scale 2.5 sobre 320px)
+    // Função para COMPARTILHAR o recibo
     function baixarReciboJPG() {
         const beneficiario = document.getElementById('reciboBeneficiario').value;
         const valor        = document.getElementById('reciboValor').value;
+        
         if (!beneficiario || !valor) {
-            alert('⚠️ Preencha o nome do beneficiário e o valor antes de baixar.');
+            alert('⚠️ Preencha o nome do beneficiário e o valor antes de compartilhar.');
             return;
         }
+        
         const btn = document.querySelector('.download-recibo-btn');
-        const textoOriginal = btn.textContent;
-        btn.textContent = '⏳ Gerando imagem...';
+        const textoOriginal = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gerando...';
         btn.disabled = true;
 
         // Captura com escala 2.5 -> 320px * 2.5 = 800px
@@ -1389,27 +1700,68 @@
             allowTaint: true,
             logging: false
         }).then(canvas => {
-            // Opcional: redimensionar para exatamente 800px (já está próximo)
-            const finalCanvas = document.createElement('canvas');
-            const ctx = finalCanvas.getContext('2d');
-            const targetWidth = 800;
-            const targetHeight = (canvas.height / canvas.width) * targetWidth;
-            finalCanvas.width = targetWidth;
-            finalCanvas.height = targetHeight;
-            ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
-            
-            const link = document.createElement('a');
-            link.download = `Recibo_${beneficiario.replace(/\s+/g,'_').substring(0,30)}_${gerarNumeroRecibo()}.jpg`;
-            link.href = finalCanvas.toDataURL('image/jpeg', 0.92);
-            link.click();
-            btn.textContent = '✅ Recibo baixado!';
-            setTimeout(() => { btn.textContent = textoOriginal; btn.disabled = false; }, 2000);
+            // Converte para blob
+            canvas.toBlob(function(blob) {
+                // Cria arquivo para compartilhar
+                const file = new File([blob], `Recibo_${beneficiario.replace(/\s+/g,'_').substring(0,30)}.jpg`, { type: 'image/jpeg' });
+                
+                // Verifica se o navegador suporta Web Share API
+                if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                    navigator.share({
+                        title: 'Recibo de Pagamento',
+                        text: `Recibo de ${beneficiario} - Valor: ${valor}`,
+                        files: [file]
+                    }).then(() => {
+                        btn.innerHTML = '✅ Compartilhado!';
+                        setTimeout(() => { 
+                            btn.innerHTML = textoOriginal; 
+                            btn.disabled = false; 
+                        }, 2000);
+                    }).catch((err) => {
+                        console.log('Compartilhamento cancelado ou erro:', err);
+                        downloadFallback(canvas, beneficiario, btn, textoOriginal);
+                    });
+                } else {
+                    downloadFallback(canvas, beneficiario, btn, textoOriginal);
+                }
+            }, 'image/jpeg', 0.92);
         }).catch((err) => {
             console.error(err);
             alert('❌ Erro ao gerar o recibo. Tente novamente.');
-            btn.textContent = textoOriginal;
+            btn.innerHTML = textoOriginal;
             btn.disabled = false;
         });
+    }
+
+    // Função auxiliar para download (fallback)
+    function downloadFallback(canvas, beneficiario, btn, textoOriginal) {
+        const finalCanvas = document.createElement('canvas');
+        const ctx = finalCanvas.getContext('2d');
+        const targetWidth = 800;
+        const targetHeight = (canvas.height / canvas.width) * targetWidth;
+        finalCanvas.width = targetWidth;
+        finalCanvas.height = targetHeight;
+        ctx.drawImage(canvas, 0, 0, targetWidth, targetHeight);
+        
+        const dataUrl = finalCanvas.toDataURL('image/jpeg', 0.92);
+        
+        // Download automático
+        const link = document.createElement('a');
+        link.download = `Recibo_${beneficiario.replace(/\s+/g,'_').substring(0,30)}_${gerarNumeroRecibo()}.jpg`;
+        link.href = dataUrl;
+        link.click();
+        
+        const texto = `🧾 *Recibo de Pagamento*\n\n👤 Beneficiário: ${beneficiario}\n💰 Valor: ${document.getElementById('reciboValor').value}\n📅 Data: ${document.getElementById('previewData').textContent}`;
+        
+        btn.innerHTML = '✅ Baixado!';
+        setTimeout(() => { 
+            btn.innerHTML = textoOriginal; 
+            btn.disabled = false; 
+            
+            if (confirm('Recibo baixado! Deseja compartilhar via WhatsApp?')) {
+                window.open(`https://wa.me/?text=${encodeURIComponent(texto)}`, '_blank');
+            }
+        }, 1000);
     }
 
     // Listeners preços
