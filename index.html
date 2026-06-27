@@ -548,9 +548,17 @@
             padding: 14px 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             color: #fff;
+            min-height: 20px;
         }
+        .card-preco-titulo-empresa {
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .card-preco-header.card-header-vazio { padding: 8px; }
         .card-cliente-header   { background: linear-gradient(135deg, #8e44ad 0%, #6c3483 100%); }
         .card-fornecedor-header{ background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%); }
         .card-preco-logo { display: flex; align-items: center; gap: 8px; }
@@ -805,6 +813,14 @@
         </div>
 
         <div class="campo" style="margin-bottom: 15px;">
+            <div class="campo" style="margin-bottom: 14px;">
+                <div class="label-com-info">
+                    <label>🏷️ Título do Card (topo):</label>
+                    <span class="info-icon" title="Texto exibido no topo das versões Cliente e Fornecedor. Deixe em branco para não exibir nada.">?</span>
+                </div>
+                <input type="text" id="precosTituloCard" placeholder="Ex: Sua Empresa (deixe em branco para ocultar)" value="PLABZ Tecnologia">
+            </div>
+
             <label>📸 Foto do Produto:</label>
             <div class="foto-campo-compacto">
                 <div class="foto-upload-mini">
@@ -887,42 +903,26 @@
         <div style="position: fixed; left: -9999px; top: 0;">
             <!-- CARD CLIENTE -->
             <div id="cardCliente" class="card-preco-jpg">
-                <div class="card-preco-header card-cliente-header">
-                    <div class="card-preco-logo">
-                        <div class="card-preco-logo-icon">P</div>
-                        <div>
-                            <div class="card-preco-logo-texto">PLABZ</div>
-                            <div class="card-preco-logo-subtexto">Tecnologia</div>
-                        </div>
-                    </div>
-                    <div class="card-preco-titulo">OFERTA</div>
+                <div class="card-preco-header card-cliente-header" id="cardClienteHeader">
+                    <div class="card-preco-titulo-empresa" id="cardClienteTitulo">PLABZ Tecnologia</div>
                 </div>
                 <div class="card-preco-foto" id="cardClienteFotoWrap">
                     <img id="cardClienteFoto" src="" alt="">
                 </div>
                 <div class="card-preco-nome" id="cardClienteNome">---</div>
                 <div class="card-preco-corpo">
-                    <div class="card-preco-de" id="cardClienteDe">De: R$ 0,00</div>
                     <div class="card-preco-destaque-box card-cliente-box">
                         <div class="card-preco-destaque-label">Por apenas</div>
                         <div class="card-preco-destaque-valor" id="cardClienteParcela">1x de R$ 0,00</div>
                     </div>
                     <div class="card-preco-total" id="cardClienteTotal">Total: R$ 0,00</div>
                 </div>
-                <div class="card-preco-rodape">✨ Aproveite esta oferta! ✨</div>
             </div>
 
             <!-- CARD FORNECEDOR -->
             <div id="cardFornecedor" class="card-preco-jpg">
-                <div class="card-preco-header card-fornecedor-header">
-                    <div class="card-preco-logo">
-                        <div class="card-preco-logo-icon">P</div>
-                        <div>
-                            <div class="card-preco-logo-texto">PLABZ</div>
-                            <div class="card-preco-logo-subtexto">Tecnologia</div>
-                        </div>
-                    </div>
-                    <div class="card-preco-titulo">COTAÇÃO</div>
+                <div class="card-preco-header card-fornecedor-header" id="cardFornecedorHeader">
+                    <div class="card-preco-titulo-empresa" id="cardFornecedorTitulo">PLABZ Tecnologia</div>
                 </div>
                 <div class="card-preco-foto" id="cardFornecedorFotoWrap">
                     <img id="cardFornecedorFoto" src="" alt="">
@@ -933,15 +933,11 @@
                     <div class="cf-row"><span>📋 Taxa de Compra</span><span id="cfTaxaCompra">R$ 0,00</span></div>
                     <div class="cf-row"><span>💳 Taxa Cartão</span><span id="cfTaxaCartao">0,00%</span></div>
                     <div class="cf-row cf-sep"><span>📊 Custo Total</span><span id="cfCustoTotal">R$ 0,00</span></div>
-                    <div class="cf-row"><span>📈 Margem Aplicada</span><span id="cfMargem">0,00%</span></div>
                     <div class="card-preco-destaque-box card-fornecedor-box">
                         <div class="card-preco-destaque-label">Preço Final</div>
                         <div class="card-preco-destaque-valor" id="cfPrecoFinal">R$ 0,00</div>
                     </div>
-                    <div class="cf-row"><span>📅 Parcelamento</span><span id="cfParcelamento">1x de R$ 0,00</span></div>
-                    <div class="cf-row cf-lucro"><span>🤑 Lucro Estimado</span><span id="cfLucro">R$ 0,00</span></div>
                 </div>
-                <div class="card-preco-rodape">Plabz Tec. • CNPJ: 45.808.899/0001-01</div>
             </div>
         </div>
     </div>
@@ -1530,9 +1526,11 @@
         }
         const d = window.dadosExportacao;
 
+        // Título personalizado no topo (oculta a faixa se vazio)
+        aplicarTituloCard('cardClienteHeader', 'cardClienteTitulo');
+
         // Preenche o card cliente
         document.getElementById('cardClienteNome').textContent    = d.nome || 'Produto';
-        document.getElementById('cardClienteDe').textContent       = `De: ${formatarMoeda(d.valorProduto)}`;
         document.getElementById('cardClienteParcela').textContent  = `${d.parcelas}x de ${formatarMoeda(d.valorParcela)}`;
         document.getElementById('cardClienteTotal').textContent    = `Total: ${formatarMoeda(d.valorTotalAjustado)}`;
 
@@ -1547,6 +1545,22 @@
         gerarJPGPreco('cardCliente', d.nome, 'btnExportCliente', 'Oferta');
     }
 
+    // Aplica o título digitado pelo usuário no topo do card; oculta a faixa se vazio
+    function aplicarTituloCard(idHeader, idTitulo) {
+        const titulo = (document.getElementById('precosTituloCard').value || '').trim();
+        const header = document.getElementById(idHeader);
+        const elTitulo = document.getElementById(idTitulo);
+        if (titulo) {
+            elTitulo.textContent = titulo;
+            elTitulo.style.display = '';
+            header.classList.remove('card-header-vazio');
+        } else {
+            elTitulo.textContent = '';
+            elTitulo.style.display = 'none';
+            header.classList.add('card-header-vazio');
+        }
+    }
+
     function compartilharFornecedor() {
         if (!window.dadosExportacao) {
             alert('⚠️ Calcule os preços primeiro!');
@@ -1554,16 +1568,16 @@
         }
         const d = window.dadosExportacao;
 
+        // Título personalizado no topo (oculta a faixa se vazio)
+        aplicarTituloCard('cardFornecedorHeader', 'cardFornecedorTitulo');
+
         // Preenche o card fornecedor
         document.getElementById('cardFornecedorNome').textContent = d.nome || 'Produto';
         document.getElementById('cfValorProduto').textContent     = formatarMoeda(d.valorProduto);
         document.getElementById('cfTaxaCompra').textContent       = formatarMoeda(d.taxaCompra);
         document.getElementById('cfTaxaCartao').textContent       = `${d.taxaCartao.toFixed(2)}%`;
         document.getElementById('cfCustoTotal').textContent       = formatarMoeda(d.custoTotal);
-        document.getElementById('cfMargem').textContent           = `${d.jurosVenda.toFixed(2)}%`;
         document.getElementById('cfPrecoFinal').textContent       = formatarMoeda(d.valorTotalAjustado);
-        document.getElementById('cfParcelamento').textContent     = `${d.parcelas}x de ${formatarMoeda(d.valorParcela)}`;
-        document.getElementById('cfLucro').textContent            = `${formatarMoeda(d.lucroReal)} (${d.margem.toFixed(2)}%)`;
 
         const fotoWrap = document.getElementById('cardFornecedorFotoWrap');
         if (fotoProdutoDataURL) {
