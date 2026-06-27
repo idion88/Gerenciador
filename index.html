@@ -1426,17 +1426,49 @@
     function carregarFotoURL() {
         const url = document.getElementById('urlFoto').value.trim();
         if (!url) { removerFoto(); return; }
+
         const img = new Image();
+        img.crossOrigin = 'anonymous';
         img.onload = function() {
-            fotoProdutoDataURL = url;
-            document.getElementById('imagemPreviewMini').src = url;
-            document.getElementById('fotoPreviewMini').classList.add('visivel');
-            document.getElementById('btnFoto').classList.add('tem-foto');
-            document.getElementById('imagemRelatorio').src = url;
-            document.getElementById('relatorioImagem').classList.add('visivel');
-            document.getElementById('inputFoto').value = '';
+            // Tenta converter para base64 (necessário p/ o html2canvas capturar a imagem)
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width  = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                fotoProdutoDataURL = canvas.toDataURL('image/jpeg', 0.92);
+            } catch (e) {
+                // Servidor não liberou CORS: usa a URL direto (aparece na tela, mas pode sair em branco no JPG)
+                fotoProdutoDataURL = url;
+                console.warn('Imagem sem CORS; pode não aparecer no JPG compartilhado.', e);
+                alert('⚠️ Esta imagem pode não aparecer no arquivo compartilhado por restrição do site de origem.\n\nDica: baixe a imagem e use o botão 📁 para anexá-la.');
+            }
+            aplicarFotoCarregada();
+        };
+        img.onerror = function() {
+            // Falha com crossOrigin: tenta novamente sem ele (ao menos exibe na tela)
+            const img2 = new Image();
+            img2.onload = function() {
+                fotoProdutoDataURL = url;
+                aplicarFotoCarregada();
+                alert('⚠️ Esta imagem pode não aparecer no arquivo compartilhado por restrição do site de origem.\n\nDica: baixe a imagem e use o botão 📁 para anexá-la.');
+            };
+            img2.onerror = function() {
+                alert('❌ Não foi possível carregar a imagem deste link. Verifique o endereço.');
+            };
+            img2.src = url;
         };
         img.src = url;
+    }
+
+    function aplicarFotoCarregada() {
+        document.getElementById('imagemPreviewMini').src = fotoProdutoDataURL;
+        document.getElementById('fotoPreviewMini').classList.add('visivel');
+        document.getElementById('btnFoto').classList.add('tem-foto');
+        document.getElementById('imagemRelatorio').src = fotoProdutoDataURL;
+        document.getElementById('relatorioImagem').classList.add('visivel');
+        document.getElementById('inputFoto').value = '';
     }
 
     function removerFoto() {
@@ -1603,7 +1635,7 @@
             scale: 2.5,
             backgroundColor: '#ffffff',
             useCORS: true,
-            allowTaint: true,
+            allowTaint: false,
             logging: false
         }).then(canvas => {
             canvas.toBlob(function(blob) {
