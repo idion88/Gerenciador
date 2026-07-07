@@ -435,8 +435,9 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
     text-transform:uppercase; letter-spacing:.04em; text-align:left; font-weight:600; flex-shrink:0;}
   table.simple td:empty{display:none;}
   table.simple td .btn{width:100%; justify-content:center;}
-  table.simple td.cell-actions{padding-top:10px; margin-top:4px; border-top:1px solid var(--paper-alt);}
+  table.simple td.cell-actions{padding-top:10px; margin-top:4px; border-top:1px solid var(--paper-alt); display:flex; gap:8px; flex-wrap:wrap; white-space:normal !important;}
   table.simple td.cell-actions::before{display:none;}
+  table.simple td.cell-actions .btn{flex:1; margin:0 !important; min-width:110px;}
   /* tabela de parcelas dentro do comprovante de venda */
   .installments-table{display:block;}
   .installments-table thead{display:none;}
@@ -2706,9 +2707,12 @@ function renderRecebiveis(){
             <td class="mono" data-label="Falta" style="color:${i.restante>0.005?'var(--red)':'var(--ink-faint)'}">${i.restante>0.005?fmtBRL(i.restante):'—'}</td>
             <td data-label="Meio">${instLastMethod(i) ? methodLabel(instLastMethod(i)) : '—'}</td>
             <td data-label="Status"><span class="badge ${i.status}">${i.status}</span>${instHasPending(i) ? ' <span class="pending-badge" title="Pagamento aguardando confirmação de 24h">⏳ aguardando</span>' : ''}</td>
-            <td class="cell-actions">${i.status==='pago'
-              ? `<button class="btn small ghost" onclick="undoPaid('${i.saleId}',${i.n})">Desfazer</button>`
-              : `<button class="btn small" onclick="markPaid('${i.saleId}',${i.n})">${i.status==='parcial'?'Receber':'Registrar'}</button>`}</td>
+            <td class="cell-actions" style="white-space:nowrap;">
+              <button class="btn small ghost" onclick="editSale('${i.saleId}')" style="margin-right:6px;">Editar</button>
+              ${i.status==='pago'
+                ? `<button class="btn small ghost" onclick="undoPaid('${i.saleId}',${i.n})">Desfazer</button>`
+                : `<button class="btn small" onclick="markPaid('${i.saleId}',${i.n})">${i.status==='parcial'?'Receber':'Registrar'}</button>`}
+            </td>
           </tr>`).join('')}
       </tbody>
     </table>`;
