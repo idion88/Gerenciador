@@ -2233,8 +2233,15 @@ document.getElementById('pagConfirmar').addEventListener('click', async () => {
       toast('Data/horário inválidos.', true);
       return;
     }
-    confirmAt = new Date(base.getTime() + 24*60*60*1000).toISOString();
-    pending = true;
+    const prazo24h = base.getTime() + 24*60*60*1000;
+    if(prazo24h <= Date.now()){
+      // as 24h já passaram: registra direto como recebido, sem aguardar
+      pending = false;
+      confirmAt = null;
+    } else {
+      confirmAt = new Date(prazo24h).toISOString();
+      pending = true;
+    }
   }
 
   // adiciona o pagamento ao histórico da parcela
