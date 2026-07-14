@@ -465,6 +465,7 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
     <div class="login-sub" id="loginSub">Digite a senha para acessar</div>
     <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password">
     <button class="btn primary" id="loginBtn">Entrar</button>
+    <button class="btn ghost" id="loginBio" style="display:none; margin-top:8px;">👆 Entrar com digital</button>
     <div class="login-err" id="loginErr"></div>
   </div>
 </div>
@@ -597,6 +598,10 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
     <section class="view" id="view-recebiveis">
       <div class="stat-grid" id="recebStats" style="grid-template-columns:repeat(3,1fr);"></div>
       <div class="filters-bar">
+        <div class="search-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="recebSearch" placeholder="Buscar por cliente ou produto…">
+        </div>
         <select id="recebStatusFilter">
           <option value="all">Todas as parcelas</option>
           <option value="pendente">Pendentes</option>
@@ -2545,9 +2550,10 @@ function escapeHtml(str){
 }
 
 /* ---- Vendas ---- */
+// função global para busca sem acentos (usada em Vendas e Recebíveis)
+const semAcento = (txt) => (txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 function renderVendas(){
   if(!document.getElementById('view-vendas').classList.contains('active')) return;
-  const semAcento = (txt) => (txt || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   const search = semAcento(document.getElementById('vendaSearch').value || '');
   const periodF = document.getElementById('vendaPeriodFilter').value;
   const statusF = document.getElementById('vendaStatusFilter').value;
@@ -2682,6 +2688,16 @@ function renderRecebiveis(){
   if(statusF !== 'all') list = list.filter(i => i.status === statusF);
   if(monthF !== 'all') list = list.filter(i => monthKey(i.due) === monthF);
   if(recebHojeOnly) list = list.filter(i => i.due === hoje);
+
+  // filtro de busca por texto (cliente ou produto)
+  const recebQ = semAcento(document.getElementById('recebSearch').value || '');
+  if(recebQ){
+    list = list.filter(i => {
+      const txt = semAcento((i.client||'') + ' ' + (i.product||''));
+      return txt.includes(recebQ);
+    });
+  }
+
   list.sort((a,b)=>a.due.localeCompare(b.due));
 
   const hojeBtn = document.getElementById('recebHojeBtn');
@@ -2719,6 +2735,7 @@ function renderRecebiveis(){
 }
 document.getElementById('recebStatusFilter').addEventListener('change', renderRecebiveis);
 document.getElementById('recebMonthFilter').addEventListener('change', renderRecebiveis);
+document.getElementById('recebSearch').addEventListener('input', renderRecebiveis);
 document.getElementById('recebHojeBtn').addEventListener('click', () => {
   recebHojeOnly = !recebHojeOnly;
   renderRecebiveis();
@@ -3067,29 +3084,106 @@ function initCloud(){
 // bloqueia armazenamento. A sessão dura enquanto a aba estiver aberta.
 let authValidadoNestaSessao = false;
 
+// ====== BIOMETRIA via Capacitor (plugin nativo, gratuito) ======
+function noApp() {
+  return !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+}
+function bioPlugin() {
+  try { return window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.NativeBiometric || null; }
+  catch (e) { return null; }
+}
+const BIO_SERVER = "livrocaixa.app";
+
 function showLoginGate(){
   return new Promise((resolve) => {
     const gate  = document.getElementById('loginGate');
     const input = document.getElementById('loginPass');
     const btn   = document.getElementById('loginBtn');
+    const btnBio = document.getElementById('loginBio');
     const err   = document.getElementById('loginErr');
-    // Se já validou nesta sessão (recarregou a tela sem fechar a aba), pula
     if(authValidadoNestaSessao){ resolve(); return; }
     gate.hidden = false;
-    setTimeout(()=>input.focus(), 100);
-    const tentar = () => {
-      // .trim() remove espaços que o teclado do celular costuma adicionar
+
+    // libera acesso (fecha a tela e continua o boot)
+    const liberar = () => {
+      authValidadoNestaSessao = true;
+      gate.hidden = true;
+      resolve();
+    };
+
+    // ao entrar com senha certa, salva no cofre biométrico (se estiver no app)
+    const tentar = async () => {
       if(input.value.trim() === CLOUD_CONFIG.APP_PASSWORD){
-        authValidadoNestaSessao = true;
-        gate.hidden = true;
-        resolve();
+        const bio = bioPlugin();
+        if(bio && bio.setCredentials){
+          try {
+            await bio.setCredentials({
+              username: "livrocaixa",
+              password: CLOUD_CONFIG.APP_PASSWORD,
+              server: BIO_SERVER
+            });
+          } catch(e){ /* se falhar, segue normalmente */ }
+        }
+        liberar();
       }else{
         err.textContent = 'Senha incorreta.';
         input.value = ''; input.focus();
       }
     };
-    btn.onclick = tentar;  // onclick em vez de addEventListener: não acumula
+
+    // entra com a digital: valida biometria e recupera senha do cofre
+    const tentarDigital = async (automatico) => {
+      const bio = bioPlugin();
+      if(!bio) return;
+      if(!automatico){ btnBio.textContent = 'Verificando…'; btnBio.disabled = true; }
+      try {
+        await bio.verifyIdentity({
+          reason: "Desbloqueie o app",
+          title: "Acesso ao Livro Caixa",
+          subtitle: "",
+          description: ""
+        });
+        const cred = await bio.getCredentials({ server: BIO_SERVER });
+        const secret = cred && cred.password;
+        if(secret && secret === CLOUD_CONFIG.APP_PASSWORD){
+          liberar();
+        } else if(secret){
+          err.textContent = 'A senha mudou — digite-a uma vez para reativar a digital.';
+        } else {
+          err.textContent = 'Digite a senha uma vez para ativar a digital.';
+        }
+      } catch(e){
+        if(!automatico) err.textContent = 'Não foi possível ler a digital. Use a senha.';
+      }
+      btnBio.textContent = '👆 Entrar com digital';
+      btnBio.disabled = false;
+    };
+
+    btn.onclick = tentar;
+    btnBio.onclick = () => tentarDigital(false);
     input.onkeydown = (e)=>{ if(e.key==='Enter'){ e.preventDefault(); tentar(); } };
+
+    // se está no app Capacitor, verifica biometria e tenta auto-login
+    (async () => {
+      const bio = bioPlugin();
+      if(!bio) { setTimeout(()=>input.focus(), 100); return; }
+      try {
+        const disp = await bio.isAvailable();
+        if(!disp || !disp.isAvailable){ setTimeout(()=>input.focus(), 100); return; }
+        btnBio.style.display = 'block';
+        // se há senha guardada, tenta a digital automaticamente
+        let temSenha = false;
+        try {
+          const cred = await bio.getCredentials({ server: BIO_SERVER });
+          temSenha = !!(cred && cred.password);
+        } catch(e){ temSenha = false; }
+        if(temSenha){
+          setTimeout(() => tentarDigital(true), 400);
+        }
+      } catch(e){
+        btnBio.style.display = 'block'; // oferece o botão mesmo se checagem falhar
+      }
+    })();
   });
 }
 
