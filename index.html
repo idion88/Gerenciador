@@ -1846,6 +1846,29 @@ window.deleteSale = async (id) => {
 };
 window.editSale = (id) => openVendaModal(id);
 
+// Compartilha um blob de imagem pelo caminho nativo do Capacitor (Filesystem + Share).
+// Retorna true se conseguiu; false se os plugins não estão disponíveis.
+async function shareBlobNativo(blob, fileName, titulo, texto){
+  const cap = window.Capacitor;
+  if(!(cap && cap.isNativePlatform && cap.isNativePlatform())) return false;
+  const FS = cap.Plugins && cap.Plugins.Filesystem;
+  const SH = cap.Plugins && cap.Plugins.Share;
+  if(!FS || !SH){
+    toast('Plugins de compartilhamento não instalados no app.', true);
+    return true; // estamos no app: não adianta cair no download do WebView
+  }
+  // blob -> base64
+  const base64 = await new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(String(r.result).split(',')[1]);
+    r.onerror = () => rej(new Error('Falha ao ler imagem'));
+    r.readAsDataURL(blob);
+  });
+  const escrita = await FS.writeFile({ path: fileName, data: base64, directory: 'CACHE' });
+  await SH.share({ title: titulo, text: texto, url: escrita.uri, dialogTitle: titulo });
+  return true;
+}
+
 // Gera um cupom da venda em JPG e abre o compartilhamento do aparelho
 window.shareSale = async (id) => {
   const sale = state.sales.find(s => s.id === id);
@@ -1853,13 +1876,15 @@ window.shareSale = async (id) => {
   try{
     const blob = await buildSaleReceiptImage(sale);
     const fileName = `cupom-${(sale.client||sale.product||'venda').replace(/[^a-z0-9]/gi,'_').toLowerCase()}.jpg`;
+    // 1) Dentro do APK: Filesystem + Share nativos
+    if(await shareBlobNativo(blob, fileName, 'Cupom da venda', `Resumo — ${sale.client||sale.product}`)) return;
     const file = new File([blob], fileName, { type:'image/jpeg' });
-    // Tenta o menu de compartilhamento nativo (celular)
+    // 2) Navegador com suporte: menu de compartilhamento web
     if(navigator.canShare && navigator.canShare({ files:[file] })){
       await navigator.share({ files:[file], title:'Cupom da venda', text:`Resumo — ${sale.client||sale.product}` });
       return;
     }
-    // Fallback: baixa a imagem
+    // 3) Fallback: baixa a imagem
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = fileName;
