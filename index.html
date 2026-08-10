@@ -261,6 +261,9 @@ nav.navlist{display:flex; flex-direction:column; gap:3px; margin-top:6px;}
 .badge.pendente{background:var(--gold-soft); color:var(--gold);}
 .badge.atrasado{background:var(--red-soft); color:var(--red);}
 .badge.parcial{background:#FBEFD2; color:#9A6B12;}
+.atraso-tag{font-size:10px; font-weight:700; color:var(--red); margin-top:3px; white-space:nowrap;}
+.reneg-tag{font-size:10px; font-weight:700; color:var(--gold); margin-top:3px; white-space:nowrap;}
+.reneg-juros{font-size:10px; font-weight:600; color:var(--red); margin-top:2px; white-space:nowrap;}
 /* Histórico e avisos do modal de pagamento */
 #pagHistorico{background:var(--paper-alt); border-radius:10px; padding:10px 12px;}
 .pag-hist-title{font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); margin-bottom:6px;}
@@ -881,9 +884,9 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
         <select id="pagMetodo">
           <option value="pix">Pix — sem taxa</option>
           <option value="dinheiro">Dinheiro — sem taxa</option>
-          <option value="salsail">Salsail — R$ 0,99 + 0,80%</option>
-          <option value="leomaia">Leo Maia — R$ 0,99 + 0,10%</option>
-          <option value="manual">Outro — taxa manual</option>
+          <option value="salsail">Satsails</option>
+          <option value="leomaia">Leo Maia</option>
+          <option value="manual">Outro</option>
         </select>
       </div>
       <div class="field" id="pagTaxaManualField" style="display:none;">
@@ -970,6 +973,63 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
 
       <hr style="border:none; border-top:1px dashed var(--line); margin:20px 0;">
 
+      <h3 style="margin:0 0 4px; font-size:14.5px;">Taxas das formas de pagamento</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px; line-height:1.5;">
+        Pix e Dinheiro não têm taxa. Preencha o valor fixo (R$) e o percentual (%) de cada meio.
+      </p>
+      <form id="formFeeRates">
+        <div class="field">
+          <label>Satsails</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="feeSalsailFixed" step="0.01" min="0" placeholder="R$ fixo" style="flex:1;">
+            <input type="number" id="feeSalsailPercent" step="0.01" min="0" placeholder="% taxa" style="flex:1;">
+          </div>
+        </div>
+        <div class="field">
+          <label>Leo Maia</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="feeLeomaiaFixed" step="0.01" min="0" placeholder="R$ fixo" style="flex:1;">
+            <input type="number" id="feeLeomaiaPercent" step="0.01" min="0" placeholder="% taxa" style="flex:1;">
+          </div>
+        </div>
+        <div class="field">
+          <label>Outro</label>
+          <div style="display:flex; gap:8px;">
+            <input type="number" id="feeManualFixed" step="0.01" min="0" placeholder="R$ fixo" style="flex:1;">
+            <input type="number" id="feeManualPercent" step="0.01" min="0" placeholder="% taxa" style="flex:1;">
+          </div>
+        </div>
+        <button class="btn primary" type="submit" style="width:100%; justify-content:center;">Salvar taxas</button>
+      </form>
+
+      <hr style="border:none; border-top:1px dashed var(--line); margin:20px 0;">
+
+      <h3 style="margin:0 0 4px; font-size:14.5px;">Juros de atraso</h3>
+      <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 12px; line-height:1.5;">
+        Aplicados a contas atrasadas e na renegociação. Cada faixa soma à anterior; dentro da faixa o juro corre proporcional aos dias.
+      </p>
+      <form id="formLateRates">
+        <div class="field">
+          <label>Taxa diária <span class="hint">(% ao dia, referência)</span></label>
+          <input type="number" id="lateDiaria" step="0.01" min="0" placeholder="0,5">
+        </div>
+        <div class="field">
+          <label>Mensal <span class="hint">(% aos 30 dias)</span></label>
+          <input type="number" id="lateMensal" step="0.01" min="0" placeholder="15">
+        </div>
+        <div class="field">
+          <label>Bimestral <span class="hint">(% do 2º mês)</span></label>
+          <input type="number" id="lateBimestral" step="0.01" min="0" placeholder="20">
+        </div>
+        <div class="field">
+          <label>Trimestral <span class="hint">(% do 3º mês)</span></label>
+          <input type="number" id="lateTrimestral" step="0.01" min="0" placeholder="25">
+        </div>
+        <button class="btn primary" type="submit" style="width:100%; justify-content:center;">Salvar juros</button>
+      </form>
+
+      <hr style="border:none; border-top:1px dashed var(--line); margin:20px 0;">
+
       <h3 style="margin:0 0 4px; font-size:14.5px;">Sincronização na nuvem</h3>
       <p style="font-size:12.5px; color:var(--ink-soft); margin:0 0 10px; line-height:1.5;">
         Quando configurada, os dados ficam salvos online e aparecem em qualquer aparelho que abrir o app com a senha.
@@ -999,6 +1059,43 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
 
       <hr style="border:none; border-top:1px dashed var(--line); margin:20px 0;">
       <button class="btn danger" id="btnResetData" style="width:100%; justify-content:center;">Apagar todos os dados</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RENEGOCIAÇÃO -->
+<div class="modal-overlay" id="modalReneg" hidden>
+  <div class="modal-box" style="max-width:430px;">
+    <div class="modal-head">
+      <h2>Renegociar parcela</h2>
+      <button class="icon-btn" id="closeModalReneg">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="renegInfo" style="font-size:13px; color:var(--ink-soft); background:var(--paper-alt); border-radius:10px; padding:10px 12px; margin-bottom:14px; line-height:1.6;"></div>
+
+      <div class="field" id="renegEscopoField" style="display:none;">
+        <label>Aplicar juros sobre</label>
+        <select id="renegEscopo">
+          <option value="parcela">Só esta parcela atrasada</option>
+          <option value="divida">Dívida completa (todas em aberto)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Nova data de pagamento <span class="hint">(opcional)</span></label>
+        <input type="date" id="renegNovaData">
+        <span class="hint">Com data preenchida, a conta volta para "pendente". Os juros são contados do vencimento até essa data.</span>
+      </div>
+
+      <div id="renegResumo" style="font-size:13px; color:var(--ink); background:var(--paper-alt); border-radius:10px; padding:12px 14px; margin:4px 0 16px; line-height:1.8;"></div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn ghost" id="renegCancelar" style="flex:1; justify-content:center;">Cancelar</button>
+        <button class="btn primary" id="renegConfirmar" style="flex:1; justify-content:center;">Confirmar</button>
+      </div>
+      <button class="btn ghost" id="renegRemover" style="width:100%; justify-content:center; margin-top:8px; color:var(--red); display:none;">Remover renegociação</button>
     </div>
   </div>
 </div>
@@ -1038,7 +1135,22 @@ const state = {
   sales: [],       // {id, date, product, client, cost, sale, paymentType, installments:[{n,value,due,credit,payments:[],paid,...}], notes}
   expenses: [],     // {id, date, category, description, value}
   cashflow: [],     // lançamentos manuais de caixa: {id, date, kind:'entrada'|'saida', description, value}
-  settings: { businessName: 'Minha Empresa' },
+  settings: {
+    businessName: 'Minha Empresa',
+    // Taxas editáveis das formas de pagamento (fixed em R$, percent em %)
+    feeRates: {
+      salsail: { fixed:0.99, percent:0.80 },  // rótulo visível: Satsails
+      leomaia: { fixed:0.99, percent:0.10 },
+      manual:  { fixed:0,    percent:0    },   // "Outro": agora taxa fixa salva
+    },
+    // Taxas de juros para atraso/renegociação (em %)
+    lateRates: {
+      diaria:     0.5,   // % ao dia (mês 1: 15% / 30)
+      mensal:     15,    // % do 1º mês (30 dias)
+      bimestral:  20,    // % adicionado no 2º mês
+      trimestral: 25,    // % adicionado no 3º mês
+    },
+  },
 };
 
 /* ---------------- Formas de pagamento e taxas ----------------
@@ -1048,23 +1160,55 @@ const state = {
    O meio de pagamento é escolhido ao registrar o pagamento de CADA parcela.
    'manual' = o usuário digita o percentual na hora (campo manualFeeRate),
    sem desconto fixo. */
+// Estrutura base. As taxas de salsail/leomaia/manual são lidas de
+// state.settings.feeRates (editáveis nas Configurações). Pix e Dinheiro
+// são sempre 0 e não têm campo editável. O id 'salsail' é mantido por
+// compatibilidade com pagamentos já registrados; o rótulo visível é "Satsails".
 const PAYMENT_METHODS = [
-  { id:'pix',      label:'Pix',                fixed:0,    percent:0    },
-  { id:'dinheiro', label:'Dinheiro',           fixed:0,    percent:0    },
-  { id:'salsail',  label:'Salsail',            fixed:0.99, percent:0.80 },
-  { id:'leomaia',  label:'Leo Maia',           fixed:0.99, percent:0.10 },
-  { id:'manual',   label:'Outro (taxa manual)', fixed:0,   percent:null },
+  { id:'pix',      label:'Pix',       editable:false, fixed:0,    percent:0    },
+  { id:'dinheiro', label:'Dinheiro',  editable:false, fixed:0,    percent:0    },
+  { id:'salsail',  label:'Satsails',  editable:true,  fixed:0.99, percent:0.80 },
+  { id:'leomaia',  label:'Leo Maia',  editable:true,  fixed:0.99, percent:0.10 },
+  { id:'manual',   label:'Outro',     editable:true,  fixed:0,    percent:0    },
 ];
-function methodById(id){ return PAYMENT_METHODS.find(m => m.id === id); }
+// Retorna o método com as taxas ATUAIS (das configurações, se editável).
+function methodById(id){
+  const base = PAYMENT_METHODS.find(m => m.id === id);
+  if(!base) return undefined;
+  if(base.editable){
+    const r = (state.settings && state.settings.feeRates && state.settings.feeRates[id]) || null;
+    if(r) return { ...base, fixed:Number(r.fixed)||0, percent:Number(r.percent)||0 };
+  }
+  return base;
+}
 function methodLabel(id){ const m = methodById(id); return m ? m.label : '—'; }
+// Atualiza os rótulos do dropdown de pagamento com as taxas salvas atuais
+function refreshMetodoLabels(){
+  const sel = document.getElementById('pagMetodo');
+  if(!sel) return;
+  [...sel.options].forEach(opt => {
+    const m = methodById(opt.value);
+    if(!m) return;
+    if(opt.value === 'pix' || opt.value === 'dinheiro'){ opt.textContent = m.label + ' — sem taxa'; return; }
+    const parts = [];
+    if(m.fixed) parts.push('R$ ' + m.fixed.toFixed(2).replace('.', ','));
+    if(m.percent) parts.push(m.percent.toLocaleString('pt-BR') + '%');
+    opt.textContent = parts.length ? (m.label + ' — ' + parts.join(' + ')) : m.label;
+  });
+}
 // Percentual efetivo de uma parcela paga (para exibição) — usa o último pagamento
 function feeRateOfInst(inst){
+  const ps = instPayments(inst);
+  const last = ps.length ? ps[ps.length-1] : null;
+  // taxa congelada tem prioridade (reflete o que foi cobrado de fato)
+  if(last && last.feePercent != null) return Number(last.feePercent) || 0;
   const method = instLastMethod(inst);
   const m = methodById(method);
   if(!m) return 0;
-  if(m.percent === null){
-    const ps = instPayments(inst);
-    return ps.length ? (Number(ps[ps.length-1].manualFeeRate) || 0) : 0;
+  if(method === 'manual'){
+    if(last && last.manualFeeRate != null && Number(last.manualFeeRate) > 0)
+      return Number(last.manualFeeRate) || 0;
+    return m.percent || 0;
   }
   return m.percent;
 }
@@ -1073,13 +1217,30 @@ function feeRateOfInst(inst){
 function paymentFee(method, manualFeeRate, valor){
   const m = methodById(method);
   if(!m || !valor) return 0;
-  if(m.percent === null){ // manual: só percentual, sem fixo
-    return Math.round(valor * (Number(manualFeeRate) || 0)) / 100;
-  }
   const fixo = m.fixed || 0;
   const base = Math.max(0, valor - fixo);
-  const pct = Math.round(base * m.percent) / 100;
+  // "Outro": se veio um override digitado, ele manda; senão usa o % salvo
+  let pctRate = m.percent || 0;
+  if(method === 'manual' && manualFeeRate != null && Number(manualFeeRate) > 0){
+    pctRate = Number(manualFeeRate) || 0;
+  }
+  const pct = Math.round(base * pctRate) / 100;
   return Math.round((fixo + pct) * 100) / 100;
+}
+// Taxa em R$ de um pagamento JÁ REGISTRADO. Usa a taxa CONGELADA gravada
+// no pagamento (feeFixed/feePercent). Pagamentos antigos sem esses campos
+// caem no cálculo pela taxa atual das configurações (melhor esforço).
+function paymentFeeOf(p){
+  const valor = Number(p && p.value) || 0;
+  if(!valor) return 0;
+  if(p && (p.feeFixed != null || p.feePercent != null)){
+    const fixo = Number(p.feeFixed) || 0;
+    const base = Math.max(0, valor - fixo);
+    const pct = Math.round(base * (Number(p.feePercent) || 0)) / 100;
+    return Math.round((fixo + pct) * 100) / 100;
+  }
+  // fallback: pagamento antigo, sem taxa congelada
+  return paymentFee(p.method, p.manualFeeRate, valor);
 }
 // Lista de pagamentos de uma parcela (sempre array)
 function instPayments(inst){ return Array.isArray(inst.payments) ? inst.payments : []; }
@@ -1106,7 +1267,7 @@ function instIsPaid(inst){
 // Taxa em R$ de uma parcela = soma das taxas de cada pagamento confirmado
 function instFee(inst){
   return Math.round(instConfirmedPayments(inst).reduce((a,p) =>
-    a + paymentFee(p.method, p.manualFeeRate, Number(p.value)||0), 0) * 100) / 100;
+    a + paymentFeeOf(p), 0) * 100) / 100;
 }
 // Há algum pagamento aguardando confirmação de 24h nesta parcela?
 function instHasPending(inst){ return instPayments(inst).some(p => p.pending); }
@@ -1124,12 +1285,73 @@ function instLastMethod(inst){
 function feeDescription(methodId, manualRate){
   const m = methodById(methodId);
   if(!m) return '';
-  if(m.percent === null) return (Number(manualRate)||0).toLocaleString('pt-BR') + '%';
   const parts = [];
   if(m.fixed) parts.push('R$ ' + m.fixed.toFixed(2).replace('.', ','));
-  if(m.percent) parts.push(m.percent.toLocaleString('pt-BR') + '%');
+  let pct = m.percent || 0;
+  if(methodId === 'manual' && manualRate != null && Number(manualRate) > 0) pct = Number(manualRate);
+  if(pct) parts.push(pct.toLocaleString('pt-BR') + '%');
   return parts.length ? parts.join(' + ') : 'sem taxa';
 }
+/* ---------------- Juros de atraso / renegociação ----------------
+   Modelo escalonado somativo por faixas de 30 dias:
+     faixa 1 (0–30d)  = taxa "mensal"     (ex.: 15%)
+     faixa 2 (31–60d) = + taxa "bimestral" (ex.: 20%)
+     faixa 3 (61–90d) = + taxa "trimestral"(ex.: 25%)
+     faixa 4+ em diante = +5% a cada faixa (extrapola a trimestral)
+   Dentro de cada faixa o juro corre proporcional aos dias.
+   A "diária" salva é usada como referência/atalho, mas o cálculo real
+   deriva das taxas de faixa para bater exatamente com a tabela combinada. */
+function lateRates(){
+  const r = (state.settings && state.settings.lateRates) || {};
+  return {
+    diaria:     Number(r.diaria)     || 0.5,
+    mensal:     Number(r.mensal)     || 15,
+    bimestral:  Number(r.bimestral)  || 20,
+    trimestral: Number(r.trimestral) || 25,
+  };
+}
+// Taxa (%) de uma faixa mensal (1-indexada). 1=mensal, 2=bimestral, 3=trimestral,
+// 4+ segue somando +5% em cima da anterior (trimestral+5, +10, ...).
+function faixaPercent(n){
+  const r = lateRates();
+  if(n <= 1) return r.mensal;
+  if(n === 2) return r.bimestral;
+  if(n === 3) return r.trimestral;
+  return r.trimestral + (n - 3) * 5;
+}
+// Percentual total de juros para um dado nº de dias de atraso (escalonado somativo)
+function latePercentForDays(dias){
+  dias = Math.max(0, Math.floor(dias));
+  if(dias === 0) return 0;
+  let total = 0, restante = dias, faixa = 1;
+  while(restante > 0){
+    const diasFaixa = Math.min(restante, 30);
+    total += faixaPercent(faixa) * (diasFaixa / 30);
+    restante -= diasFaixa;
+    faixa++;
+  }
+  return Math.round(total * 1000) / 1000;
+}
+// Dias entre duas datas ISO (yyyy-mm-dd). Positivo se b > a.
+function daysBetweenISO(aISO, bISO){
+  if(!aISO || !bISO) return 0;
+  const a = new Date(aISO + 'T00:00:00');
+  const b = new Date(bISO + 'T00:00:00');
+  return Math.round((b - a) / 86400000);
+}
+// Dias de atraso de uma parcela (do vencimento até hoje; 0 se não vencida)
+function instDaysLate(inst){
+  const hoje = todayISO();
+  if(!inst || !inst.due) return 0;
+  if(instIsPaid(inst)) return 0;
+  const d = daysBetweenISO(inst.due, hoje);
+  return d > 0 ? d : 0;
+}
+// Valor em R$ de juros de atraso sobre uma base, para um nº de dias
+function lateInterestAmount(base, dias){
+  return Math.round(base * latePercentForDays(dias)) / 100;
+}
+
 // --- Bônus de excedente: pagamento a mais sem parcela seguinte vira receita extra ---
 function saleBonusList(sale){ return Array.isArray(sale.bonus) ? sale.bonus : []; }
 function saleBonusTotal(sale){
@@ -1137,7 +1359,7 @@ function saleBonusTotal(sale){
 }
 function saleBonusFee(sale){
   return Math.round(saleBonusList(sale).reduce((a,b)=>
-    a + paymentFee(b.method, b.manualFeeRate, Number(b.value)||0), 0)*100)/100;
+    a + paymentFeeOf(b), 0)*100)/100;
 }
 // Taxa total da venda = soma das taxas das parcelas pagas + taxas dos bônus
 function saleFee(sale){
@@ -1326,6 +1548,19 @@ function migrateSales(){
     });
   });
   if(!Array.isArray(state.cashflow)) state.cashflow = [];
+  normalizeSettings();
+}
+// Garante que as chaves de taxas existam após qualquer carregamento
+function normalizeSettings(){
+  if(!state.settings) state.settings = { businessName:'Minha Empresa' };
+  if(!state.settings.feeRates) state.settings.feeRates = {};
+  const fr = state.settings.feeRates;
+  if(!fr.salsail) fr.salsail = { fixed:0.99, percent:0.80 };
+  if(!fr.leomaia) fr.leomaia = { fixed:0.99, percent:0.10 };
+  if(!fr.manual)  fr.manual  = { fixed:0,    percent:0    };
+  if(!state.settings.lateRates){
+    state.settings.lateRates = { diaria:0.5, mensal:15, bimestral:20, trimestral:25 };
+  }
 }
 async function loadAll(){
   let loaded = false;
@@ -1385,7 +1620,9 @@ function toast(msg, isError=false){
 function installmentStatus(inst){
   if(instIsPaid(inst)) return 'pago';
   if(instCovered(inst) > 0.005) return 'parcial';   // recebeu algo, mas não quitou
-  if(inst.due < todayISO()) return 'atrasado';
+  // Se foi renegociada com nova data de pagamento ainda não vencida, fica pendente
+  const efetivaDue = (inst.reneg && inst.reneg.novaData) ? inst.reneg.novaData : inst.due;
+  if(efetivaDue < todayISO()) return 'atrasado';
   return 'pendente';
 }
 function saleStatus(sale){
@@ -1667,9 +1904,51 @@ document.getElementById('btnSettings').addEventListener('click', () => {
   document.getElementById('setBusinessName').value = state.settings.businessName || '';
   logoTmp = state.settings.logo || null;
   pintarLogoPreview(logoTmp);
+  fillRateFields();
   renderLastBackupInfo();
   setSyncStatus(cloudEnabled() ? 'ok' : 'offline');
   modalSettings.hidden = false;
+});
+// Preenche os campos de taxas com os valores salvos
+function fillRateFields(){
+  const fr = (state.settings.feeRates) || {};
+  const set = (id,v) => { const el=document.getElementById(id); if(el) el.value = (v!=null?v:''); };
+  set('feeSalsailFixed',   fr.salsail ? fr.salsail.fixed   : 0.99);
+  set('feeSalsailPercent', fr.salsail ? fr.salsail.percent : 0.80);
+  set('feeLeomaiaFixed',   fr.leomaia ? fr.leomaia.fixed   : 0.99);
+  set('feeLeomaiaPercent', fr.leomaia ? fr.leomaia.percent : 0.10);
+  set('feeManualFixed',    fr.manual  ? fr.manual.fixed    : 0);
+  set('feeManualPercent',  fr.manual  ? fr.manual.percent  : 0);
+  const lr = lateRates();
+  set('lateDiaria',     lr.diaria);
+  set('lateMensal',     lr.mensal);
+  set('lateBimestral',  lr.bimestral);
+  set('lateTrimestral', lr.trimestral);
+}
+// Salvar taxas das formas de pagamento
+document.getElementById('formFeeRates').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const num = id => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
+  if(!state.settings.feeRates) state.settings.feeRates = {};
+  state.settings.feeRates.salsail = { fixed:num('feeSalsailFixed'), percent:num('feeSalsailPercent') };
+  state.settings.feeRates.leomaia = { fixed:num('feeLeomaiaFixed'), percent:num('feeLeomaiaPercent') };
+  state.settings.feeRates.manual  = { fixed:num('feeManualFixed'),  percent:num('feeManualPercent') };
+  await saveSettings();
+  toast('Taxas salvas ✓');
+});
+// Salvar juros de atraso
+document.getElementById('formLateRates').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const num = id => Math.max(0, parseFloat(document.getElementById(id).value) || 0);
+  state.settings.lateRates = {
+    diaria:     num('lateDiaria'),
+    mensal:     num('lateMensal'),
+    bimestral:  num('lateBimestral'),
+    trimestral: num('lateTrimestral'),
+  };
+  await saveSettings();
+  try{ renderRecebiveis(); }catch(_){}
+  toast('Juros de atraso salvos ✓');
 });
 document.getElementById('closeModalSettings').addEventListener('click', () => modalSettings.hidden = true);
 modalSettings.addEventListener('click', (e) => { if(e.target === modalSettings) modalSettings.hidden = true; });
@@ -2124,6 +2403,8 @@ function recomputeSaleCredits(sale){
         date: lastP.date,
         method: lastP.method,
         manualFeeRate: lastP.manualFeeRate || 0,
+        feeFixed: lastP.feeFixed != null ? lastP.feeFixed : undefined,
+        feePercent: lastP.feePercent != null ? lastP.feePercent : undefined,
         fromInst: inst.n,
       });
     }
@@ -2199,8 +2480,10 @@ function openPagamentoModal(saleId, n){
   document.getElementById('pagData').value = todayISO();
   // sugere o valor que falta (ou o valor cheio se nada recebido)
   document.getElementById('pagValorPago').value = (restante > 0.005 ? restante : inst.value);
+  refreshMetodoLabels();
   document.getElementById('pagMetodo').value = instLastMethod(inst) || 'pix';
-  document.getElementById('pagTaxaManual').value = 0;
+  // pré-preenche a taxa "Outro" com a taxa salva (pode ser editada como override)
+  { const mm = methodById('manual'); document.getElementById('pagTaxaManual').value = mm ? (mm.percent||0) : 0; }
   document.getElementById('pagTaxaManualField').style.display = (document.getElementById('pagMetodo').value === 'manual') ? 'block' : 'none';
   // reseta campos de confirmação 24h
   document.getElementById('pagConfirmToggle').checked = false;
@@ -2343,12 +2626,19 @@ document.getElementById('pagConfirmar').addEventListener('click', async () => {
   // adiciona o pagamento ao histórico da parcela
   instPayments(inst); // garante array
   if(!Array.isArray(inst.payments)) inst.payments = [];
+  // congela a taxa vigente NESTE momento (assim mudanças futuras nas
+  // configurações não alteram pagamentos já registrados)
+  const mCong = methodById(metodo);
+  const overrideManual = metodo === 'manual' ? (parseFloat(document.getElementById('pagTaxaManual').value) || 0) : 0;
   inst.payments.push({
     id: uid(),
     value: Math.round(valorPago * 100) / 100,
     date: dataPag,
     method: metodo,
-    manualFeeRate: metodo === 'manual' ? (parseFloat(document.getElementById('pagTaxaManual').value) || 0) : 0,
+    manualFeeRate: overrideManual,
+    // taxa congelada: fixo (R$) e percentual (%) usados no cálculo
+    feeFixed: mCong ? (mCong.fixed || 0) : 0,
+    feePercent: (metodo === 'manual' && overrideManual > 0) ? overrideManual : (mCong ? (mCong.percent || 0) : 0),
     pending, confirmAt, paymentTime, paymentId,
   });
   // redistribui excedente e atualiza status/bônus
@@ -2759,6 +3049,129 @@ document.getElementById('vendaStatusFilter').addEventListener('change', renderVe
 
 /* ---- Recebíveis ---- */
 let recebHojeOnly = false;
+/* ---------------- Renegociação ---------------- */
+let renegCtx = null;   // { saleId, n }
+const modalReneg = document.getElementById('modalReneg');
+
+window.openRenegociar = (saleId, n) => {
+  const sale = state.sales.find(s => s.id === saleId);
+  if(!sale) return;
+  const inst = sale.installments.find(i => i.n === n);
+  if(!inst) return;
+  renegCtx = { saleId, n };
+
+  const parcelado = sale.installments.length > 1;
+  const emAberto = sale.installments.filter(i => !instIsPaid(i));
+  const totalAberto = emAberto.reduce((a,i)=>a+instRemaining(i),0);
+  const diasAtraso = instDaysLate(inst);
+
+  // Info do topo
+  document.getElementById('renegInfo').innerHTML =
+    `<strong>${escapeHtml(sale.product)}</strong>${sale.client?' — '+escapeHtml(sale.client):''}<br>` +
+    `Parcela ${n} · vence ${fmtDate(inst.due)} · falta ${fmtBRL(instRemaining(inst))}` +
+    (diasAtraso>0 ? `<br><span style="color:var(--red); font-weight:700;">${diasAtraso} ${diasAtraso===1?'dia':'dias'} em atraso</span>` : '');
+
+  // Escopo: só aparece se a venda for parcelada
+  const escopoField = document.getElementById('renegEscopoField');
+  const escopoSel = document.getElementById('renegEscopo');
+  if(parcelado){
+    escopoField.style.display = 'block';
+    escopoSel.value = (inst.reneg && inst.reneg.escopo) || 'parcela';
+  }else{
+    escopoField.style.display = 'none';
+    escopoSel.value = 'divida'; // 1x: incide sobre a dívida toda
+  }
+
+  // Pré-preenche a data, se já houver renegociação
+  document.getElementById('renegNovaData').value = (inst.reneg && inst.reneg.novaData) || '';
+  document.getElementById('renegRemover').style.display = inst.reneg ? 'flex' : 'none';
+
+  atualizarResumoReneg();
+  modalReneg.hidden = false;
+};
+
+// Calcula a base (parcela ou dívida) e os dias, e monta o resumo de juros
+function renegCompute(){
+  if(!renegCtx) return null;
+  const sale = state.sales.find(s => s.id === renegCtx.saleId);
+  if(!sale) return null;
+  const inst = sale.installments.find(i => i.n === renegCtx.n);
+  if(!inst) return null;
+
+  const parcelado = sale.installments.length > 1;
+  const escopo = parcelado ? document.getElementById('renegEscopo').value : 'divida';
+
+  // base sobre a qual os juros incidem
+  let base;
+  if(escopo === 'divida'){
+    base = sale.installments.filter(i => !instIsPaid(i)).reduce((a,i)=>a+instRemaining(i),0);
+  }else{
+    base = instRemaining(inst);
+  }
+
+  // dias: do vencimento até a nova data; sem data, do vencimento até hoje
+  const novaData = document.getElementById('renegNovaData').value || '';
+  const ateISO = novaData || todayISO();
+  let dias = daysBetweenISO(inst.due, ateISO);
+  if(dias < 0) dias = 0;
+
+  const pct = latePercentForDays(dias);
+  const juros = Math.round(base * pct) / 100;
+
+  return { sale, inst, parcelado, escopo, base, novaData, dias, pct, juros, ateISO };
+}
+
+function atualizarResumoReneg(){
+  const c = renegCompute();
+  const box = document.getElementById('renegResumo');
+  if(!c){ box.innerHTML = ''; return; }
+  const escopoTxt = c.escopo === 'divida' ? 'dívida completa em aberto' : 'esta parcela';
+  box.innerHTML =
+    `Base (${escopoTxt}): <strong>${fmtBRL(c.base)}</strong><br>` +
+    `Dias de atraso considerados: <strong>${c.dias}</strong>${c.novaData?' (até '+fmtDate(c.novaData)+')':' (até hoje)'}<br>` +
+    `Juros (${c.pct.toLocaleString('pt-BR')}%): <strong style="color:var(--red);">${fmtBRL(c.juros)}</strong><br>` +
+    `Novo total: <strong>${fmtBRL(c.base + c.juros)}</strong>` +
+    (c.novaData ? `<br><span style="color:var(--gold); font-weight:700;">Status voltará para pendente</span>` : '');
+}
+
+document.getElementById('renegEscopo').addEventListener('change', atualizarResumoReneg);
+document.getElementById('renegNovaData').addEventListener('change', atualizarResumoReneg);
+document.getElementById('renegNovaData').addEventListener('input', atualizarResumoReneg);
+
+function closeRenegModal(){ modalReneg.hidden = true; renegCtx = null; }
+document.getElementById('closeModalReneg').addEventListener('click', closeRenegModal);
+document.getElementById('renegCancelar').addEventListener('click', closeRenegModal);
+modalReneg.addEventListener('click', (e) => { if(e.target === modalReneg) closeRenegModal(); });
+
+document.getElementById('renegConfirmar').addEventListener('click', async () => {
+  const c = renegCompute();
+  if(!c) return;
+  // Grava a renegociação na parcela
+  c.inst.reneg = {
+    escopo: c.escopo,
+    novaData: c.novaData || null,
+    base: c.base,
+    dias: c.dias,
+    percent: c.pct,
+    juros: c.juros,
+    criadoEm: new Date().toISOString(),
+  };
+  await saveSales();
+  closeRenegModal();
+  toast('Renegociação registrada ✓');
+  renderAll();
+});
+
+document.getElementById('renegRemover').addEventListener('click', async () => {
+  if(!renegCtx) return;
+  const sale = state.sales.find(s => s.id === renegCtx.saleId);
+  const inst = sale && sale.installments.find(i => i.n === renegCtx.n);
+  if(inst){ delete inst.reneg; await saveSales(); }
+  closeRenegModal();
+  toast('Renegociação removida.');
+  renderAll();
+});
+
 function renderRecebiveis(){
   if(!document.getElementById('view-recebiveis').classList.contains('active')) return;
   const flat = allInstallmentsFlat();
@@ -2813,23 +3226,26 @@ function renderRecebiveis(){
       <thead><tr><th>Vencimento</th><th>Cliente</th><th>Produto</th><th>Parcela</th><th>Valor</th><th>Recebido</th><th>Falta</th><th>Meio</th><th>Status</th><th></th></tr></thead>
       <tbody>
         ${list.map(i => `
+          ${(()=>{ const diasAtraso = instDaysLate(i); const reneg = i.reneg || null; return `
           <tr>
-            <td class="mono" data-label="Vencimento">${fmtDate(i.due)}</td>
+            <td class="mono" data-label="Vencimento">${fmtDate(i.due)}${diasAtraso>0 && i.status==='atrasado' ? `<div class="atraso-tag">${diasAtraso} ${diasAtraso===1?'dia':'dias'} em atraso</div>` : ''}${reneg ? `<div class="reneg-tag" title="Renegociado${reneg.novaData?' para '+fmtDate(reneg.novaData):''}">↻ renegociado${reneg.novaData?' → '+fmtDate(reneg.novaData):''}</div>` : ''}</td>
             <td data-label="Cliente">${escapeHtml(i.client) || '—'}</td>
             <td data-label="Produto">${escapeHtml(i.product)}</td>
             <td data-label="Parcela">${i.n}</td>
-            <td class="mono" data-label="Valor">${fmtBRL(i.value)}</td>
+            <td class="mono" data-label="Valor">${fmtBRL(i.value)}${reneg && reneg.juros>0.005 ? `<div class="reneg-juros" title="Juros de atraso aplicados">+ ${fmtBRL(reneg.juros)} juros</div>` : ''}</td>
             <td class="mono" data-label="Recebido">${i.recebido>0.005?fmtBRL(i.recebido):'—'}</td>
             <td class="mono" data-label="Falta" style="color:${i.restante>0.005?'var(--red)':'var(--ink-faint)'}">${i.restante>0.005?fmtBRL(i.restante):'—'}</td>
             <td data-label="Meio">${instLastMethod(i) ? methodLabel(instLastMethod(i)) : '—'}</td>
             <td data-label="Status"><span class="badge ${i.status}">${i.status}</span>${instHasPending(i) ? ' <span class="pending-badge" title="Pagamento aguardando confirmação de 24h">⏳ aguardando</span>' : ''}</td>
             <td class="cell-actions" style="white-space:nowrap;">
               <button class="btn small ghost" onclick="editSale('${i.saleId}')" style="margin-right:6px;">Editar</button>
+              ${(i.status==='atrasado'||i.status==='parcial'||reneg)
+                ? `<button class="btn small ghost" onclick="openRenegociar('${i.saleId}',${i.n})" style="margin-right:6px;">Renegociar</button>` : ''}
               ${i.status==='pago'
                 ? `<button class="btn small ghost" onclick="undoPaid('${i.saleId}',${i.n})">Desfazer</button>`
                 : `<button class="btn small" onclick="markPaid('${i.saleId}',${i.n})">${i.status==='parcial'?'Receber':'Registrar'}</button>`}
             </td>
-          </tr>`).join('')}
+          </tr>`; })()}`).join('')}
       </tbody>
     </table>`;
 }
@@ -2863,7 +3279,7 @@ function buildCashMovements(){
     const nome = s.client ? `${s.product} — ${s.client}` : s.product;
     for(const inst of s.installments){
       for(const p of instPayments(inst)){
-        const taxa = paymentFee(p.method, p.manualFeeRate, Number(p.value)||0);
+        const taxa = paymentFeeOf(p);
         mov.push({
           id: 'pay_'+p.id, date: p.date, kind:'entrada',
           value: Number(p.value)||0,
@@ -3057,7 +3473,7 @@ function renderRelatorios(){
         if(p.date >= start && p.date <= end){
           const receb = Number(p.value)||0;
           recebidoBruto += receb;
-          taxasPagas += paymentFee(p.method, p.manualFeeRate, receb);
+          taxasPagas += paymentFeeOf(p);
           if(s.sale > 0) custoRealizado += s.cost * (receb / s.sale);
         }
       }
@@ -3066,7 +3482,7 @@ function renderRelatorios(){
     for(const b of saleBonusList(s)){
       if(b.date >= start && b.date <= end){
         recebidoBruto += Number(b.value)||0;
-        taxasPagas += paymentFee(b.method, b.manualFeeRate, Number(b.value)||0);
+        taxasPagas += paymentFeeOf(b);
       }
     }
   }
