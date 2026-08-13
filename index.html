@@ -867,6 +867,7 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
     </div>
     <div class="modal-body">
       <p id="pagInfo" style="font-size:13px; color:var(--ink-soft); margin:0 0 14px; line-height:1.6; white-space:pre-line;"></p>
+      <div id="pagJurosAviso" class="pag-aviso" style="display:none; background:#FBE3E3; color:#9A2B2B; cursor:pointer;" title="Toque para usar este valor"></div>
       <div id="pagHistorico" style="display:none; margin:0 0 14px;"></div>
       <input type="hidden" id="pagSaleId">
       <input type="hidden" id="pagInstN">
@@ -1096,6 +1097,44 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
         <button class="btn primary" id="renegConfirmar" style="flex:1; justify-content:center;">Confirmar</button>
       </div>
       <button class="btn ghost" id="renegRemover" style="width:100%; justify-content:center; margin-top:8px; color:var(--red); display:none;">Remover renegociação</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalReparc" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <div class="modal-head">
+      <h2>Reparcelar dívida</h2>
+      <button class="icon-btn" id="closeModalReparc">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div id="reparcInfo" style="font-size:13px; color:var(--ink-soft); background:var(--paper-alt); border-radius:10px; padding:10px 12px; margin-bottom:14px; line-height:1.6;"></div>
+
+      <div class="field">
+        <label>Novo valor total da dívida</label>
+        <input type="number" id="reparcValor" step="0.01" min="0" placeholder="0,00">
+        <span class="hint">O valor já renegociado com o cliente. Substitui só as parcelas em aberto; as pagas ficam intactas.</span>
+      </div>
+
+      <div class="field">
+        <label>Quantidade de parcelas</label>
+        <input type="number" id="reparcQtd" step="1" min="1" value="1">
+      </div>
+
+      <div class="field">
+        <label>Primeira data de vencimento</label>
+        <input type="date" id="reparcData">
+        <span class="hint">As demais seguem de 30 em 30 dias.</span>
+      </div>
+
+      <div id="reparcPreview" style="font-size:13px; color:var(--ink); background:var(--paper-alt); border-radius:10px; padding:12px 14px; margin:4px 0 16px; line-height:1.7;"></div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn ghost" id="reparcCancelar" style="flex:1; justify-content:center;">Cancelar</button>
+        <button class="btn primary" id="reparcConfirmar" style="flex:1; justify-content:center;">Confirmar reparcelamento</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2459,6 +2498,29 @@ function openPagamentoModal(saleId, n){
   info += `\nFalta: ${fmtBRL(restante)}`;
   document.getElementById('pagInfo').textContent = info;
 
+  // Aviso de juros de atraso sugerido (informativo). Não altera nada sozinho:
+  // mostra o valor com atraso arredondado pro real inteiro de cima; ao tocar,
+  // preenche o campo de valor. Você decide se cobra ou dispensa.
+  const jurosAviso = document.getElementById('pagJurosAviso');
+  const diasLate = instDaysLate(inst);
+  if(jurosAviso){
+    if(diasLate > 0 && restante > 0.005){
+      const jur = lateInterestAmount(restante, diasLate);      // juro sobre o que falta
+      const totalCheio = Math.ceil(restante + jur);             // real inteiro pra cima
+      const pctLate = latePercentForDays(diasLate);
+      jurosAviso.style.display = 'block';
+      jurosAviso.dataset.sugestao = totalCheio;
+      jurosAviso.innerHTML =
+        `<strong>${diasLate} ${diasLate===1?'dia':'dias'} em atraso.</strong> ` +
+        `Juro sugerido (${pctLate.toLocaleString('pt-BR')}%): ${fmtBRL(jur)}. ` +
+        `Com atraso, arredondado: <strong>${fmtBRL(totalCheio)}</strong> ` +
+        `<span style="opacity:.75;">(toque para usar)</span>`;
+    } else {
+      jurosAviso.style.display = 'none';
+      jurosAviso.dataset.sugestao = '';
+    }
+  }
+
   // histórico de pagamentos desta parcela
   const histEl = document.getElementById('pagHistorico');
   const ps = instPayments(inst);
@@ -2523,6 +2585,11 @@ document.getElementById('pagConfirmToggle').addEventListener('change', () => {
 });
 document.getElementById('pagTaxaManual').addEventListener('input', updatePagamentoPreview);
 document.getElementById('pagValorPago').addEventListener('input', updatePagamentoPreview);
+// Tocar no aviso de juros preenche o campo de valor com o total sugerido (com atraso)
+document.getElementById('pagJurosAviso').addEventListener('click', () => {
+  const v = document.getElementById('pagJurosAviso').dataset.sugestao;
+  if(v){ document.getElementById('pagValorPago').value = v; updatePagamentoPreview(); }
+});
 // Calcula a taxa em R$ com o meio/percentual/valor atualmente escolhido no modal
 function previewInstFee(valor){
   const metodo = document.getElementById('pagMetodo').value;
@@ -3172,6 +3239,140 @@ document.getElementById('renegRemover').addEventListener('click', async () => {
   renderAll();
 });
 
+/* ============ REPARCELAMENTO (renegociação com novo valor) ============
+   Fluxo: você digita o novo valor total da dívida (já acordado com o
+   cliente), a quantidade de parcelas e a 1ª data. O sistema divide em
+   parcelas iguais arredondadas PRA CIMA (real inteiro), datas de 30 em
+   30 dias, e só grava ao confirmar. Parcelas que já entraram no caixa
+   (com valor recebido ou crédito) são PRESERVADAS; só as em aberto são
+   substituídas pelo novo acordo. */
+const modalReparc = document.getElementById('modalReparc');
+let reparcCtx = null;
+
+// Uma parcela "entrou no caixa" se recebeu dinheiro, ganhou crédito de
+// excedente, ou está quitada. Essas são intocáveis.
+function instTocouCaixa(inst){
+  return instReceived(inst) > 0.005 || instCredit(inst) > 0.005 || instIsPaid(inst);
+}
+
+window.openReparcelar = (saleId) => {
+  const sale = state.sales.find(s => s.id === saleId);
+  if(!sale) return;
+  reparcCtx = { saleId };
+
+  const preservadas = sale.installments.filter(instTocouCaixa);
+  const abertas = sale.installments.filter(i => !instTocouCaixa(i));
+  const totalAberto = abertas.reduce((a,i)=>a+instRemaining(i),0);
+  // saldo ainda em aberto nas parciais preservadas (fica FORA do novo acordo)
+  const saldoParciais = preservadas.reduce((a,i)=>a+instRemaining(i),0);
+
+  document.getElementById('reparcInfo').innerHTML =
+    `<strong>${escapeHtml(sale.product)}</strong>${sale.client?' — '+escapeHtml(sale.client):''}<br>` +
+    `Parcelas em aberto: <strong>${abertas.length}</strong> · valor em aberto hoje: <strong>${fmtBRL(totalAberto)}</strong>` +
+    (preservadas.length ? `<br><span style="color:var(--primary-dark);">${preservadas.length} parcela(s) já no caixa serão preservadas.</span>` : '') +
+    (saldoParciais > 0.005 ? `<br><span style="color:#8A5E10;">Atenção: ${fmtBRL(saldoParciais)} de saldo em parcela(s) parcial(is) ficam FORA deste acordo (seguem cobráveis à parte).</span>` : '') +
+    (abertas.length === 0 ? `<br><span style="color:var(--red); font-weight:700;">Não há parcelas em aberto para reparcelar.</span>` : '');
+
+  // sugere o valor em aberto atual como ponto de partida (você troca pelo acordado)
+  document.getElementById('reparcValor').value = totalAberto > 0.005 ? (Math.round(totalAberto*100)/100) : '';
+  document.getElementById('reparcQtd').value = Math.max(1, abertas.length || 1);
+  document.getElementById('reparcData').value = todayISO();
+
+  atualizarPreviewReparc();
+  modalReparc.hidden = false;
+};
+
+// Divide um total em N parcelas iguais arredondadas pra cima (real inteiro).
+// TRAVA DE SEGURANÇA: se o arredondamento pra cima faria a soma estourar o
+// total (acontece com valores baixos), reparte o restante igualmente ao
+// centavo entre as parcelas que faltam — nunca gera parcela zerada nem
+// ultrapassa o total. A última absorve qualquer diferença de centavo.
+function dividirParcelas(total, qtd){
+  qtd = Math.max(1, Math.floor(qtd) || 1);
+  total = Math.round(total * 100) / 100;
+  const vals = [];
+  let restante = total;
+  for(let i=0;i<qtd;i++){
+    const faltamParc = qtd - i;              // quantas parcelas ainda faltam (inclui esta)
+    if(faltamParc === 1){                    // última: leva o que sobrou
+      vals.push(Math.round(restante * 100) / 100);
+      break;
+    }
+    const ideal = restante / faltamParc;     // valor exato pra dividir igual daqui pra frente
+    let v = Math.ceil(ideal);                // real inteiro pra cima
+    // trava: não deixa esta parcela levar tanto que as próximas fiquem zeradas.
+    // reserva pelo menos 1 centavo pra cada parcela restante depois desta.
+    const maxPermitido = Math.round((restante - (faltamParc - 1) * 0.01) * 100) / 100;
+    if(v > maxPermitido) v = Math.round(ideal * 100) / 100;  // cai pro centavo exato
+    v = Math.round(v * 100) / 100;
+    vals.push(v);
+    restante = Math.round((restante - v) * 100) / 100;
+  }
+  return vals;
+}
+
+function reparcCompute(){
+  if(!reparcCtx) return null;
+  const sale = state.sales.find(s => s.id === reparcCtx.saleId);
+  if(!sale) return null;
+  const total = parseFloat(document.getElementById('reparcValor').value) || 0;
+  const qtd = Math.max(1, parseInt(document.getElementById('reparcQtd').value) || 1);
+  const data1 = document.getElementById('reparcData').value || todayISO();
+  const abertas = sale.installments.filter(i => !instTocouCaixa(i));
+  const valores = dividirParcelas(total, qtd);
+  const parcelas = valores.map((v, idx) => ({ value: v, due: addDaysISO(data1, idx*30) }));
+  return { sale, total, qtd, data1, abertas, parcelas };
+}
+
+function atualizarPreviewReparc(){
+  const c = reparcCompute();
+  const box = document.getElementById('reparcPreview');
+  if(!c){ box.innerHTML = ''; return; }
+  if(c.total <= 0.005){ box.innerHTML = '<span style="color:var(--ink-faint);">Informe o novo valor da dívida.</span>'; return; }
+  const soma = c.parcelas.reduce((a,p)=>a+p.value,0);
+  const linhas = c.parcelas.map((p,i) =>
+    `<div style="display:flex; justify-content:space-between;"><span>Parcela ${i+1} · ${fmtDate(p.due)}</span><strong class="mono">${fmtBRL(p.value)}</strong></div>`
+  ).join('');
+  box.innerHTML =
+    `<div style="margin-bottom:6px;">Novo total: <strong>${fmtBRL(c.total)}</strong> em <strong>${c.qtd}</strong> parcela(s)</div>` +
+    linhas +
+    `<div style="border-top:1px solid var(--line); margin-top:8px; padding-top:6px; display:flex; justify-content:space-between;"><span>Soma das parcelas</span><strong class="mono">${fmtBRL(soma)}</strong></div>`;
+}
+
+['reparcValor','reparcQtd','reparcData'].forEach(id => {
+  document.getElementById(id).addEventListener('input', atualizarPreviewReparc);
+  document.getElementById(id).addEventListener('change', atualizarPreviewReparc);
+});
+
+function closeReparcModal(){ modalReparc.hidden = true; reparcCtx = null; }
+document.getElementById('closeModalReparc').addEventListener('click', closeReparcModal);
+document.getElementById('reparcCancelar').addEventListener('click', closeReparcModal);
+modalReparc.addEventListener('click', (e) => { if(e.target === modalReparc) closeReparcModal(); });
+
+document.getElementById('reparcConfirmar').addEventListener('click', async () => {
+  const c = reparcCompute();
+  if(!c) return;
+  if(c.total <= 0.005){ toast('Informe o novo valor da dívida.'); return; }
+  if(c.abertas.length === 0){ toast('Não há parcelas em aberto para reparcelar.'); return; }
+
+  // Preserva as que tocaram o caixa; remove as em aberto; adiciona as novas.
+  const preservadas = c.sale.installments.filter(instTocouCaixa);
+  const novas = c.parcelas.map((p, idx) => ({
+    n: 0, value: p.value, due: p.due, credit: 0, payments: [], paid: false
+  }));
+  const juntas = preservadas.concat(novas);
+  // Renumera de forma estável por data de vencimento
+  juntas.sort((a,b) => (a.due < b.due ? -1 : a.due > b.due ? 1 : 0));
+  juntas.forEach((inst, i) => { inst.n = i+1; });
+  c.sale.installments = juntas;
+
+  recomputeSaleCredits(c.sale);
+  await saveSales();
+  closeReparcModal();
+  toast('Dívida reparcelada ✓');
+  renderAll();
+});
+
 function renderRecebiveis(){
   if(!document.getElementById('view-recebiveis').classList.contains('active')) return;
   const flat = allInstallmentsFlat();
@@ -3241,6 +3442,8 @@ function renderRecebiveis(){
               <button class="btn small ghost" onclick="editSale('${i.saleId}')" style="margin-right:6px;">Editar</button>
               ${(i.status==='atrasado'||i.status==='parcial'||reneg)
                 ? `<button class="btn small ghost" onclick="openRenegociar('${i.saleId}',${i.n})" style="margin-right:6px;">Renegociar</button>` : ''}
+              ${(i.status==='atrasado'||i.status==='parcial')
+                ? `<button class="btn small ghost" onclick="openReparcelar('${i.saleId}')" style="margin-right:6px;">Reparcelar</button>` : ''}
               ${i.status==='pago'
                 ? `<button class="btn small ghost" onclick="undoPaid('${i.saleId}',${i.n})">Desfazer</button>`
                 : `<button class="btn small" onclick="markPaid('${i.saleId}',${i.n})">${i.status==='parcial'?'Receber':'Registrar'}</button>`}
