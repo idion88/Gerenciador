@@ -1703,10 +1703,12 @@ function toast(msg, isError=false){
 /* ---------------- Derivações ---------------- */
 function installmentStatus(inst){
   if(instIsPaid(inst)) return 'pago';
-  if(instCovered(inst) > 0.005) return 'parcial';   // recebeu algo, mas não quitou
   // Se foi renegociada com nova data de pagamento ainda não vencida, fica pendente
   const efetivaDue = (inst.reneg && inst.reneg.novaData) ? inst.reneg.novaData : inst.due;
+  // IMPORTANTE: pagamento parcial NÃO tira a parcela do atraso.
+  // Se já venceu e ainda falta valor, continua ATRASADA (pelo que falta a receber).
   if(efetivaDue < todayISO()) return 'atrasado';
+  if(instCovered(inst) > 0.005) return 'parcial';   // recebeu algo, mas ainda não venceu
   return 'pendente';
 }
 function saleStatus(sale){
