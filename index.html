@@ -372,6 +372,7 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
 .period-pills{display:flex; gap:8px; flex-wrap:wrap;}
 .pill{border:1.5px solid var(--line); background:var(--card); border-radius:20px; padding:6px 14px; font-size:12.5px; font-weight:600; color:var(--ink-soft);}
 .pill.active{background:var(--ink); border-color:var(--ink); color:#fff;}
+[data-theme="dark"] .pill.active{color:var(--paper);}
 
 .result-banner{display:flex; align-items:center; justify-content:space-between; padding:20px 24px; border-radius:14px; margin-bottom:20px; flex-wrap:wrap; gap:16px;}
 .result-banner.pos{background:linear-gradient(120deg, var(--primary-soft), var(--card));}
@@ -462,6 +463,38 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
   .installments-table td .btn{width:100%; justify-content:center;}
 }
 
+/* ---- Ordenação nos recebíveis ---- */
+table.simple th.th-sort{cursor:pointer; user-select:none; white-space:nowrap;}
+table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-dark);}
+
+/* ---- Relatórios: sub-abas e Recebimentos ---- */
+.rep-tabs{display:flex; gap:4px; border-bottom:1.5px solid var(--line); margin-bottom:18px;}
+.rep-tab{background:none; border:none; border-bottom:2.5px solid transparent; margin-bottom:-1.5px; padding:9px 16px; font-size:14px; font-weight:600; color:var(--ink-soft);}
+.rep-tab:hover{color:var(--ink);}
+.rep-tab.active{color:var(--primary-dark); border-bottom-color:var(--primary);}
+.rcb-filtros{display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;}
+.rcb-filtros .field input{min-width:150px;}
+.rcb-dia{display:flex; justify-content:space-between; align-items:baseline; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-weight:600; padding:14px 4px 6px;}
+.rcb-dia .mono{text-transform:none; letter-spacing:0; color:var(--ink-soft);}
+.rcb-row{display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:11px 14px; margin-bottom:7px;}
+.rcb-main{flex:1; min-width:0;}
+.rcb-quem{font-size:14px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.rcb-meta{font-size:12px; color:var(--ink-soft); margin-top:2px;}
+.rcb-val{text-align:right; white-space:nowrap;}
+.rcb-val .v{font-weight:700; font-size:14.5px; color:var(--primary-dark);}
+.rcb-val .t{font-size:11px; color:var(--ink-faint);}
+.rcb-row.pend{opacity:.75; border-style:dashed;}
+@media (max-width:760px){ #rcbStats{grid-template-columns:repeat(2,1fr) !important;} .rcb-filtros .field{flex:1;} .rcb-filtros .field input{min-width:0; width:100%;} }
+
+/* ---- Lixeira ---- */
+.lix-row{display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:13px 16px; margin-bottom:9px;}
+.lix-main{flex:1; min-width:200px;}
+.lix-nome{font-size:14.5px; font-weight:700; color:var(--ink);}
+.lix-meta{font-size:12.5px; color:var(--ink-soft); margin-top:2px;}
+.lix-quando{font-size:11.5px; color:var(--ink-faint); margin-top:4px;}
+.lix-acoes{display:flex; gap:8px; flex-wrap:wrap;}
+@media (max-width:760px){ .lix-acoes{width:100%;} .lix-acoes .btn{flex:1; justify-content:center;} }
+
 /* ---- União de contas ---- */
 .uniao-list{display:flex; flex-direction:column; gap:8px; margin:.4rem 0 .2rem;}
 .uniao-cli-head{font-size:.8rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:.5rem 0 -.1rem; padding-left:2px;}
@@ -540,6 +573,10 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
       <button class="navlink" data-view="relatorios">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9"/><path d="M11 19V4"/><path d="M18 19v-7"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
         <span>Relatórios</span>
+      </button>
+      <button class="navlink" data-view="lixeira">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 14h10l1-14"/><line x1="10" y1="10" x2="10" y2="17"/><line x1="14" y1="10" x2="14" y2="17"/></svg>
+        <span>Lixeira</span>
       </button>
     </nav>
     <div class="sidebar-foot">
@@ -761,8 +798,61 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
       <div id="despesasList"></div>
     </section>
 
+    <!-- LIXEIRA -->
+    <section class="view" id="view-lixeira">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="lixSearch" placeholder="Buscar conta excluída…">
+          <button type="button" class="search-clear" id="lixSearchClear" title="Limpar busca" aria-label="Limpar busca">✕</button>
+        </div>
+        <button class="btn small danger" id="lixEsvaziar">Esvaziar lixeira</button>
+      </div>
+      <div id="lixLista"></div>
+    </section>
+
     <!-- RELATÓRIOS -->
     <section class="view" id="view-relatorios">
+      <div class="rep-tabs" id="repTabs">
+        <button class="rep-tab active" data-rtab="resumo">Resumo</button>
+        <button class="rep-tab" data-rtab="receb">Recebimentos</button>
+      </div>
+
+      <!-- Sub-aba RECEBIMENTOS -->
+      <div id="rep-receb" style="display:none;">
+        <div class="panel" style="margin-bottom:14px;">
+          <div class="rcb-filtros">
+            <div class="field" style="margin:0;">
+              <label>De</label>
+              <input type="date" id="rcbDe">
+            </div>
+            <div class="field" style="margin:0;">
+              <label>Até</label>
+              <input type="date" id="rcbAte">
+            </div>
+            <div class="period-pills" id="rcbAtalhos">
+              <button class="pill" data-rcb="hoje">Hoje</button>
+              <button class="pill" data-rcb="ontem">Ontem</button>
+              <button class="pill" data-rcb="7d">7 dias</button>
+              <button class="pill" data-rcb="mes">Este mês</button>
+              <button class="pill" data-rcb="mespassado">Mês passado</button>
+            </div>
+          </div>
+          <div class="filters-bar" style="margin:12px 0 0;">
+            <div class="search-wrap">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="rcbBusca" placeholder="Filtrar por pagador…">
+              <button type="button" class="search-clear" id="rcbBuscaClear" title="Limpar busca" aria-label="Limpar busca">✕</button>
+            </div>
+            <button class="btn small" id="rcbExportar">⤓ Recebimentos CSV</button>
+          </div>
+        </div>
+        <div class="stat-grid" id="rcbStats" style="grid-template-columns:repeat(4,1fr);"></div>
+        <div id="rcbLista"></div>
+      </div>
+
+      <!-- Sub-aba RESUMO (relatório original) -->
+      <div id="rep-resumo">
       <div class="filters-bar" style="justify-content:space-between;">
         <div class="period-pills" id="reportPeriodPills">
           <button class="pill active" data-period="month">Este mês</button>
@@ -810,6 +900,7 @@ table.simple tbody tr:hover{background:var(--paper-alt);}
         <h3>Vendas do período (detalhado)</h3>
         <div id="reportSalesTable"></div>
       </div>
+      </div><!-- /rep-resumo -->
     </section>
   </main>
 </div>
@@ -1218,6 +1309,7 @@ const state = {
   // Campos antigos (paidValue/paidDate/paymentMethod) são migrados para payments[] no boot.
   sales: [],       // {id, date, product, client, cost, sale, paymentType, installments:[{n,value,due,credit,payments:[],paid,...}], notes}
   expenses: [],     // {id, date, category, description, value}
+  trash: [],        // lixeira: {id, deletedAt, sale, kind:'venda'|'unificada'}
   cashflow: [],     // lançamentos manuais de caixa: {id, date, kind:'entrada'|'saida', description, value}
   settings: {
     businessName: 'Minha Empresa',
@@ -1471,13 +1563,17 @@ function saleProfitRealized(sale){
 
 const fmtBRL = (v) => new Intl.NumberFormat('pt-BR', { style:'currency', currency:'BRL' }).format(v || 0);
 const fmtDate = (iso) => { if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
-const todayISO = () => new Date().toISOString().slice(0,10);
+// Data AAAA-MM-DD no fuso do aparelho (toISOString usa UTC e virava o dia às 21h em UTC-3)
+const isoLocal = (dt) => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+const todayISO = () => isoLocal(new Date());
+// Converte um carimbo ISO (UTC) em data/hora locais para exibição
+const fmtStampLocal = (stamp) => { const d = new Date(stamp); return isNaN(d) ? '—' : `${fmtDate(isoLocal(d))} às ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}`; };
 const uid = () => 'id_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
 
 function addMonthsISO(iso, n){
   const [y,m,d] = iso.split('-').map(Number);
   const dt = new Date(y, m-1+n, d);
-  return dt.toISOString().slice(0,10);
+  return isoLocal(dt);
 }
 function monthKey(iso){ return iso.slice(0,7); }
 function monthLabel(key){
@@ -1488,7 +1584,7 @@ function monthLabel(key){
 function addDaysISO(iso, n){
   const [y,m,d] = iso.split('-').map(Number);
   const dt = new Date(y, m-1, d+n);
-  return dt.toISOString().slice(0,10);
+  return isoLocal(dt);
 }
 // Agrupa vendas em períodos para o gráfico de tendência
 function buildTrendBuckets(period){
@@ -1566,7 +1662,7 @@ async function cloudFetchAll(){
 let cloudSaveTimer = null;
 async function cloudPushAll(){
   if(!cloudEnabled()) return;
-  const payload = { sales: state.sales, expenses: state.expenses, cashflow: state.cashflow, settings: state.settings, updatedAt: new Date().toISOString() };
+  const payload = { sales: state.sales, expenses: state.expenses, cashflow: state.cashflow, trash: state.trash, settings: state.settings, updatedAt: new Date().toISOString() };
   const { error } = await supa.from('livro_caixa').upsert({ id: CLOUD_ROW_ID, payload }, { onConflict:'id' });
   if(error){ console.warn('cloudPush', error); setSyncStatus('erro'); }
   else setSyncStatus('ok');
@@ -1576,12 +1672,14 @@ async function persistAll(){
   localStore.set('sales', JSON.stringify(state.sales));
   localStore.set('expenses', JSON.stringify(state.expenses));
   localStore.set('cashflow', JSON.stringify(state.cashflow));
+  localStore.set('trash', JSON.stringify(state.trash));
   localStore.set('settings', JSON.stringify(state.settings));
   if(hasClaudeStorage){
     try{
       await window.storage.set('sales', JSON.stringify(state.sales), false);
       await window.storage.set('expenses', JSON.stringify(state.expenses), false);
       await window.storage.set('cashflow', JSON.stringify(state.cashflow), false);
+      await window.storage.set('trash', JSON.stringify(state.trash), false);
       await window.storage.set('settings', JSON.stringify(state.settings), false);
     }catch(e){}
   }
@@ -1632,6 +1730,7 @@ function migrateSales(){
     });
   });
   if(!Array.isArray(state.cashflow)) state.cashflow = [];
+  if(!Array.isArray(state.trash)) state.trash = [];
   normalizeSettings();
 }
 // Garante que as chaves de taxas existam após qualquer carregamento
@@ -1656,6 +1755,7 @@ async function loadAll(){
         state.sales = cloud.sales || [];
         state.expenses = cloud.expenses || [];
         state.cashflow = cloud.cashflow || [];
+        state.trash = cloud.trash || [];
         state.settings = cloud.settings || { businessName:'Minha Empresa' };
         loaded = true;
         setSyncStatus('ok');
@@ -1665,21 +1765,24 @@ async function loadAll(){
   // 2) se a nuvem não trouxe nada, usa o local
   if(!loaded){
     try{
-      let sv, ev, stv, cfv;
+      let sv, ev, stv, cfv, tv;
       if(hasClaudeStorage){
         const a = await window.storage.get('sales', false); sv = a ? a.value : null;
         const b = await window.storage.get('expenses', false); ev = b ? b.value : null;
         const c = await window.storage.get('settings', false); stv = c ? c.value : null;
         const d = await window.storage.get('cashflow', false); cfv = d ? d.value : null;
+        const t = await window.storage.get('trash', false); tv = t ? t.value : null;
       }else{
         sv = localStore.get('sales'); ev = localStore.get('expenses'); stv = localStore.get('settings');
         cfv = localStore.get('cashflow');
+        tv = localStore.get('trash');
       }
       state.sales = sv ? JSON.parse(sv) : [];
       state.expenses = ev ? JSON.parse(ev) : [];
       state.cashflow = cfv ? JSON.parse(cfv) : [];
+      state.trash = tv ? JSON.parse(tv) : [];
       state.settings = stv ? JSON.parse(stv) : { businessName:'Minha Empresa' };
-    }catch(e){ state.sales = []; state.expenses = []; state.cashflow = []; state.settings = { businessName:'Minha Empresa' }; }
+    }catch(e){ state.sales = []; state.expenses = []; state.cashflow = []; state.trash = []; state.settings = { businessName:'Minha Empresa' }; }
     setSyncStatus(cloudEnabled() ? 'ok' : 'offline');
     // se a nuvem está ligada mas estava vazia, sobe o que temos local
     if(cloudEnabled() && (state.sales.length || state.expenses.length || state.cashflow.length)) cloudPushAll();
@@ -1758,6 +1861,7 @@ const VIEW_META = {
   caixa: { title:'Caixa', sub:'Tudo que entrou e saiu, com saldo' },
   despesas: { title:'Despesas', sub:'Custos fixos e variáveis do negócio' },
   relatorios: { title:'Relatórios', sub:'Resultados por período' },
+  lixeira: { title:'Lixeira', sub:'Contas excluídas — restaure ou apague de vez' },
 };
 function showView(name){
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2121,11 +2225,13 @@ document.getElementById('btnSyncNow').addEventListener('click', async () => {
       state.sales = cloud.sales || [];
       state.expenses = cloud.expenses || [];
       state.cashflow = cloud.cashflow || [];
+      state.trash = cloud.trash || [];
       state.settings = { ...state.settings, ...(cloud.settings||{}) };
       migrateSales();
       localStore.set('sales', JSON.stringify(state.sales));
       localStore.set('expenses', JSON.stringify(state.expenses));
       localStore.set('cashflow', JSON.stringify(state.cashflow));
+      localStore.set('trash', JSON.stringify(state.trash));
       localStore.set('settings', JSON.stringify(state.settings));
       setSyncStatus('ok');
       renderBrand();
@@ -2142,7 +2248,7 @@ document.getElementById('btnSyncNow').addEventListener('click', async () => {
 document.getElementById('btnResetData').addEventListener('click', async () => {
   if(!confirm('Isso vai apagar todas as vendas, parcelas, despesas e lançamentos de caixa registrados. Deseja continuar?')) return;
   if(!confirm('Tem certeza? Essa ação não pode ser desfeita. Considere baixar um backup antes de continuar.')) return;
-  state.sales = []; state.expenses = []; state.cashflow = [];
+  state.sales = []; state.expenses = []; state.cashflow = []; state.trash = [];
   await persistAll();
   modalSettings.hidden = true;
   toast('Dados apagados.');
@@ -2186,7 +2292,7 @@ function renderBrand(){
 function renderLastBackupInfo(){
   const el = document.getElementById('lastBackupInfo');
   el.textContent = state.settings.lastBackupAt
-    ? `Último backup baixado: ${fmtDate(state.settings.lastBackupAt.slice(0,10))} às ${state.settings.lastBackupAt.slice(11,16)}`
+    ? `Último backup baixado: ${fmtStampLocal(state.settings.lastBackupAt)}`
     : 'Você ainda não baixou nenhum backup.';
 }
 function renderBackupReminder(){
@@ -2216,6 +2322,7 @@ document.getElementById('btnExportBackup').addEventListener('click', async () =>
     sales: state.sales,
     expenses: state.expenses,
     cashflow: state.cashflow,
+    trash: state.trash,
     settings: state.settings,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
@@ -2245,12 +2352,13 @@ document.getElementById('inputImportBackup').addEventListener('change', async (e
       return;
     }
     const resumo = `${data.sales.length} venda(s) e ${data.expenses.length} despesa(s)`;
-    const aviso = data.exportedAt ? ` (backup de ${fmtDate(data.exportedAt.slice(0,10))})` : '';
+    const aviso = data.exportedAt ? ` (backup de ${fmtStampLocal(data.exportedAt)})` : '';
     if(!confirm(`Restaurar este backup${aviso}?\n\nIsso vai SUBSTITUIR os dados atuais por: ${resumo}.\nRecomendado: baixe um backup dos dados atuais antes de continuar.`)) return;
 
     state.sales = data.sales;
     state.expenses = data.expenses;
     state.cashflow = Array.isArray(data.cashflow) ? data.cashflow : [];
+    state.trash = Array.isArray(data.trash) ? data.trash : [];
     if(data.settings && typeof data.settings === 'object'){
       state.settings = { ...state.settings, ...data.settings };
     }
@@ -2268,36 +2376,161 @@ document.getElementById('inputImportBackup').addEventListener('change', async (e
 /* ---------------- Ações de venda/parcela ---------------- */
 window.deleteSale = async (id) => {
   const sale = state.sales.find(s => s.id === id);
-  const quem = sale ? `${sale.product}${sale.client ? ' — ' + sale.client : ''}` : 'esta venda';
+  if(!sale) return;
+  const quem = `${sale.product}${sale.client ? ' — ' + sale.client : ''}`;
 
   // Se for uma conta unificada, avisa que as contas antigas serão restauradas
-  const ehUnificada = sale && sale.unified && Array.isArray(sale.mergedFrom) && sale.mergedFrom.length;
+  const ehUnificada = sale.unified && Array.isArray(sale.mergedFrom) && sale.mergedFrom.length;
   const msg = ehUnificada
-    ? `Excluir a conta unificada "${quem}"?\n\nAs ${sale.mergedFrom.length} contas antigas voltam a ficar ativas, com o saldo transferido restaurado. O que já estava no caixa é mantido.`
-    : `Excluir "${quem}" e todas as suas parcelas?\n\nEsta ação não pode ser desfeita.`;
+    ? `Mover a conta unificada "${quem}" para a lixeira?\n\nAs ${sale.mergedFrom.length} contas antigas voltam a ficar ativas, com o saldo transferido restaurado. O que já estava no caixa é mantido.\n\nVocê pode restaurá-la depois pela Lixeira.`
+    : `Mover "${quem}" para a lixeira?\n\nVocê pode restaurá-la depois pela Lixeira.`;
   if(!confirm(msg)) return;
 
-  // Reverte o congelamento das contas de origem antes de apagar a unificada
+  // Reverte o congelamento das contas de origem antes de tirar a unificada
   if(ehUnificada){
     for(const oid of sale.mergedFrom){
       const orig = state.sales.find(s => s.id === oid);
-      if(!orig) continue;
-      orig.installments.forEach(i => {
-        if(i.mergedOrigValue != null) i.value = i.mergedOrigValue; // restaura valor cheio
-        delete i.mergedOrigValue;
-        delete i.mergedTransferred;
-      });
-      delete orig.mergedInto;
-      delete orig.mergedAt;
-      recomputeSaleCredits(orig);
+      if(orig && orig.mergedInto === sale.id) desfazerCongelamento(orig);
     }
   }
 
+  state.trash.unshift({
+    id: uid(),
+    deletedAt: new Date().toISOString(),
+    kind: ehUnificada ? 'unificada' : 'venda',
+    sale: JSON.parse(JSON.stringify(sale)),   // cópia completa, com parcelas e pagamentos
+  });
   state.sales = state.sales.filter(s => s.id !== id);
   await saveSales();
-  toast(ehUnificada ? 'Conta unificada excluída · contas antigas restauradas.' : 'Venda excluída.');
+  toast(ehUnificada ? 'Conta unificada movida para a lixeira · contas antigas restauradas.' : 'Venda movida para a lixeira.');
   renderAll();
 };
+
+// Devolve uma conta antiga ao normal (desfaz a transferência para uma unificada)
+function desfazerCongelamento(orig){
+  orig.installments.forEach(i => {
+    if(i.mergedOrigValue != null) i.value = i.mergedOrigValue; // restaura valor cheio
+    delete i.mergedOrigValue;
+    delete i.mergedTransferred;
+  });
+  delete orig.mergedInto;
+  delete orig.mergedAt;
+  recomputeSaleCredits(orig);
+}
+// Congela de novo uma conta antiga dentro de uma unificada; devolve quanto transferiu
+function congelarNaUnificada(orig, novaId, data){
+  let transf = 0;
+  orig.mergedInto = novaId;
+  orig.mergedAt = data;
+  orig.installments.forEach(i => {
+    const restante = instRemaining(i);
+    if(restante <= 0.005) return;
+    if(i.mergedOrigValue == null) i.mergedOrigValue = Number(i.value) || 0;
+    i.value = Math.round(instCovered(i) * 100) / 100;
+    i.mergedTransferred = Math.round(restante * 100) / 100;
+    transf += restante;
+  });
+  return Math.round(transf * 100) / 100;
+}
+
+window.restaurarLixeira = async (trashId) => {
+  const item = state.trash.find(t => t.id === trashId);
+  if(!item) return;
+  const sale = item.sale;
+  const quem = `${sale.product}${sale.client ? ' — ' + sale.client : ''}`;
+  if(state.sales.some(s => s.id === sale.id)){
+    toast('Essa conta já está ativa.', true);
+    return;
+  }
+
+  if(item.kind === 'unificada'){
+    // as contas de origem precisam existir e estar livres para serem congeladas de novo
+    const origens = (sale.mergedFrom || []).map(oid => state.sales.find(s => s.id === oid));
+    const faltando = origens.filter(o => !o).length;
+    const presas = origens.filter(o => o && o.mergedInto).length;
+    if(faltando || presas){
+      toast(faltando
+        ? 'Não dá para restaurar: alguma conta de origem foi excluída. Restaure-a primeiro.'
+        : 'Não dá para restaurar: alguma conta de origem já está unida em outra conta.', true);
+      return;
+    }
+    const aberto = Math.round(origens.reduce((a,o)=>a+saleOpenAmount(o),0)*100)/100;
+    const totalUnif = Math.round(sale.installments.reduce((a,i)=>a+instRemaining(i),0)*100)/100;
+    let msg = `Restaurar a conta unificada "${quem}"?\n\nAs ${origens.length} contas de origem voltam a ficar congeladas dentro dela.`;
+    if(Math.abs(aberto - totalUnif) > 0.005){
+      msg += `\n\nAtenção: hoje as contas de origem somam ${fmtBRL(aberto)} em aberto, mas a unificada cobra ${fmtBRL(totalUnif)}. Provavelmente houve pagamentos nelas depois da exclusão — confira e reparcele se precisar.`;
+    }
+    if(!confirm(msg)) return;
+    origens.forEach(o => congelarNaUnificada(o, sale.id, sale.mergedAt || todayISO()));
+  } else {
+    if(!confirm(`Restaurar "${quem}"?`)) return;
+    // era uma conta antiga de uma unificada que já não existe? volta ao normal
+    if(sale.mergedInto && !state.sales.some(s => s.id === sale.mergedInto)){
+      desfazerCongelamento(sale);
+    }
+  }
+
+  recomputeSaleCredits(sale);
+  state.sales.push(sale);
+  state.trash = state.trash.filter(t => t.id !== trashId);
+  await saveSales();
+  toast('Conta restaurada ✓');
+  renderAll();
+};
+
+window.excluirDefinitivo = async (trashId) => {
+  const item = state.trash.find(t => t.id === trashId);
+  if(!item) return;
+  const quem = `${item.sale.product}${item.sale.client ? ' — ' + item.sale.client : ''}`;
+  if(!confirm(`Excluir "${quem}" DEFINITIVAMENTE?\n\nIsso não pode ser desfeito.`)) return;
+  state.trash = state.trash.filter(t => t.id !== trashId);
+  await saveSales();
+  toast('Excluída definitivamente.');
+  renderAll();
+};
+
+window.esvaziarLixeira = async () => {
+  if(!state.trash.length) return;
+  if(!confirm(`Esvaziar a lixeira? ${state.trash.length} conta(s) serão apagadas DEFINITIVAMENTE.`)) return;
+  if(!confirm('Tem certeza? Essa ação não pode ser desfeita.')) return;
+  state.trash = [];
+  await saveSales();
+  toast('Lixeira esvaziada.');
+  renderAll();
+};
+
+function renderLixeira(){
+  if(!document.getElementById('view-lixeira').classList.contains('active')) return;
+  const q = semAcento(document.getElementById('lixSearch').value || '');
+  document.getElementById('lixSearchClear').classList.toggle('show', !!q);
+  let list = state.trash.slice().sort((a,b)=> (b.deletedAt||'').localeCompare(a.deletedAt||''));
+  if(q) list = list.filter(t => semAcento((t.sale.product||'')+' '+(t.sale.client||'')).includes(q));
+  document.getElementById('lixEsvaziar').disabled = !state.trash.length;
+  const wrap = document.getElementById('lixLista');
+  if(!list.length){
+    wrap.innerHTML = `<div class="empty-state"><div class="display">${state.trash.length ? 'Nada encontrado' : 'Lixeira vazia'}</div><p>${state.trash.length ? 'Nenhuma conta excluída com esse nome.' : 'As contas que você excluir ficam guardadas aqui para restaurar.'}</p></div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(t => {
+    const s = t.sale;
+    const aberto = s.installments.reduce((a,i)=>a+instRemaining(i),0);
+    const recebido = s.installments.reduce((a,i)=>a+instReceived(i),0);
+    const quando = t.deletedAt ? fmtStampLocal(t.deletedAt) : '—';
+    return `
+      <div class="lix-row">
+        <div class="lix-main">
+          <div class="lix-nome">${escapeHtml(s.client || 'Sem cliente')}${t.kind==='unificada' ? ' <span class="tag">unificada</span>' : ''}</div>
+          <div class="lix-meta">${escapeHtml(s.product)} · venda de ${fmtDate(s.date)} · ${s.installments.length} parcela${s.installments.length!==1?'s':''}</div>
+          <div class="lix-meta">Valor ${fmtBRL(s.sale)} · recebido ${fmtBRL(recebido)} · em aberto <strong style="color:${aberto>0.005?'var(--red)':'var(--primary-dark)'}">${fmtBRL(aberto)}</strong></div>
+          <div class="lix-quando">Excluída em ${quando}</div>
+        </div>
+        <div class="lix-acoes">
+          <button class="btn small primary" onclick="restaurarLixeira('${t.id}')">↺ Restaurar</button>
+          <button class="btn small danger" onclick="excluirDefinitivo('${t.id}')">Excluir de vez</button>
+        </div>
+      </div>`;
+  }).join('');
+}
 window.editSale = (id) => openVendaModal(id);
 
 // Compartilha um blob de imagem pelo caminho nativo do Capacitor (Filesystem + Share).
@@ -2961,6 +3194,7 @@ function renderAll(){
   renderCaixa();
   renderDespesas();
   renderRelatorios();
+  renderLixeira();
 }
 
 /* ---- Dashboard ---- */
@@ -2968,7 +3202,7 @@ function renderDashboard(){
   if(!document.getElementById('view-dashboard').classList.contains('active')) return;
   renderBackupReminder();
   const now = new Date();
-  const curKey = now.toISOString().slice(0,7);
+  const curKey = todayISO().slice(0,7);
   const prevKey = addMonthsISO(todayISO(), -1).slice(0,7);
 
   // Contas unificadas não entram no faturamento: o valor já foi faturado nas
@@ -3209,12 +3443,18 @@ document.getElementById('vendaSearchClear').addEventListener('click', () => {
   inp.focus();
 });
 document.getElementById('vendaPeriodFilter').addEventListener('change', renderVendas);
+document.getElementById('lixSearch').addEventListener('input', renderLixeira);
+document.getElementById('lixSearchClear').addEventListener('click', () => {
+  const inp = document.getElementById('lixSearch'); inp.value = ''; renderLixeira(); inp.focus();
+});
+document.getElementById('lixEsvaziar').addEventListener('click', () => esvaziarLixeira());
 document.getElementById('trendPeriodFilter').addEventListener('change', renderDashboard);
 document.getElementById('upcomingPeriodFilter').addEventListener('change', renderDashboard);
 document.getElementById('vendaStatusFilter').addEventListener('change', renderVendas);
 
 /* ---- Recebíveis ---- */
 let recebHojeOnly = false;
+let recebSort = { key:'due', dir:'asc' };  // due = vencimento | client = cliente
 /* ---------------- Renegociação ---------------- */
 let renegCtx = null;   // { saleId, n }
 const modalReneg = document.getElementById('modalReneg');
@@ -3739,7 +3979,18 @@ function renderRecebiveis(){
     });
   }
 
-  list.sort((a,b)=>a.due.localeCompare(b.due));
+  const dirMul = recebSort.dir === 'asc' ? 1 : -1;
+  if(recebSort.key === 'client'){
+    list.sort((a,b) => {
+      const c = semAcento(a.client||'').localeCompare(semAcento(b.client||''), 'pt-BR');
+      return c !== 0 ? c * dirMul : a.due.localeCompare(b.due);   // mesmo cliente: por vencimento
+    });
+  } else {
+    list.sort((a,b) => a.due.localeCompare(b.due) * dirMul || semAcento(a.client||'').localeCompare(semAcento(b.client||''), 'pt-BR'));
+  }
+  // setas e textos dos botões
+  const seta = k => recebSort.key !== k ? '↕' : (recebSort.dir === 'asc' ? '↑' : '↓');
+
 
   const hojeBtn = document.getElementById('recebHojeBtn');
   if(hojeBtn) hojeBtn.classList.toggle('active', recebHojeOnly);
@@ -3751,7 +4002,7 @@ function renderRecebiveis(){
 
   document.getElementById('recebTableWrap').innerHTML = `
     <table class="simple">
-      <thead><tr><th>Vencimento</th><th>Cliente</th><th>Produto</th><th>Parcela</th><th>Valor</th><th>Recebido</th><th>Falta</th><th>Meio</th><th>Status</th><th></th></tr></thead>
+      <thead><tr><th class="th-sort${recebSort.key==='due'?' on':''}" data-rsort="due">Vencimento ${seta('due')}</th><th class="th-sort${recebSort.key==='client'?' on':''}" data-rsort="client">Cliente ${seta('client')}</th><th>Produto</th><th>Parcela</th><th>Valor</th><th>Recebido</th><th>Falta</th><th>Meio</th><th>Status</th><th></th></tr></thead>
       <tbody>
         ${list.map(i => `
           ${(()=>{ const diasAtraso = instDaysLate(i); const reneg = i.reneg || null; return `
@@ -3791,6 +4042,16 @@ document.getElementById('recebSearchClear').addEventListener('click', () => {
   document.getElementById('recebSearchClear').classList.remove('show');
   renderRecebiveis();
   inp.focus();
+});
+function alternarRecebSort(key){
+  if(recebSort.key === key) recebSort.dir = recebSort.dir === 'asc' ? 'desc' : 'asc';
+  else recebSort = { key, dir:'asc' };
+  renderRecebiveis();
+}
+// clique no cabeçalho da tabela (computador)
+document.getElementById('recebTableWrap').addEventListener('click', (e) => {
+  const th = e.target.closest('th[data-rsort]');
+  if(th) alternarRecebSort(th.dataset.rsort);
 });
 document.getElementById('recebHojeBtn').addEventListener('click', () => {
   recebHojeOnly = !recebHojeOnly;
@@ -3963,6 +4224,141 @@ function renderDespesas(){
 
 /* ---- Relatórios ---- */
 let currentReportPeriod = 'month';
+let repTabAtiva = 'resumo';
+let rcbDe = '', rcbAte = '';   // intervalo da aba Recebimentos (vazio = hoje)
+
+document.getElementById('repTabs').addEventListener('click', (e) => {
+  const b = e.target.closest('.rep-tab'); if(!b) return;
+  repTabAtiva = b.dataset.rtab;
+  document.querySelectorAll('#repTabs .rep-tab').forEach(x => x.classList.toggle('active', x === b));
+  document.getElementById('rep-resumo').style.display = repTabAtiva === 'resumo' ? '' : 'none';
+  document.getElementById('rep-receb').style.display  = repTabAtiva === 'receb'  ? '' : 'none';
+  renderRelatorios();
+});
+
+// Junta todos os pagamentos recebidos (parcelas + excedentes que viraram bônus)
+function listarRecebimentos(){
+  const out = [];
+  for(const s of state.sales){
+    const total = s.installments.length;
+    for(const inst of s.installments){
+      for(const p of instPayments(inst)){
+        out.push({ date:p.date, hora:p.paymentTime||'', pagador:s.client||'', produto:s.product||'',
+          parcela:`${inst.n}/${total}`, valor:Number(p.value)||0, taxa:paymentFeeOf(p),
+          meio:methodLabel(p.method), pend:!!p.pending, idPag:p.paymentId||'', saleId:s.id });
+      }
+    }
+    for(const b of saleBonusList(s)){
+      out.push({ date:b.date, hora:'', pagador:s.client||'', produto:s.product||'',
+        parcela:'excedente', valor:Number(b.value)||0, taxa:paymentFeeOf(b),
+        meio:methodLabel(b.method), pend:false, idPag:'', saleId:s.id });
+    }
+  }
+  return out;
+}
+
+function rcbIntervalo(){
+  const hoje = todayISO();
+  let de = rcbDe || hoje, ate = rcbAte || de;
+  if(ate < de){ const t = de; de = ate; ate = t; }
+  return [de, ate];
+}
+function rcbAplicarAtalho(k){
+  const hoje = todayISO();
+  if(k === 'hoje'){ rcbDe = hoje; rcbAte = hoje; }
+  else if(k === 'ontem'){ rcbDe = rcbAte = addDaysISO(hoje, -1); }
+  else if(k === '7d'){ rcbDe = addDaysISO(hoje, -6); rcbAte = hoje; }
+  else if(k === 'mes'){ rcbDe = hoje.slice(0,7) + '-01'; rcbAte = hoje; }
+  else if(k === 'mespassado'){
+    const ini = addMonthsISO(hoje.slice(0,7) + '-01', -1);
+    rcbDe = ini; rcbAte = addDaysISO(hoje.slice(0,7) + '-01', -1);
+  }
+  renderRecebimentos();
+}
+
+function renderRecebimentos(){
+  const [de, ate] = rcbIntervalo();
+  document.getElementById('rcbDe').value = de;
+  document.getElementById('rcbAte').value = ate;
+  // marca o atalho que corresponde ao intervalo atual
+  const hoje = todayISO();
+  const iniMes = hoje.slice(0,7) + '-01';
+  const atalhos = { hoje:[hoje,hoje], ontem:[addDaysISO(hoje,-1),addDaysISO(hoje,-1)], '7d':[addDaysISO(hoje,-6),hoje],
+    mes:[iniMes,hoje], mespassado:[addMonthsISO(iniMes,-1), addDaysISO(iniMes,-1)] };
+  document.querySelectorAll('#rcbAtalhos .pill').forEach(b => {
+    const a = atalhos[b.dataset.rcb]; b.classList.toggle('active', !!a && a[0]===de && a[1]===ate);
+  });
+
+  const q = semAcento(document.getElementById('rcbBusca').value || '');
+  document.getElementById('rcbBuscaClear').classList.toggle('show', !!q);
+  let lista = listarRecebimentos().filter(r => r.date >= de && r.date <= ate);
+  if(q) lista = lista.filter(r => semAcento(r.pagador + ' ' + r.produto).includes(q));
+  lista.sort((a,b) => b.date.localeCompare(a.date) || (b.hora||'').localeCompare(a.hora||'') || semAcento(a.pagador).localeCompare(semAcento(b.pagador)));
+
+  const conf = lista.filter(r => !r.pend);
+  const bruto = conf.reduce((a,r)=>a+r.valor,0);
+  const taxas = conf.reduce((a,r)=>a+r.taxa,0);
+  const pend = lista.filter(r => r.pend).reduce((a,r)=>a+r.valor,0);
+  const pagadores = new Set(conf.map(r => semAcento(r.pagador))).size;
+  document.getElementById('rcbStats').innerHTML = `
+    <div class="stat-card"><div class="label">Recebido</div><div class="value">${fmtBRL(bruto)}</div>${pend>0.005?`<div class="delta" style="color:var(--gold);">+ ${fmtBRL(pend)} aguardando 24h</div>`:''}</div>
+    <div class="stat-card accent-red"><div class="label">Taxas</div><div class="value">${fmtBRL(taxas)}</div></div>
+    <div class="stat-card"><div class="label">Líquido</div><div class="value">${fmtBRL(bruto - taxas)}</div></div>
+    <div class="stat-card"><div class="label">Pagamentos</div><div class="value">${conf.length}</div><div class="delta" style="color:var(--ink-faint);">${pagadores} pagador${pagadores!==1?'es':''}</div></div>`;
+
+  const wrap = document.getElementById('rcbLista');
+  const periodoTxt = de === ate ? `em ${fmtDate(de)}` : `de ${fmtDate(de)} a ${fmtDate(ate)}`;
+  if(!lista.length){
+    wrap.innerHTML = `<div class="empty-state"><div class="display">Nenhum recebimento</div><p>Nada foi recebido ${periodoTxt}${q?' para esse pagador':''}.</p></div>`;
+    return;
+  }
+  // agrupa por dia, com o total de cada dia
+  const porDia = {};
+  lista.forEach(r => (porDia[r.date] = porDia[r.date] || []).push(r));
+  wrap.innerHTML = Object.keys(porDia).sort().reverse().map(d => {
+    const itens = porDia[d];
+    const totDia = itens.filter(r=>!r.pend).reduce((a,r)=>a+r.valor,0);
+    return `<div class="rcb-dia"><span>${fmtDate(d)} · ${itens.length} pagamento${itens.length!==1?'s':''}</span><span class="mono">${fmtBRL(totDia)}</span></div>` +
+      itens.map(r => `
+        <div class="rcb-row${r.pend?' pend':''}">
+          <div class="rcb-main">
+            <div class="rcb-quem">${escapeHtml(r.pagador || 'Sem cliente')}</div>
+            <div class="rcb-meta">${escapeHtml(r.produto)} · ${r.parcela==='excedente'?'excedente (bônus)':'parcela '+r.parcela} · ${escapeHtml(r.meio)}${r.hora?' · '+escapeHtml(r.hora):''}${r.idPag?' · ID '+escapeHtml(r.idPag):''}${r.pend?' · <span class="pending-badge">⏳ aguardando confirmação</span>':''}</div>
+          </div>
+          <div class="rcb-val">
+            <div class="v mono">${fmtBRL(r.valor)}</div>
+            ${r.taxa>0.005?`<div class="t">taxa ${fmtBRL(r.taxa)}</div>`:''}
+          </div>
+        </div>`).join('');
+  }).join('');
+}
+
+document.getElementById('rcbAtalhos').addEventListener('click', (e) => {
+  const b = e.target.closest('.pill'); if(b) rcbAplicarAtalho(b.dataset.rcb);
+});
+document.getElementById('rcbDe').addEventListener('change', (e) => {
+  rcbDe = e.target.value || todayISO();
+  if(!rcbAte || rcbAte < rcbDe) rcbAte = rcbDe;   // escolher só "De" mostra aquele dia
+  renderRecebimentos();
+});
+document.getElementById('rcbAte').addEventListener('change', (e) => {
+  rcbAte = e.target.value || rcbDe; if(!rcbDe) rcbDe = rcbAte; renderRecebimentos();
+});
+document.getElementById('rcbBusca').addEventListener('input', renderRecebimentos);
+document.getElementById('rcbBuscaClear').addEventListener('click', () => {
+  const i = document.getElementById('rcbBusca'); i.value=''; renderRecebimentos(); i.focus();
+});
+document.getElementById('rcbExportar').addEventListener('click', () => {
+  const [de, ate] = rcbIntervalo();
+  const q = semAcento(document.getElementById('rcbBusca').value || '');
+  let lista = listarRecebimentos().filter(r => r.date >= de && r.date <= ate);
+  if(q) lista = lista.filter(r => semAcento(r.pagador + ' ' + r.produto).includes(q));
+  lista.sort((a,b) => a.date.localeCompare(b.date));
+  const rows = [['Data','Horário','Pagador','Produto','Parcela','Meio','Valor','Taxa','Líquido','Situação','ID pagamento']];
+  lista.forEach(r => rows.push([fmtDate(r.date), r.hora, r.pagador, r.produto, r.parcela, r.meio,
+    r.valor.toFixed(2), r.taxa.toFixed(2), (r.valor-r.taxa).toFixed(2), r.pend?'aguardando 24h':'confirmado', r.idPag]));
+  downloadCsv(`recebimentos_${de}_a_${ate}.csv`, rows);
+});
 document.querySelectorAll('#reportPeriodPills .pill').forEach(p => {
   p.addEventListener('click', () => {
     document.querySelectorAll('#reportPeriodPills .pill').forEach(x=>x.classList.remove('active'));
@@ -3984,6 +4380,7 @@ function periodRange(period){
 }
 function renderRelatorios(){
   if(!document.getElementById('view-relatorios').classList.contains('active')) return;
+  if(repTabAtiva === 'receb'){ renderRecebimentos(); return; }
   const [start,end] = periodRange(currentReportPeriod);
   // Contas unificadas ficam fora do faturamento (o valor já foi contado nas
   // vendas originais). Aparecem só nos recebíveis, como dívida reorganizada.
