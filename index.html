@@ -665,6 +665,7 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
           <option value="all">Todos os status</option>
           <option value="pago">Pago</option>
           <option value="pendente">Pendente</option>
+          <option value="avencer">Com parcela a vencer</option>
           <option value="atrasado">Com parcela atrasada</option>
         </select>
       </div>
@@ -1056,6 +1057,20 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
       </div>
       <div id="pagAviso" class="pag-aviso" style="display:none;"></div>
       <button class="btn primary" id="pagConfirmar" style="width:100%; justify-content:center;">Confirmar pagamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: COMPARTILHAR EXTRATO APÓS PAGAMENTO -->
+<div class="modal-overlay" id="modalShareExtrato" hidden>
+  <div class="modal-box" style="max-width:380px;">
+    <div class="modal-head"><h2>Pagamento registrado ✓</h2></div>
+    <div class="modal-body">
+      <p id="shareExtratoTxt" style="font-size:14px; color:var(--ink); margin:0 0 16px; line-height:1.6;">Deseja compartilhar o extrato atualizado com o cliente?</p>
+      <div style="display:flex; gap:10px;">
+        <button class="btn ghost" id="shareExtratoNao" style="flex:1; justify-content:center;">Não</button>
+        <button class="btn primary" id="shareExtratoSim" style="flex:1; justify-content:center;">Sim, compartilhar</button>
+      </div>
     </div>
   </div>
 </div>
@@ -2585,7 +2600,13 @@ window.shareSale = async (id) => {
 };
 
 // Desenha o cupom estilo fiscal em um canvas e devolve um Blob JPG
-function buildSaleReceiptImage(sale){
+function buildSaleReceiptImage(saleOriginal){
+  // No extrato do cliente, pagamento aguardando a confirmação de 24h (Leo Maia,
+  // Satsails…) já conta como pago: o cliente pagou, só falta a plataforma liberar.
+  // Trabalha numa CÓPIA — os dados guardados no app não mudam.
+  const sale = JSON.parse(JSON.stringify(saleOriginal));
+  sale.installments.forEach(i => instPayments(i).forEach(p => { p.pending = false; }));
+  recomputeSaleCredits(sale);
   return new Promise((resolve) => {
     const scale = 2; // alta resolução
     const W = 480;
@@ -3033,6 +3054,26 @@ document.getElementById('pagConfirmar').addEventListener('click', async () => {
     toast(instIsPaid(inst) ? 'Parcela quitada ✓' : 'Pagamento parcial registrado ✓');
   }
   renderAll();
+  perguntarCompartilharExtrato(sale.id);
+});
+
+// Pergunta se quer enviar o extrato logo depois de registrar o pagamento
+let shareExtratoVendaId = null;
+function perguntarCompartilharExtrato(saleId){
+  const s = state.sales.find(x => x.id === saleId);
+  if(!s) return;
+  shareExtratoVendaId = saleId;
+  document.getElementById('shareExtratoTxt').innerHTML =
+    `Deseja compartilhar o extrato atualizado${s.client ? ' de <b>' + escapeHtml(s.client) + '</b>' : ''}?`;
+  document.getElementById('modalShareExtrato').hidden = false;
+}
+function fecharShareExtrato(){ document.getElementById('modalShareExtrato').hidden = true; shareExtratoVendaId = null; }
+document.getElementById('shareExtratoNao').addEventListener('click', fecharShareExtrato);
+document.getElementById('modalShareExtrato').addEventListener('click', (e) => { if(e.target.id === 'modalShareExtrato') fecharShareExtrato(); });
+document.getElementById('shareExtratoSim').addEventListener('click', () => {
+  const id = shareExtratoVendaId;
+  fecharShareExtrato();
+  if(id) shareSale(id);   // abre direto o compartilhamento (WhatsApp etc.)
 });
 window.deleteExpense = async (id) => {
   if(!confirm('Excluir esta despesa?')) return;
@@ -3335,7 +3376,10 @@ function renderVendas(){
     if(periodF === 'lastmonth') list = list.filter(s => monthKey(s.date) === lastKey);
     if(periodF === 'year') list = list.filter(s => s.date.slice(0,4) === yearNow);
   }
-  if(statusF !== 'all') list = list.filter(s => saleStatus(s) === statusF);
+  if(statusF === 'avencer'){
+    // vendas que ainda têm parcela por vencer (não paga e com vencimento de hoje em diante)
+    list = list.filter(s => !s.mergedInto && s.installments.some(i => { const st = installmentStatus(i); return st === 'pendente' || st === 'parcial'; }));
+  } else if(statusF !== 'all') list = list.filter(s => saleStatus(s) === statusF);
 
   if(list.length === 0){
     document.getElementById('vendasList').innerHTML = `
