@@ -144,6 +144,10 @@ button{font-family:inherit; cursor:pointer;}
 .logo-actions{display:flex; flex-direction:column; gap:8px;}
 .check-inline{display:flex; align-items:center; gap:8px; cursor:pointer; font-size:13.5px; color:var(--ink-soft);}
 .check-inline input{width:auto; margin:0;}
+.prazo-opcoes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.prazo-op{display:flex; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; padding:10px 12px; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); font:inherit; cursor:pointer;}
+.prazo-op small{font-size:11.5px; color:var(--ink-soft);}
+.prazo-op.on{border-color:var(--primary); background:var(--primary-soft);}
 .pending-badge{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:600; color:var(--gold); background:var(--gold-soft); padding:2px 7px; border-radius:20px; letter-spacing:.02em;}
 .brand .name{font-family:'Fraunces',serif; font-weight:600; font-size:16.5px; line-height:1.15; color:var(--ink);}
 .brand .name small{display:block; font-family:'IBM Plex Sans'; font-weight:400; font-size:11px; color:var(--ink-faint); letter-spacing:.03em;}
@@ -516,6 +520,8 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
 .patri-item .k{display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint);}
 .patri-item b{font-size:17px;}
 .patri-item small{display:block; font-size:12px; color:var(--ink-soft); margin-top:2px;}
+.aporte-txt{font-size:14.5px; line-height:1.6; margin:0 0 14px; color:var(--ink);}
+.aporte-opcoes{display:flex; flex-direction:column; gap:8px;}
 .cr-total{margin-top:10px; font-size:14px; color:var(--ink-soft);}
 .cr-total b{color:var(--ink); font-size:17px;}
 @media (max-width:760px){ .patri-leg{grid-template-columns:1fr;} .patri-total{font-size:24px;} }
@@ -1233,6 +1239,13 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
         <label>Taxa manual (%)</label>
         <input type="number" id="pagTaxaManual" step="0.01" min="0" value="0">
       </div>
+      <div class="field" id="pagPrazoField" style="display:none;">
+        <label>Esse pagamento da Leo Maia…</label>
+        <div class="prazo-opcoes" id="pagPrazoOpcoes">
+          <button type="button" class="prazo-op" data-prazo="imediato"><b>⚡ Caiu na hora</b><small>Entra no caixa agora</small></button>
+          <button type="button" class="prazo-op" data-prazo="24h"><b>⏳ Aguardar 24h</b><small>Pede horário e ID, confirma depois</small></button>
+        </div>
+      </div>
       <div class="field" id="pagConfirmToggleField" style="display:none;">
         <label class="check-inline">
           <input type="checkbox" id="pagConfirmToggle">
@@ -1417,12 +1430,32 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
   </div>
 </div>
 
+<!-- MODAL: APORTE (caixa negativo) -->
+<div class="modal-overlay" id="modalAporte" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <div class="modal-head"><h2>Faltou dinheiro no caixa</h2><button class="icon-btn" id="closeModalAporte" title="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-body">
+      <p class="aporte-txt" id="aporteTxt"></p>
+      <div class="aporte-opcoes">
+        <button class="btn primary" id="aporteAuto" style="justify-content:center;"></button>
+        <button class="btn" id="aporteManualBtn" style="justify-content:center;">Manual (outro valor)</button>
+      </div>
+      <div id="aporteManualBox" hidden style="margin-top:12px;">
+        <div class="field"><label for="aporteValor">Valor do aporte (R$)</label><input type="text" id="aporteValor" inputmode="decimal" placeholder="0,00"></div>
+        <div class="field"><label for="aporteDesc">Origem (opcional)</label><input type="text" id="aporteDesc" placeholder="Ex.: pró-labore da Nordeste Prime"></div>
+        <button class="btn primary" id="aporteSalvar" style="width:100%; justify-content:center;">Registrar aporte</button>
+      </div>
+      <p class="dup-dica" style="margin:12px 0 0;">O aporte entra no caixa e aparece na aba Caixa como entrada, separado do lucro. Se fechar, este aviso volta na próxima vez que abrir o app, até o caixa ficar certo.</p>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL: ATUALIZAR CAIXA REAL -->
 <div class="modal-overlay" id="modalCaixaReal" hidden>
   <div class="modal-box" style="max-width:400px;">
     <div class="modal-head"><h2>Atualizar caixa</h2><button class="icon-btn" id="closeModalCaixaReal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body">
-      <p class="dup-dica">Informe quanto você tem de fato agora. Esse valor entra no Patrimônio somado ao que está na mão dos clientes.</p>
+      <p class="dup-dica">Informe quanto você tem de fato agora. A partir daqui o app soma sozinho os recebimentos e desconta o custo das vendas novas e as despesas.</p>
       <div class="field"><label for="crPix">Saldo em Pix / banco (R$)</label><input type="text" id="crPix" inputmode="decimal" placeholder="0,00"></div>
       <div class="field"><label for="crMao">Dinheiro em mão (R$)</label><input type="text" id="crMao" inputmode="decimal" placeholder="0,00"></div>
       <div class="cr-total">Total em caixa: <b class="mono" id="crTotal">R$ 0,00</b></div>
@@ -2376,6 +2409,7 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
   closeVendaModal();
   toast(existingIdx >= 0 ? 'Venda atualizada ✓' : 'Venda registrada ✓');
   renderAll();
+  setTimeout(() => abrirAporte(false), 400);   // custo maior que o caixa? pergunta do aporte
 });
 
 /* ---------------- Modal: Configurações ---------------- */
@@ -3148,6 +3182,7 @@ function openPagamentoModal(saleId, n){
   document.getElementById('pagTaxaManualField').style.display = (document.getElementById('pagMetodo').value === 'manual') ? 'block' : 'none';
   // reseta campos de confirmação 24h
   document.getElementById('pagConfirmToggle').checked = false;
+  pagPrazo = null;
   document.getElementById('pagHorario').value = '';
   document.getElementById('pagIdPagamento').value = '';
   atualizarCamposConfirmacao();
@@ -3164,13 +3199,27 @@ document.getElementById('pagMetodo').addEventListener('change', (e) => {
 });
 
 // mostra/esconde os campos de horário+ID conforme o meio e a checkbox
+// Leo Maia: alguns pagamentos caem na hora, outros levam 24h — você escolhe a cada pagamento
+let pagPrazo = null;   // 'imediato' | '24h' | null (ainda não escolheu)
+document.getElementById('pagPrazoOpcoes').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-prazo]'); if(!b) return;
+  pagPrazo = b.dataset.prazo;
+  atualizarCamposConfirmacao();
+});
 function atualizarCamposConfirmacao(){
   const metodo = document.getElementById('pagMetodo').value;
-  const exigido = (metodo === 'leomaia' || metodo === 'salsail');
+  const prazoField = document.getElementById('pagPrazoField');
+  prazoField.style.display = metodo === 'leomaia' ? 'block' : 'none';
+  document.querySelectorAll('#pagPrazoOpcoes .prazo-op').forEach(b => b.classList.toggle('on', b.dataset.prazo === pagPrazo));
+  const exigido = metodo === 'salsail' || (metodo === 'leomaia' && pagPrazo === '24h');
   const toggleField = document.getElementById('pagConfirmToggleField');
   const toggle = document.getElementById('pagConfirmToggle');
   const fields = document.getElementById('pagConfirmFields');
-  if(exigido){
+  if(metodo === 'leomaia' && pagPrazo !== '24h'){
+    // Leo Maia "caiu na hora" (ou ainda sem escolha): sem horário/ID
+    toggleField.style.display = 'none';
+    fields.style.display = 'none';
+  }else if(exigido){
     toggleField.style.display = 'none';
     fields.style.display = 'block';
   }else{
@@ -3254,8 +3303,13 @@ document.getElementById('pagConfirmar').addEventListener('click', async () => {
   }
 
   // decide se este pagamento exige confirmação de 24h
-  const exigido = (metodo === 'leomaia' || metodo === 'salsail');
-  const optIn = document.getElementById('pagConfirmToggle').checked;
+  if(metodo === 'leomaia' && !pagPrazo){
+    toast('Escolha se o pagamento da Leo Maia caiu na hora ou vai aguardar 24h.', true);
+    document.getElementById('pagPrazoField').scrollIntoView({ block:'center', behavior:'smooth' });
+    return;
+  }
+  const exigido = metodo === 'salsail' || (metodo === 'leomaia' && pagPrazo === '24h');
+  const optIn = metodo !== 'leomaia' && document.getElementById('pagConfirmToggle').checked;
   const exigeConfirmacao = exigido || optIn;
 
   let pending = false, confirmAt = null, paymentTime = '', paymentId = '';
@@ -3362,6 +3416,7 @@ document.getElementById('formDespesa').addEventListener('submit', async (e) => {
   document.getElementById('despData').value = todayISO();
   toast('Despesa adicionada ✓');
   renderAll();
+  setTimeout(() => abrirAporte(false), 400);
 });
 
 /* ============================================================
@@ -3510,10 +3565,41 @@ function renderAll(){
    Conta unificada tem custo 0: usa a proporção das contas originais que ela juntou. */
 // Caixa real informado por você (Pix + dinheiro em mão). Ponto de partida: 12/11/2026.
 const CAIXA_INICIAL = { pix:1945, mao:300, em:'2026-11-12T22:03:00-03:00' };
+// Quando cada registro foi criado: o código (id) de pagamentos, vendas, despesas e
+// lançamentos guarda o horário em que foi feito. Assim um pagamento antigo que você
+// dá baixa hoje conta como dinheiro que entrou HOJE, depois da última atualização.
+const idTempo = (id) => { const m = /^id_([0-9a-z]+)_/.exec(String(id || '')); return m ? parseInt(m[1], 36) : 0; };
+/* Caixa automático:
+   valor que você informou (Pix + em mão)
+   + recebimentos registrados depois disso (já sem a taxa da plataforma; os de 24h só depois de confirmados)
+   − custo das vendas novas (dinheiro que saiu para o cliente)
+   − despesas lançadas depois disso
+   ± lançamentos manuais da aba Caixa (inclui os aportes)                                   */
 function caixaReal(){
   const c = (state.settings && state.settings.caixaReal) || CAIXA_INICIAL;
   const pix = Number(c.pix) || 0, mao = Number(c.mao) || 0;
-  return { pix, mao, valor: Math.round((pix + mao) * 100) / 100, em: c.em };
+  const base = Math.round((pix + mao) * 100) / 100;
+  const t0 = new Date(c.em).getTime() || 0;
+  const novo = (id) => idTempo(id) > t0;
+  let recebido = 0, emprestado = 0, despesas = 0, aportes = 0, entradasMan = 0, saidasMan = 0, nVendas = 0;
+  for(const s of state.sales){
+    if(!s.unified && novo(s.id)){ emprestado += Number(s.cost) || 0; nVendas++; }
+    for(const i of s.installments) for(const p of instPayments(i)){
+      if(p.pending || !novo(p.id)) continue;
+      recebido += (Number(p.value) || 0) - paymentFeeOf(p);
+    }
+    for(const b of saleBonusList(s)) if(novo(b.id)) recebido += Number(b.value) || 0;
+  }
+  for(const e of state.expenses) if(novo(e.id)) despesas += Number(e.value) || 0;
+  for(const m of state.cashflow){
+    if(!novo(m.id)) continue;
+    const v = Number(m.value) || 0;
+    if(m.kind === 'entrada'){ if(m.aporte) aportes += v; else entradasMan += v; } else saidasMan += v;
+  }
+  const r2 = (v) => Math.round(v * 100) / 100;
+  const valor = r2(base + recebido - emprestado - despesas + aportes + entradasMan - saidasMan);
+  return { pix, mao, base, em: c.em, recebido:r2(recebido), emprestado:r2(emprestado), nVendas, despesas:r2(despesas),
+           aportes:r2(aportes), entradasMan:r2(entradasMan), saidasMan:r2(saidasMan), valor };
 }
 function calcPatrimonio(){
   const caixa = caixaReal().valor;
@@ -3572,9 +3658,17 @@ function renderPatrimonio(){
       ${pc > 0 ? `<i class="cx" style="width:${pc}%"></i>` : ''}${pcli > 0 ? `<i class="cli" style="width:${pcli}%"></i>` : ''}
     </div>
     <div class="patri-leg">
-      <div class="patri-item"><span class="dot cx"></span><div><span class="k">Em caixa · ${pct(cx)}</span><b class="mono">${fmtBRL(p.caixa)}</b>
-        <small>Pix ${fmtBRL(cr.pix)} + em mão ${fmtBRL(cr.mao)}</small>
-        <small class="${dias != null && dias >= 7 ? 'neg' : ''}">${quando}${dias != null && dias >= 7 ? ` · há ${dias} dias, vale atualizar` : ''}</small>
+      <div class="patri-item"><span class="dot cx"></span><div><span class="k">Em caixa · ${pct(cx)}</span><b class="mono ${p.caixa < -0.005 ? 'neg' : ''}">${fmtBRL(p.caixa)}</b>
+        <small>Informado: ${fmtBRL(cr.base)} (Pix ${fmtBRL(cr.pix)} + em mão ${fmtBRL(cr.mao)}) · ${quando}</small>
+        ${(cr.recebido || cr.emprestado || cr.despesas || cr.aportes || cr.entradasMan || cr.saidasMan) ? `<small>Desde então: ${[
+          cr.recebido ? `<span class="pos">+ ${fmtBRL(cr.recebido)} recebido</span>` : '',
+          cr.emprestado ? `<span class="neg">− ${fmtBRL(cr.emprestado)} emprestado (${cr.nVendas} ${cr.nVendas === 1 ? 'venda' : 'vendas'})</span>` : '',
+          cr.despesas ? `<span class="neg">− ${fmtBRL(cr.despesas)} despesas</span>` : '',
+          cr.aportes ? `<span class="pos">+ ${fmtBRL(cr.aportes)} aporte</span>` : '',
+          cr.entradasMan ? `+ ${fmtBRL(cr.entradasMan)} entradas manuais` : '',
+          cr.saidasMan ? `− ${fmtBRL(cr.saidasMan)} saídas manuais` : '',
+        ].filter(Boolean).join(' · ')}</small>` : ''}
+        ${cr.valor < -0.005 ? `<small class="neg"><b>Caixa negativo:</b> saiu mais dinheiro do que havia. <a href="#" onclick="abrirAporte(true);return false;">Registrar aporte</a></small>` : ''}
         <button class="btn small" id="btnAtualizarCaixa" onclick="abrirCaixaReal()" style="margin-top:6px;">Atualizar caixa</button></div></div>
       <div class="patri-item"><span class="dot cli"></span><div><span class="k">Na mão dos clientes · ${pct(p.clientes)}</span><b class="mono">${fmtBRL(p.clientes)}</b>
         <small>${fmtBRL(p.custo)} de custo a recuperar + <span class="pos">${fmtBRL(p.lucro)} de lucro a receber</span>${p.atraso > 0.005 ? ` · <span class="neg">${fmtBRL(p.atraso)} em atraso</span>` : ''}</small></div></div>
@@ -3606,6 +3700,47 @@ document.getElementById('crSalvar').addEventListener('click', async () => {
   toast(`Caixa atualizado: ${fmtBRL(pix + mao)} ✓`);
   renderDashboard();
 });
+
+/* ---- Aporte: quando sai mais dinheiro do que há no caixa ---- */
+let aporteFalta = 0;
+window.abrirAporte = (forcar) => {
+  const cr = caixaReal();
+  if(cr.valor >= -0.005 && !forcar) return;
+  aporteFalta = Math.max(0, Math.round(-cr.valor * 100) / 100);
+  document.getElementById('aporteTxt').innerHTML = aporteFalta > 0
+    ? `Saiu mais dinheiro para os clientes do que havia no caixa. Faltaram <b>${window.fmtBRLReal(aporteFalta)}</b>.<br>Esse dinheiro veio de um aporte seu (por exemplo, pró-labore de outra empresa)?`
+    : 'O caixa não está negativo. Se você colocou dinheiro de fora, registre o valor em Manual.';
+  const auto = document.getElementById('aporteAuto');
+  auto.textContent = `Automático: ${window.fmtBRLReal(aporteFalta)}`;
+  auto.hidden = aporteFalta <= 0;
+  document.getElementById('aporteManualBox').hidden = aporteFalta > 0;
+  document.getElementById('aporteValor').value = aporteFalta > 0 ? fmtCampo(aporteFalta) : '';
+  document.getElementById('aporteDesc').value = '';
+  document.getElementById('modalAporte').hidden = false;
+};
+async function registrarAporte(valor, desc){
+  valor = Math.round((Number(valor) || 0) * 100) / 100;
+  if(valor <= 0){ toast('Informe um valor maior que zero.', true); return; }
+  state.cashflow.push({ id: uid(), date: todayISO(), kind:'entrada', aporte:true,
+    description: 'Aporte' + (desc ? ' — ' + desc : ' de capital'), value: valor });
+  await saveCashflow();
+  document.getElementById('modalAporte').hidden = true;
+  toast(`Aporte de ${window.fmtBRLReal(valor)} registrado ✓`);
+  renderAll();
+}
+document.getElementById('aporteAuto').addEventListener('click', () => registrarAporte(aporteFalta, ''));
+document.getElementById('aporteManualBtn').addEventListener('click', () => {
+  document.getElementById('aporteManualBox').hidden = false;
+  setTimeout(() => { const i = document.getElementById('aporteValor'); i.focus(); i.select(); }, 30);
+});
+document.getElementById('aporteSalvar').addEventListener('click', () => {
+  const v = lerValorBR(document.getElementById('aporteValor').value);
+  if(aporteFalta > 0 && v < aporteFalta - 0.005){
+    if(!confirm(`O valor é menor que o que faltou (${window.fmtBRLReal(aporteFalta)}). O caixa continuará negativo. Registrar assim mesmo?`)) return;
+  }
+  registrarAporte(v, document.getElementById('aporteDesc').value.trim());
+});
+document.getElementById('closeModalAporte').addEventListener('click', () => document.getElementById('modalAporte').hidden = true);
 
 /* ---- Dashboard ---- */
 function renderDashboard(){
@@ -5674,6 +5809,8 @@ async function boot(){
   try{ renderBrand(); }catch(e){ console.warn('renderBrand', e); }
   try{ renderAll(); }catch(e){ console.warn('renderAll', e); }
   try{ processarPendentesVencidos(); }catch(e){ console.warn('pendentes', e); }
+  // caixa negativo: lembra do aporte toda vez que o app abre, até ficar certo
+  setTimeout(() => { try{ abrirAporte(false); }catch(e){ console.warn('aporte', e); } }, 900);
 }
 boot();
 </script>
