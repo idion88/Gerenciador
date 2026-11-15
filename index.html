@@ -522,6 +522,30 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
 .patri-item small{display:block; font-size:12px; color:var(--ink-soft); margin-top:2px;}
 .aporte-txt{font-size:14.5px; line-height:1.6; margin:0 0 14px; color:var(--ink);}
 .aporte-opcoes{display:flex; flex-direction:column; gap:8px;}
+.aporte-opcoes[hidden]{display:none;}
+.origem-opcoes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+.origem-op{padding:9px 10px; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); font:inherit; font-weight:600; cursor:pointer;}
+.origem-op.on{border-color:var(--primary); background:var(--primary-soft);}
+.patri-botoes{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+.patri-bolsos{display:flex; gap:16px; flex-wrap:wrap; margin:4px 0 2px;}
+.patri-bolsos span{display:flex; flex-direction:column;}
+.patri-bolsos i{font-style:normal; font-size:11.5px; color:var(--ink-faint);}
+.patri-bolsos b{font-size:14.5px;}
+.cr-bolso{background:var(--primary-soft); border-radius:12px; padding:10px 12px 6px; margin-bottom:10px;}
+.cr-bolso .field{margin-bottom:6px;}
+.cr-bolso input{font-size:18px; font-weight:700; font-family:'IBM Plex Mono', monospace;}
+.cr-dif.alterado{color:var(--gold); font-weight:600;}
+.cr-calc{background:var(--primary-soft); border-radius:12px; padding:12px 14px; margin-bottom:12px;}
+.cr-calc .k{display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+.cr-calc > b{display:block; font-size:26px; color:var(--ink); margin:2px 0 8px;}
+.cr-calc > b.neg{color:var(--red);}
+.cr-conta div{display:flex; justify-content:space-between; gap:10px; font-size:12.5px; color:var(--ink-soft); padding:3px 0; border-top:1px dashed var(--line);}
+.cr-conta div b{font-family:'IBM Plex Mono', monospace; color:inherit;}
+.cr-conta .pos{color:var(--primary-dark);} .cr-conta .neg{color:var(--red);}
+.cr-conta .vazio{justify-content:flex-start;}
+.cr-botoes{display:grid; grid-template-columns:1.4fr 1fr; gap:8px;}
+.cr-dif{font-size:13px; margin-top:6px; color:var(--ink-soft);}
+.cr-dif.pos{color:var(--primary-dark);} .cr-dif.neg{color:var(--red);}
 .cr-total{margin-top:10px; font-size:14px; color:var(--ink-soft);}
 .cr-total b{color:var(--ink); font-size:17px;}
 @media (max-width:760px){ .patri-leg{grid-template-columns:1fr;} .patri-total{font-size:24px;} }
@@ -1160,6 +1184,13 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
             </select>
           </div>
         </div>
+        <div class="field">
+          <label>O dinheiro emprestado saiu do</label>
+          <div class="origem-opcoes" id="vOrigem">
+            <button type="button" class="origem-op on" data-origem="pix">📲 Pix</button>
+            <button type="button" class="origem-op" data-origem="dinheiro">💵 Dinheiro</button>
+          </div>
+        </div>
         <div class="field-row cols-2">
           <div class="field">
             <label>Valor de custo (R$)</label>
@@ -1433,10 +1464,17 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
 <!-- MODAL: APORTE (caixa negativo) -->
 <div class="modal-overlay" id="modalAporte" hidden>
   <div class="modal-box" style="max-width:420px;">
-    <div class="modal-head"><h2>Faltou dinheiro no caixa</h2><button class="icon-btn" id="closeModalAporte" title="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="modal-head"><h2 id="aporteTitulo">Faltou dinheiro no caixa</h2><button class="icon-btn" id="closeModalAporte" title="Fechar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body">
       <p class="aporte-txt" id="aporteTxt"></p>
-      <div class="aporte-opcoes">
+      <div class="field">
+        <label>O dinheiro entrou no</label>
+        <div class="origem-opcoes" id="aporteOrigem">
+          <button type="button" class="origem-op on" data-origem="pix">📲 Pix</button>
+          <button type="button" class="origem-op" data-origem="dinheiro">💵 Dinheiro</button>
+        </div>
+      </div>
+      <div class="aporte-opcoes" id="aporteOpcoes">
         <button class="btn primary" id="aporteAuto" style="justify-content:center;"></button>
         <button class="btn" id="aporteManualBtn" style="justify-content:center;">Manual (outro valor)</button>
       </div>
@@ -1445,21 +1483,29 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
         <div class="field"><label for="aporteDesc">Origem (opcional)</label><input type="text" id="aporteDesc" placeholder="Ex.: pró-labore da Nordeste Prime"></div>
         <button class="btn primary" id="aporteSalvar" style="width:100%; justify-content:center;">Registrar aporte</button>
       </div>
-      <p class="dup-dica" style="margin:12px 0 0;">O aporte entra no caixa e aparece na aba Caixa como entrada, separado do lucro. Se fechar, este aviso volta na próxima vez que abrir o app, até o caixa ficar certo.</p>
+      <p class="dup-dica" id="aporteRodape" style="margin:12px 0 0;"></p>
     </div>
   </div>
 </div>
 
-<!-- MODAL: ATUALIZAR CAIXA REAL -->
+<!-- MODAL: CONFERIR / ATUALIZAR CAIXA -->
 <div class="modal-overlay" id="modalCaixaReal" hidden>
-  <div class="modal-box" style="max-width:400px;">
-    <div class="modal-head"><h2>Atualizar caixa</h2><button class="icon-btn" id="closeModalCaixaReal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+  <div class="modal-box" style="max-width:440px;">
+    <div class="modal-head"><h2>Conferir caixa</h2><button class="icon-btn" id="closeModalCaixaReal"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
     <div class="modal-body">
-      <p class="dup-dica">Informe quanto você tem de fato agora. A partir daqui o app soma sozinho os recebimentos e desconta o custo das vendas novas e as despesas.</p>
-      <div class="field"><label for="crPix">Saldo em Pix / banco (R$)</label><input type="text" id="crPix" inputmode="decimal" placeholder="0,00"></div>
-      <div class="field"><label for="crMao">Dinheiro em mão (R$)</label><input type="text" id="crMao" inputmode="decimal" placeholder="0,00"></div>
+      <p class="dup-dica">Os valores abaixo já foram atualizados pelo app com os pagamentos e vendas registrados. Confira e altere só o que estiver diferente.</p>
+      <div class="cr-bolso">
+        <div class="field"><label for="crPix">📲 Pix / banco (R$)</label><input type="text" id="crPix" inputmode="decimal" placeholder="0,00"></div>
+        <div class="cr-conta" id="crContaPix"></div>
+      </div>
+      <div class="cr-bolso">
+        <div class="field"><label for="crMao">💵 Dinheiro (R$)</label><input type="text" id="crMao" inputmode="decimal" placeholder="0,00"></div>
+        <div class="cr-conta" id="crContaMao"></div>
+      </div>
       <div class="cr-total">Total em caixa: <b class="mono" id="crTotal">R$ 0,00</b></div>
-      <button class="btn primary" id="crSalvar" style="width:100%; justify-content:center; margin-top:12px;">Salvar caixa</button>
+      <div class="cr-dif" id="crDif"></div>
+      <div class="dup-dica" id="crNegAviso" hidden style="margin:8px 0 0;"></div>
+      <button class="btn primary" id="crSalvar" style="width:100%; justify-content:center; margin-top:12px;">✓ Está certo</button>
     </div>
   </div>
 </div>
@@ -2250,7 +2296,14 @@ function getParcelaDatasFromInputs(){
   return [...document.querySelectorAll('#parcelaDatasList .parcelaDataInput')].map(inp => inp.value);
 }
 
+let vendaOrigem = 'pix';
+function definirOrigemVenda(o){
+  vendaOrigem = o === 'dinheiro' ? 'dinheiro' : 'pix';
+  document.querySelectorAll('#vOrigem .origem-op').forEach(b => b.classList.toggle('on', b.dataset.origem === vendaOrigem));
+}
+document.getElementById('vOrigem').addEventListener('click', (e) => { const b = e.target.closest('[data-origem]'); if(b) definirOrigemVenda(b.dataset.origem); });
 function openVendaModal(saleId=null){
+  definirOrigemVenda('pix');
   const form = document.getElementById('formVenda');
   form.reset();
   document.getElementById('vendaId').value = '';
@@ -2289,6 +2342,7 @@ function openVendaModal(saleId=null){
       document.getElementById('vCusto').value = sale.cost;
       document.getElementById('vVenda').value = sale.sale;
       document.getElementById('vNotas').value = sale.notes || '';
+      definirOrigemVenda(sale.origemCaixa || 'pix');
       if(sale.paymentType === 'parcelado'){
         document.getElementById('parceloFields').style.display = 'block';
         document.getElementById('vParcelas').value = sale.installments.length;
@@ -2390,8 +2444,12 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     return;
   }
 
+  // editar NÃO apaga o que o formulário não mostra (vínculo de cliente, conta unificada, bônus…)
+  const anterior = existingIdx >= 0 ? state.sales[existingIdx] : {};
   const record = {
+    ...anterior,
     id, date,
+    origemCaixa: vendaOrigem,
     product: produto,
     client: document.getElementById('vCliente').value.trim(),
     cpf: document.getElementById('vCpf').value.trim(),
@@ -3575,31 +3633,42 @@ const idTempo = (id) => { const m = /^id_([0-9a-z]+)_/.exec(String(id || '')); r
    − custo das vendas novas (dinheiro que saiu para o cliente)
    − despesas lançadas depois disso
    ± lançamentos manuais da aba Caixa (inclui os aportes)                                   */
+// Para onde vai cada forma de pagamento: dinheiro → Dinheiro; Pix, Leo Maia, Satsails e outros → Pix
+const bolsoDe = (metodo) => metodo === 'dinheiro' ? 'mao' : 'pix';
 function caixaReal(){
   const c = (state.settings && state.settings.caixaReal) || CAIXA_INICIAL;
-  const pix = Number(c.pix) || 0, mao = Number(c.mao) || 0;
-  const base = Math.round((pix + mao) * 100) / 100;
+  // versão anterior podia guardar só o total conferido: entra como Pix
+  const temTotal = c.pix == null && c.total != null && isFinite(Number(c.total));
+  const pix0 = temTotal ? Number(c.total) : (Number(c.pix) || 0), mao0 = temTotal ? 0 : (Number(c.mao) || 0);
   const t0 = new Date(c.em).getTime() || 0;
   const novo = (id) => idTempo(id) > t0;
-  let recebido = 0, emprestado = 0, despesas = 0, aportes = 0, entradasMan = 0, saidasMan = 0, nVendas = 0;
+  const mov = { pix:{ recebido:0, emprestado:0, despesas:0, aportes:0, entradas:0, saidas:0 },
+                mao:{ recebido:0, emprestado:0, despesas:0, aportes:0, entradas:0, saidas:0 } };
+  let nVendas = 0;
   for(const s of state.sales){
-    if(!s.unified && novo(s.id)){ emprestado += Number(s.cost) || 0; nVendas++; }
+    if(!s.unified && novo(s.id)){ mov[s.origemCaixa === 'dinheiro' ? 'mao' : 'pix'].emprestado += Number(s.cost) || 0; nVendas++; }
     for(const i of s.installments) for(const p of instPayments(i)){
       if(p.pending || !novo(p.id)) continue;
-      recebido += (Number(p.value) || 0) - paymentFeeOf(p);
+      mov[bolsoDe(p.method)].recebido += (Number(p.value) || 0) - paymentFeeOf(p);   // Leo Maia já sem a taxa
     }
-    for(const b of saleBonusList(s)) if(novo(b.id)) recebido += Number(b.value) || 0;
+    for(const b of saleBonusList(s)) if(novo(b.id)) mov[bolsoDe(b.method)].recebido += Number(b.value) || 0;
   }
-  for(const e of state.expenses) if(novo(e.id)) despesas += Number(e.value) || 0;
+  for(const e of state.expenses) if(novo(e.id)) mov[e.origemCaixa === 'dinheiro' ? 'mao' : 'pix'].despesas += Number(e.value) || 0;
   for(const m of state.cashflow){
     if(!novo(m.id)) continue;
-    const v = Number(m.value) || 0;
-    if(m.kind === 'entrada'){ if(m.aporte) aportes += v; else entradasMan += v; } else saidasMan += v;
+    const v = Number(m.value) || 0, b = m.origemCaixa === 'dinheiro' ? 'mao' : 'pix';
+    if(m.kind === 'entrada'){ if(m.aporte) mov[b].aportes += v; else mov[b].entradas += v; } else mov[b].saidas += v;
   }
   const r2 = (v) => Math.round(v * 100) / 100;
-  const valor = r2(base + recebido - emprestado - despesas + aportes + entradasMan - saidasMan);
-  return { pix, mao, base, em: c.em, recebido:r2(recebido), emprestado:r2(emprestado), nVendas, despesas:r2(despesas),
-           aportes:r2(aportes), entradasMan:r2(entradasMan), saidasMan:r2(saidasMan), valor };
+  const saldo = (b, ini) => r2(ini + mov[b].recebido - mov[b].emprestado - mov[b].despesas + mov[b].aportes + mov[b].entradas - mov[b].saidas);
+  const soma = (k) => r2(mov.pix[k] + mov.mao[k]);
+  const pixAtual = saldo('pix', pix0), maoAtual = saldo('mao', mao0);
+  return { pix0:r2(pix0), mao0:r2(mao0), base:r2(pix0 + mao0), em:c.em, mov, nVendas,
+           pixAtual, maoAtual, valor:r2(pixAtual + maoAtual),
+           recebido:soma('recebido'), emprestado:soma('emprestado'), despesas:soma('despesas'),
+           aportes:soma('aportes'), entradasMan:soma('entradas'), saidasMan:soma('saidas'),
+           // compatibilidade com o cartão
+           pix:r2(pix0), mao:r2(mao0) };
 }
 function calcPatrimonio(){
   const caixa = caixaReal().valor;
@@ -3659,17 +3728,16 @@ function renderPatrimonio(){
     </div>
     <div class="patri-leg">
       <div class="patri-item"><span class="dot cx"></span><div><span class="k">Em caixa · ${pct(cx)}</span><b class="mono ${p.caixa < -0.005 ? 'neg' : ''}">${fmtBRL(p.caixa)}</b>
-        <small>Informado: ${fmtBRL(cr.base)} (Pix ${fmtBRL(cr.pix)} + em mão ${fmtBRL(cr.mao)}) · ${quando}</small>
-        ${(cr.recebido || cr.emprestado || cr.despesas || cr.aportes || cr.entradasMan || cr.saidasMan) ? `<small>Desde então: ${[
-          cr.recebido ? `<span class="pos">+ ${fmtBRL(cr.recebido)} recebido</span>` : '',
-          cr.emprestado ? `<span class="neg">− ${fmtBRL(cr.emprestado)} emprestado (${cr.nVendas} ${cr.nVendas === 1 ? 'venda' : 'vendas'})</span>` : '',
-          cr.despesas ? `<span class="neg">− ${fmtBRL(cr.despesas)} despesas</span>` : '',
-          cr.aportes ? `<span class="pos">+ ${fmtBRL(cr.aportes)} aporte</span>` : '',
-          cr.entradasMan ? `+ ${fmtBRL(cr.entradasMan)} entradas manuais` : '',
-          cr.saidasMan ? `− ${fmtBRL(cr.saidasMan)} saídas manuais` : '',
-        ].filter(Boolean).join(' · ')}</small>` : ''}
+        <div class="patri-bolsos">
+          <span><i>📲 Pix</i><b class="mono ${cr.pixAtual < -0.005 ? 'neg' : ''}">${fmtBRL(cr.pixAtual)}</b></span>
+          <span><i>💵 Dinheiro</i><b class="mono ${cr.maoAtual < -0.005 ? 'neg' : ''}">${fmtBRL(cr.maoAtual)}</b></span>
+        </div>
+        <small>Conferido ${quando.replace('informado em ', 'em ')}${(cr.recebido || cr.emprestado || cr.despesas || cr.aportes || cr.entradasMan || cr.saidasMan) ? ' · atualizado sozinho desde então' : ''}</small>
         ${cr.valor < -0.005 ? `<small class="neg"><b>Caixa negativo:</b> saiu mais dinheiro do que havia. <a href="#" onclick="abrirAporte(true);return false;">Registrar aporte</a></small>` : ''}
-        <button class="btn small" id="btnAtualizarCaixa" onclick="abrirCaixaReal()" style="margin-top:6px;">Atualizar caixa</button></div></div>
+        <div class="patri-botoes">
+          <button class="btn small" id="btnAtualizarCaixa" onclick="abrirCaixaReal()">Conferir caixa</button>
+          <button class="btn small primary" id="btnAporte" onclick="abrirAporte(true, true)">+ Aporte</button>
+        </div></div></div>
       <div class="patri-item"><span class="dot cli"></span><div><span class="k">Na mão dos clientes · ${pct(p.clientes)}</span><b class="mono">${fmtBRL(p.clientes)}</b>
         <small>${fmtBRL(p.custo)} de custo a recuperar + <span class="pos">${fmtBRL(p.lucro)} de lucro a receber</span>${p.atraso > 0.005 ? ` · <span class="neg">${fmtBRL(p.atraso)} em atraso</span>` : ''}</small></div></div>
     </div>`;
@@ -3677,55 +3745,106 @@ function renderPatrimonio(){
 
 const lerValorBR = (t) => { t = String(t || '').trim().replace(/[R$\s]/g, ''); if(t.includes(',')) t = t.replace(/\./g, '').replace(',', '.'); const v = parseFloat(t); return isFinite(v) && v >= 0 ? v : 0; };
 const fmtCampo = (v) => (Number(v) || 0).toFixed(2).replace('.', ',');
+let crCalc = { pix:0, mao:0 };
+function contaBolso(c, b){
+  const f = window.fmtBRLReal, m = c.mov[b], ini = b === 'pix' ? c.pix0 : c.mao0;
+  const l = [`<div><span>Conferido em ${c.em ? fmtStampLocal(c.em) : '—'}</span><b>${f(ini)}</b></div>`];
+  if(m.recebido) l.push(`<div class="pos"><span>+ Recebido${b === 'pix' ? ' (Pix e Leo Maia, já sem taxa)' : ' em dinheiro'}</span><b>${f(m.recebido)}</b></div>`);
+  if(m.emprestado) l.push(`<div class="neg"><span>− Emprestado em vendas novas</span><b>${f(m.emprestado)}</b></div>`);
+  if(m.despesas) l.push(`<div class="neg"><span>− Despesas</span><b>${f(m.despesas)}</b></div>`);
+  if(m.aportes) l.push(`<div class="pos"><span>+ Aportes</span><b>${f(m.aportes)}</b></div>`);
+  if(m.entradas) l.push(`<div><span>+ Entradas manuais</span><b>${f(m.entradas)}</b></div>`);
+  if(m.saidas) l.push(`<div><span>− Saídas manuais</span><b>${f(m.saidas)}</b></div>`);
+  if(l.length === 1) l.push('<div class="vazio">Sem movimentação desde então</div>');
+  return l.join('');
+}
 window.abrirCaixaReal = () => {
   const c = caixaReal();
-  document.getElementById('crPix').value = fmtCampo(c.pix);
-  document.getElementById('crMao').value = fmtCampo(c.mao);
+  crCalc = { pix:c.pixAtual, mao:c.maoAtual };
+  document.getElementById('crPix').value = fmtCampo(c.pixAtual);
+  document.getElementById('crMao').value = fmtCampo(c.maoAtual);
+  document.getElementById('crContaPix').innerHTML = contaBolso(c, 'pix');
+  document.getElementById('crContaMao').innerHTML = contaBolso(c, 'mao');
   atualizarTotalCaixa();
   document.getElementById('modalCaixaReal').hidden = false;
-  setTimeout(() => { const i = document.getElementById('crPix'); i.focus(); i.select(); }, 50);
 };
 function atualizarTotalCaixa(){
-  document.getElementById('crTotal').textContent = fmtBRL(lerValorBR(document.getElementById('crPix').value) + lerValorBR(document.getElementById('crMao').value));
+  const pixTxt = document.getElementById('crPix').value.trim(), maoTxt = document.getElementById('crMao').value.trim();
+  const neg = (t) => /^-/.test(t);
+  const pix = (neg(pixTxt) ? -1 : 1) * lerValorBR(pixTxt.replace(/^-/, '')), mao = (neg(maoTxt) ? -1 : 1) * lerValorBR(maoTxt.replace(/^-/, ''));
+  const tot = Math.round((pix + mao) * 100) / 100;
+  document.getElementById('crTotal').textContent = window.fmtBRLReal(tot);
+  const dPix = Math.round((pix - crCalc.pix) * 100) / 100, dMao = Math.round((mao - crCalc.mao) * 100) / 100;
+  const mudou = Math.abs(dPix) >= 0.005 || Math.abs(dMao) >= 0.005;
+  const el = document.getElementById('crDif');
+  if(!mudou){ el.className = 'cr-dif'; el.textContent = 'Igual ao que o app calculou.'; }
+  else {
+    const txt = (d, nome) => Math.abs(d) < 0.005 ? '' : `${nome}: ${window.fmtBRLReal(Math.abs(d))} ${d > 0 ? 'a mais' : 'a menos'}`;
+    el.className = 'cr-dif alterado';
+    el.innerHTML = 'Você alterou — ' + [txt(dPix, 'Pix'), txt(dMao, 'Dinheiro')].filter(Boolean).join(' · ');
+  }
+  const btn = document.getElementById('crSalvar');
+  btn.textContent = mudou ? 'Salvar valores corrigidos' : '✓ Está certo';
+  const av = document.getElementById('crNegAviso');
+  av.hidden = !(tot < -0.005);
+  if(tot < -0.005) av.innerHTML = `O caixa está negativo: saiu mais dinheiro do que havia. <a href="#" onclick="document.getElementById('modalCaixaReal').hidden=true; abrirAporte(true); return false;">Registrar um aporte</a> ou corrija os valores.`;
+  btn.disabled = tot < -0.005 && !mudou;
+  return { pix, mao };
 }
 ['crPix', 'crMao'].forEach(id => document.getElementById(id).addEventListener('input', atualizarTotalCaixa));
+['crPix', 'crMao'].forEach(id => document.getElementById(id).addEventListener('focus', (e) => e.target.select()));
 document.getElementById('crMao').addEventListener('keydown', (e) => { if(e.key === 'Enter') document.getElementById('crSalvar').click(); });
 document.getElementById('closeModalCaixaReal').addEventListener('click', () => document.getElementById('modalCaixaReal').hidden = true);
 document.getElementById('modalCaixaReal').addEventListener('click', (e) => { if(e.target.id === 'modalCaixaReal') e.target.hidden = true; });
 document.getElementById('crSalvar').addEventListener('click', async () => {
-  const pix = lerValorBR(document.getElementById('crPix').value), mao = lerValorBR(document.getElementById('crMao').value);
-  state.settings.caixaReal = { pix, mao, em: new Date().toISOString() };
+  const { pix, mao } = atualizarTotalCaixa();
+  state.settings.caixaReal = { pix: Math.round(pix * 100) / 100, mao: Math.round(mao * 100) / 100, em: new Date().toISOString() };
   await saveSettings();
   document.getElementById('modalCaixaReal').hidden = true;
-  toast(`Caixa atualizado: ${fmtBRL(pix + mao)} ✓`);
+  toast(`Caixa conferido: Pix ${window.fmtBRLReal(pix)} · Dinheiro ${window.fmtBRLReal(mao)} ✓`);
   renderDashboard();
 });
 
 /* ---- Aporte: quando sai mais dinheiro do que há no caixa ---- */
 let aporteFalta = 0;
-window.abrirAporte = (forcar) => {
+let aporteOrigem = 'pix';
+function definirOrigemAporte(o){
+  aporteOrigem = o === 'dinheiro' ? 'dinheiro' : 'pix';
+  document.querySelectorAll('#aporteOrigem .origem-op').forEach(b => b.classList.toggle('on', b.dataset.origem === aporteOrigem));
+}
+document.getElementById('aporteOrigem').addEventListener('click', (e) => { const b = e.target.closest('[data-origem]'); if(b) definirOrigemAporte(b.dataset.origem); });
+// forcar = abrir mesmo com caixa positivo · botao = aberto pelo "+ Aporte" (sem aviso de falta)
+window.abrirAporte = (forcar, botao) => {
   const cr = caixaReal();
   if(cr.valor >= -0.005 && !forcar) return;
   aporteFalta = Math.max(0, Math.round(-cr.valor * 100) / 100);
-  document.getElementById('aporteTxt').innerHTML = aporteFalta > 0
+  const avisoFalta = aporteFalta > 0 && !botao;
+  document.getElementById('aporteTitulo').textContent = avisoFalta ? 'Faltou dinheiro no caixa' : 'Registrar aporte';
+  document.getElementById('aporteTxt').innerHTML = avisoFalta
     ? `Saiu mais dinheiro para os clientes do que havia no caixa. Faltaram <b>${window.fmtBRLReal(aporteFalta)}</b>.<br>Esse dinheiro veio de um aporte seu (por exemplo, pró-labore de outra empresa)?`
-    : 'O caixa não está negativo. Se você colocou dinheiro de fora, registre o valor em Manual.';
+    : `Dinheiro que você colocou no negócio vindo de fora (por exemplo, pró-labore de outra empresa) para atender os clientes.${aporteFalta > 0 ? `<br><span class="neg">O caixa está negativo em ${window.fmtBRLReal(aporteFalta)}.</span>` : ''}`;
+  // sugere o bolso que ficou negativo
+  definirOrigemAporte(cr.maoAtual < -0.005 && cr.pixAtual >= -0.005 ? 'dinheiro' : 'pix');
   const auto = document.getElementById('aporteAuto');
   auto.textContent = `Automático: ${window.fmtBRLReal(aporteFalta)}`;
-  auto.hidden = aporteFalta <= 0;
-  document.getElementById('aporteManualBox').hidden = aporteFalta > 0;
-  document.getElementById('aporteValor').value = aporteFalta > 0 ? fmtCampo(aporteFalta) : '';
+  document.getElementById('aporteOpcoes').hidden = !avisoFalta;
+  document.getElementById('aporteManualBox').hidden = avisoFalta;
+  document.getElementById('aporteValor').value = avisoFalta ? fmtCampo(aporteFalta) : '';
   document.getElementById('aporteDesc').value = '';
+  document.getElementById('aporteRodape').textContent = avisoFalta
+    ? 'O aporte entra no caixa e aparece na aba Caixa como entrada, separado do lucro. Se fechar, este aviso volta na próxima vez que abrir o app, até o caixa ficar certo.'
+    : 'O aporte soma no saldo escolhido e aparece na aba Caixa como entrada, separado do lucro.';
   document.getElementById('modalAporte').hidden = false;
+  if(!avisoFalta) setTimeout(() => document.getElementById('aporteValor').focus(), 50);
 };
 async function registrarAporte(valor, desc){
   valor = Math.round((Number(valor) || 0) * 100) / 100;
   if(valor <= 0){ toast('Informe um valor maior que zero.', true); return; }
-  state.cashflow.push({ id: uid(), date: todayISO(), kind:'entrada', aporte:true,
-    description: 'Aporte' + (desc ? ' — ' + desc : ' de capital'), value: valor });
+  state.cashflow.push({ id: uid(), date: todayISO(), kind:'entrada', aporte:true, origemCaixa: aporteOrigem,
+    description: 'Aporte' + (desc ? ' — ' + desc : ' de capital') + (aporteOrigem === 'dinheiro' ? ' (dinheiro)' : ' (Pix)'), value: valor });
   await saveCashflow();
   document.getElementById('modalAporte').hidden = true;
-  toast(`Aporte de ${window.fmtBRLReal(valor)} registrado ✓`);
+  toast(`Aporte de ${window.fmtBRLReal(valor)} no ${aporteOrigem === 'dinheiro' ? 'Dinheiro' : 'Pix'} registrado ✓`);
   renderAll();
 }
 document.getElementById('aporteAuto').addEventListener('click', () => registrarAporte(aporteFalta, ''));
@@ -3733,9 +3852,11 @@ document.getElementById('aporteManualBtn').addEventListener('click', () => {
   document.getElementById('aporteManualBox').hidden = false;
   setTimeout(() => { const i = document.getElementById('aporteValor'); i.focus(); i.select(); }, 30);
 });
+document.getElementById('aporteValor').addEventListener('keydown', (e) => { if(e.key === 'Enter') document.getElementById('aporteSalvar').click(); });
 document.getElementById('aporteSalvar').addEventListener('click', () => {
   const v = lerValorBR(document.getElementById('aporteValor').value);
-  if(aporteFalta > 0 && v < aporteFalta - 0.005){
+  if(v <= 0){ toast('Informe o valor do aporte.', true); document.getElementById('aporteValor').focus(); return; }
+  if(aporteFalta > 0 && v < aporteFalta - 0.005 && !document.getElementById('aporteOpcoes').hidden){
     if(!confirm(`O valor é menor que o que faltou (${window.fmtBRLReal(aporteFalta)}). O caixa continuará negativo. Registrar assim mesmo?`)) return;
   }
   registrarAporte(v, document.getElementById('aporteDesc').value.trim());
