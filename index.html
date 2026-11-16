@@ -526,6 +526,13 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
 .origem-opcoes{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
 .origem-op{padding:9px 10px; border:2px solid var(--line); border-radius:10px; background:var(--card); color:var(--ink); font:inherit; font-weight:600; cursor:pointer;}
 .origem-op.on{border-color:var(--primary); background:var(--primary-soft);}
+#vOrigem{grid-template-columns:1fr 1fr 1fr;}
+.origem-misto{margin-top:10px; background:var(--primary-soft); border-radius:10px; padding:10px 12px;}
+.origem-misto[hidden]{display:none;}
+.origem-misto label{display:block; font-size:12.5px; font-weight:600; margin-bottom:5px; color:var(--ink);}
+.origem-misto input{width:100%;}
+.origem-misto-txt{font-size:12.5px; color:var(--ink-soft); margin-top:6px;}
+.origem-misto-txt.neg{color:var(--red);}
 .patri-botoes{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
 .patri-bolsos{display:flex; gap:16px; flex-wrap:wrap; margin:4px 0 2px;}
 .patri-bolsos span{display:flex; flex-direction:column;}
@@ -1189,6 +1196,12 @@ table.simple th.th-sort:hover, table.simple th.th-sort.on{color:var(--primary-da
           <div class="origem-opcoes" id="vOrigem">
             <button type="button" class="origem-op on" data-origem="pix">📲 Pix</button>
             <button type="button" class="origem-op" data-origem="dinheiro">💵 Dinheiro</button>
+            <button type="button" class="origem-op" data-origem="misto">📲+💵 Os dois</button>
+          </div>
+          <div class="origem-misto" id="vMistoBox" hidden>
+            <label for="vMistoDinheiro">Quanto saiu em dinheiro (R$)</label>
+            <input type="number" class="amount" id="vMistoDinheiro" step="0.01" min="0" placeholder="0,00">
+            <div class="origem-misto-txt" id="vMistoTxt">O resto do custo sai do Pix.</div>
           </div>
         </div>
         <div class="field-row cols-2">
@@ -2296,13 +2309,28 @@ function getParcelaDatasFromInputs(){
   return [...document.querySelectorAll('#parcelaDatasList .parcelaDataInput')].map(inp => inp.value);
 }
 
-let vendaOrigem = 'pix';
+let vendaOrigem = 'pix';   // pix | dinheiro | misto (parte em dinheiro, o resto no Pix)
 function definirOrigemVenda(o){
-  vendaOrigem = o === 'dinheiro' ? 'dinheiro' : 'pix';
+  vendaOrigem = ['dinheiro', 'misto'].includes(o) ? o : 'pix';
   document.querySelectorAll('#vOrigem .origem-op').forEach(b => b.classList.toggle('on', b.dataset.origem === vendaOrigem));
+  document.getElementById('vMistoBox').hidden = vendaOrigem !== 'misto';
+  if(vendaOrigem === 'misto') atualizarMisto();
 }
+// mostra na hora quanto vai sair de cada lado
+function atualizarMisto(){
+  const custo = Number(document.getElementById('vCusto').value) || 0;
+  const din = lerValorBR(document.getElementById('vMistoDinheiro').value);
+  const el = document.getElementById('vMistoTxt'), fmt = window.fmtBRLReal || fmtBRL;
+  if(!custo){ el.textContent = 'Preencha o valor de custo para ver a divisão.'; el.className = 'origem-misto-txt'; return; }
+  if(din > custo + 0.005){ el.textContent = `O valor em dinheiro passa do custo (${fmt(custo)}).`; el.className = 'origem-misto-txt neg'; return; }
+  el.className = 'origem-misto-txt';
+  el.innerHTML = `💵 Dinheiro <b>${fmt(din)}</b> + 📲 Pix <b>${fmt(Math.max(0, custo - din))}</b> = ${fmt(custo)}`;
+}
+document.getElementById('vMistoDinheiro').addEventListener('input', atualizarMisto);
+document.getElementById('vCusto').addEventListener('input', () => { if(vendaOrigem === 'misto') atualizarMisto(); });
 document.getElementById('vOrigem').addEventListener('click', (e) => { const b = e.target.closest('[data-origem]'); if(b) definirOrigemVenda(b.dataset.origem); });
 function openVendaModal(saleId=null){
+  document.getElementById('vMistoDinheiro').value = '';
   definirOrigemVenda('pix');
   const form = document.getElementById('formVenda');
   form.reset();
@@ -2342,6 +2370,7 @@ function openVendaModal(saleId=null){
       document.getElementById('vCusto').value = sale.cost;
       document.getElementById('vVenda').value = sale.sale;
       document.getElementById('vNotas').value = sale.notes || '';
+      document.getElementById('vMistoDinheiro').value = sale.origemCaixa === 'misto' ? String(sale.origemDinheiro || 0) : '';
       definirOrigemVenda(sale.origemCaixa || 'pix');
       if(sale.paymentType === 'parcelado'){
         document.getElementById('parceloFields').style.display = 'block';
@@ -2443,6 +2472,15 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     document.getElementById('vProduto').focus();
     return;
   }
+  let origemDinheiro = 0;
+  if(vendaOrigem === 'misto'){
+    origemDinheiro = Math.round(lerValorBR(document.getElementById('vMistoDinheiro').value) * 100) / 100;
+    if(origemDinheiro <= 0 || origemDinheiro > cost + 0.005){
+      toast(origemDinheiro <= 0 ? 'Informe quanto saiu em dinheiro.' : 'O valor em dinheiro não pode passar do custo.', true);
+      document.getElementById('vMistoDinheiro').focus();
+      return;
+    }
+  }
 
   // editar NÃO apaga o que o formulário não mostra (vínculo de cliente, conta unificada, bônus…)
   const anterior = existingIdx >= 0 ? state.sales[existingIdx] : {};
@@ -2450,6 +2488,7 @@ document.getElementById('formVenda').addEventListener('submit', async (e) => {
     ...anterior,
     id, date,
     origemCaixa: vendaOrigem,
+    origemDinheiro: vendaOrigem === 'misto' ? origemDinheiro : undefined,
     product: produto,
     client: document.getElementById('vCliente').value.trim(),
     cpf: document.getElementById('vCpf').value.trim(),
@@ -3646,7 +3685,14 @@ function caixaReal(){
                 mao:{ recebido:0, emprestado:0, despesas:0, aportes:0, entradas:0, saidas:0 } };
   let nVendas = 0;
   for(const s of state.sales){
-    if(!s.unified && novo(s.id)){ mov[s.origemCaixa === 'dinheiro' ? 'mao' : 'pix'].emprestado += Number(s.cost) || 0; nVendas++; }
+    if(!s.unified && novo(s.id)){
+      const custo = Number(s.cost) || 0;
+      if(s.origemCaixa === 'misto'){
+        const din = Math.min(custo, Math.max(0, Number(s.origemDinheiro) || 0));
+        mov.mao.emprestado += din; mov.pix.emprestado += custo - din;   // parte em dinheiro, o resto no Pix
+      } else mov[s.origemCaixa === 'dinheiro' ? 'mao' : 'pix'].emprestado += custo;
+      nVendas++;
+    }
     for(const i of s.installments) for(const p of instPayments(i)){
       if(p.pending || !novo(p.id)) continue;
       mov[bolsoDe(p.method)].recebido += (Number(p.value) || 0) - paymentFeeOf(p);   // Leo Maia já sem a taxa
