@@ -3666,6 +3666,21 @@ const CAIXA_INICIAL = { pix:1945, mao:300, em:'2026-11-12T22:03:00-03:00' };
 // lançamentos guarda o horário em que foi feito. Assim um pagamento antigo que você
 // dá baixa hoje conta como dinheiro que entrou HOJE, depois da última atualização.
 const idTempo = (id) => { const m = /^id_([0-9a-z]+)_/.exec(String(id || '')); return m ? parseInt(m[1], 36) : 0; };
+// Momento em que um pagamento passou a valer no caixa. Para os de 24h (Leo Maia,
+// Satsails…) é a hora em que você confirmou que caiu — não a hora em que foi
+// registrado. Sem isso, se o caixa fosse conferido enquanto ele estava pendente,
+// ao confirmar ele ficava "mais velho" que a conferência e nunca entrava na soma.
+function tempoNoCaixa(p){
+  const reg = idTempo(p.id);
+  if(p.confirmedAt){ const t = new Date(p.confirmedAt).getTime(); if(t) return Math.max(reg, t); }
+  // confirmados antes desta correção (sem confirmedAt): só podiam cair depois
+  // de completar as 24h a partir do horário informado do pagamento
+  if(p.paymentId && p.paymentTime && p.date){
+    const t24 = new Date(`${p.date}T${p.paymentTime}`).getTime() + 24*60*60*1000;
+    if(t24) return Math.max(reg, t24);
+  }
+  return reg;
+}
 /* Caixa automático:
    valor que você informou (Pix + em mão)
    + recebimentos registrados depois disso (já sem a taxa da plataforma; os de 24h só depois de confirmados)
@@ -3694,7 +3709,7 @@ function caixaReal(){
       nVendas++;
     }
     for(const i of s.installments) for(const p of instPayments(i)){
-      if(p.pending || !novo(p.id)) continue;
+      if(p.pending || !(tempoNoCaixa(p) > t0)) continue;
       mov[bolsoDe(p.method)].recebido += (Number(p.value) || 0) - paymentFeeOf(p);   // Leo Maia já sem a taxa
     }
     for(const b of saleBonusList(s)) if(novo(b.id)) mov[bolsoDe(b.method)].recebido += Number(b.value) || 0;
@@ -5929,6 +5944,8 @@ function processarPendentesVencidos(){
       // confirma: deixa de ser pendente e passa a valer
       p.pending = false;
       delete p.confirmAt;
+      // guarda QUANDO caiu: é a partir desse momento que o dinheiro entra no caixa
+      p.confirmedAt = new Date().toISOString();
       recomputeSaleCredits(sale);
       await saveSales();
     }
